@@ -23,11 +23,14 @@ export const POST: RequestHandler = async ({ request }) => {
 		);
 
 		return yield* Stream.toReadableStreamEffect(
-			jsonStream.pipe(Stream.mapEffect(Schema.encode(ChatEntry)), Stream.tap(Console.log))
+			jsonStream.pipe(
+				Stream.mapEffect(Schema.encode(ChatEntry)),
+				Stream.map((data) => JSON.stringify(data, null, 2))
+			)
 		);
 	});
 
-	const stream = await runtime.runPromise(program.pipe(Effect.scoped));
+	const stream = await runtime.runPromise(program.pipe(Effect.scoped, Effect.withSpan('POST')));
 
 	return new Response(stream);
 };

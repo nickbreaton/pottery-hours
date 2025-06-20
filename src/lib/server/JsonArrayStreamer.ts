@@ -29,10 +29,10 @@ export class JsonArrayStreamer extends Effect.Service<JsonArrayStreamer>()('Json
 
 					yield* Stream.runForEach(textStream, (text) => {
 						return Effect.sync(() => ob.emit('data', text));
-					}).pipe(Effect.fork);
+					}).pipe(Effect.withSpan('runForEach'), Effect.forkDaemon);
 
 					return jsonStream;
-				})
+				}).pipe(Effect.withSpan('JsonArrayStreamer.transform'))
 		};
 	})
 }) {}
