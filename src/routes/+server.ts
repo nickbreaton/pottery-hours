@@ -45,7 +45,8 @@ export const POST: RequestHandler = async ({ request }) => {
 			error = cause;
 		});
 
-		const textStream = (yield* anthropic.send(file)).pipe(
+		const textStream = anthropic.send(file).pipe(
+			Stream.unwrap,
 			Stream.transduce(
 				Sink.fromChannel(
 					Channel.readWith({
