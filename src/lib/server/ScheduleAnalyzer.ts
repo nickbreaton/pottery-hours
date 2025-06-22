@@ -11,7 +11,7 @@ import {
 	Layer
 } from 'effect';
 import { AiLanguageModel, AiInput } from '@effect/ai';
-import { ScheduleDay } from './schema';
+import { ScheduleDay } from '../schema';
 import { JsonStreamParser } from './JsonStreamParser';
 import { OpenAiLanguageModel } from '@effect/ai-openai';
 import dedent from 'dedent';

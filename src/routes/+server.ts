@@ -2,7 +2,7 @@ import { runtime } from '$lib/server/runtime';
 import { Effect, Schema, Stream } from 'effect';
 import { ScheduleAnalyzer } from '$lib/server/ScheduleAnalyzer';
 import type { RequestHandler } from './$types';
-import { URLFromSpreadsheetId } from '$lib/server/schema';
+import { URLFromSpreadsheetId } from '$lib/schema';
 import { GoogleSheetsClient } from '$lib/server/GoogleSheetsClient';
 
 export const POST: RequestHandler = async ({ request, url }) => {

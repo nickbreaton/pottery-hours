@@ -1,6 +1,6 @@
 import { HttpClient, HttpClientResponse, HttpClientRequest, FileSystem } from '@effect/platform';
 import { Effect, Layer, Schema } from 'effect';
-import { URLFromSpreadsheetId } from './schema';
+import { URLFromSpreadsheetId } from '../schema';
 
 export class GoogleSheetsClient extends Effect.Service<GoogleSheetsClient>()('GoogleSheetsClient', {
 	effect: Effect.gen(function* () {
