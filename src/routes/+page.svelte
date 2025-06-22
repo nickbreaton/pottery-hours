@@ -6,7 +6,7 @@
 	import { Console, Effect, Schema, Stream, Chunk } from 'effect';
 </script>
 
-<div class="space-y-6 sm:space-y-10">
+<div class="touch-manipulation space-y-6 sm:space-y-10">
 	<div class="flex justify-between gap-3">
 		<div class="space-y-2">
 			<h1 class="max-w-xs scroll-m-20 text-3xl font-bold tracking-tight text-balance sm:max-w-lg">
@@ -19,7 +19,7 @@
 			</p>
 		</div>
 
-		<div class="relative w-32 sm:shrink-0">
+		<div class="relative w-32 opacity-80 sm:shrink-0">
 			<Logo
 				class="text-accent-foreground absolute w-full shrink-0 translate-x-[8%] translate-y-2 scale-120 rotate-[4deg] sm:-translate-y-3 sm:scale-110"
 			/>
@@ -37,7 +37,7 @@
 					<nav class="flex justify-between">
 						<span>This is the calendar, controls go here...</span>
 						<button
-							class="bg-primary text-primary-foreground cursor-pointer items-stretch rounded-md px-2 py-1 text-sm font-medium"
+							class="bg-primary text-primary-foreground cursor-pointer items-stretch rounded-md px-2 py-1 text-sm font-medium text-nowrap"
 						>
 							Add to your calendar
 						</button>
