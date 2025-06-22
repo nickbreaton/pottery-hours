@@ -2,16 +2,19 @@ import { runtime } from '$lib/server/runtime';
 import { Effect, Schema, Stream } from 'effect';
 import { ScheduleAnalyzer } from '$lib/server/ScheduleAnalyzer';
 import type { RequestHandler } from './$types';
-import { PdfFile } from '$lib/server/schema';
+import { URLFromSpreadsheetId } from '$lib/server/schema';
+import { GoogleSheetsClient } from '$lib/server/GoogleSheetsClient';
 
 export const POST: RequestHandler = async ({ request, url }) => {
 	const program = Effect.gen(function* () {
 		const scheduleAnalyzer = yield* ScheduleAnalyzer;
+		const googleSheetsClient = yield* GoogleSheetsClient;
 
 		const formData = yield* Effect.promise(() => request.formData());
-		const file = yield* Schema.decodeUnknown(PdfFile)(formData.get('file'));
+		const spreadsheetId = yield* Schema.decodeUnknown(URLFromSpreadsheetId)(formData.get('url'));
+		const spreadsheetFileData = yield* googleSheetsClient.download(spreadsheetId);
 
-		return scheduleAnalyzer.getSchedule(file).pipe(
+		return scheduleAnalyzer.getSchedule(spreadsheetFileData).pipe(
 			Stream.map(JSON.stringify),
 			Stream.tapErrorCause((error) => Effect.logError('Stream failed with error', error)),
 			Stream.toReadableStream

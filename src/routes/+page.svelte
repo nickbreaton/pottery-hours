@@ -7,7 +7,6 @@
 
 <form
 	method="POST"
-	enctype="multipart/form-data"
 	onsubmit={async (event) => {
 		event.preventDefault();
 
@@ -26,6 +25,11 @@
 	}}
 >
 	<div>Upload a PDF copy</div>
-	<input type="file" name="file" accept=".pdf" class="border" />
+	<input
+		type="text"
+		name="url"
+		value="https://docs.google.com/spreadsheets/d/1Zh5blbFTgcDrdcQbswhbvtJFKRqepMPlNDcPK6K05bY/edit?pli=1&gid=0#gid=0"
+		class="border"
+	/>
 	<button type="submit">Submit</button>
 </form>

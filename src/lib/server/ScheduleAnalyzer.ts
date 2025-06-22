@@ -1,4 +1,14 @@
-import { Array, Effect, Schema, Stream, Chunk, ParseResult, DateTime } from 'effect';
+import {
+	Array,
+	Effect,
+	Schema,
+	Stream,
+	Chunk,
+	ParseResult,
+	DateTime,
+	Schedule,
+	Duration
+} from 'effect';
 import { AiLanguageModel, AiInput } from '@effect/ai';
 import { ScheduleDay } from './schema';
 import { JsonStreamParser } from './JsonStreamParser';
@@ -27,11 +37,14 @@ const GENERIC_CONTEXT = dedent`
 export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('ScheduleAnalyzer', {
 	dependencies: [
 		AnthropicLanguageModel.layer({
-			model: 'claude-4-sonnet-20250514'
+			model: 'claude-3-5-sonnet-latest'
 		})
+		// AnthropicLanguageModel.layer({
+		// 	model: 'claude-4-sonnet-20250514'
+		// })
 		// OpenAiLanguageModel.layer({
 		// 	model: 'gpt-4'
-		// }),
+		// })
 	],
 	effect: Effect.gen(function* () {
 		const model = yield* AiLanguageModel.AiLanguageModel;
@@ -112,11 +125,11 @@ export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('Schedu
 		};
 
 		return {
-			getSchedule: (file: File) =>
+			getSchedule: (fileData: Uint8Array) =>
 				Effect.gen(function* () {
 					const filePart = AiInput.FilePart.make({
 						mediaType: 'application/pdf',
-						data: yield* Effect.promise(() => file.bytes())
+						data: fileData
 					});
 
 					const { weeks } = yield* getNumberOfWeeks(filePart);

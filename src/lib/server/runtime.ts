@@ -6,12 +6,14 @@ import { DevTools } from '@effect/experimental';
 import { NodeSocket } from '@effect/platform-node';
 import { AnthropicClient, AnthropicLanguageModel } from '@effect/ai-anthropic';
 import { OpenAiClient } from '@effect/ai-openai';
+import { GoogleSheetsClient } from './GoogleSheetsClient';
 
 const DevToolsLive = DevTools.layerWebSocket().pipe(
 	Layer.provide(NodeSocket.layerWebSocketConstructor)
 );
 
 const layers = ScheduleAnalyzer.Default.pipe(
+	Layer.merge(GoogleSheetsClient.Default),
 	Layer.provide(
 		AnthropicClient.layerConfig({
 			apiKey: Config.redacted('ANTHROPIC_API_KEY')
@@ -22,7 +24,7 @@ const layers = ScheduleAnalyzer.Default.pipe(
 			apiKey: Config.redacted('OPENAI_API_KEY')
 		})
 	),
-	Layer.provide(FetchHttpClient.layer),
+	Layer.provideMerge(FetchHttpClient.layer),
 	Layer.provide(Layer.setConfigProvider(ConfigProvider.fromJson(env))),
 	Layer.provide(DevToolsLive)
 );
