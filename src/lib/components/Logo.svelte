@@ -7,7 +7,7 @@
 	xmlns="http://www.w3.org/2000/svg"
 	xmlns:xlink="http://www.w3.org/1999/xlink"
 	viewBox="0 0 400 400"
-	class="wobble-slow {className}"
+	class={className}
 	><g
 		><path
 			id="path0"
@@ -42,20 +42,3 @@
 		></path></g
 	></svg
 >
-
-<style>
-	@keyframes wobble {
-		0%,
-		100% {
-			transform: rotate(3deg);
-		}
-		50% {
-			transform: rotate(8deg);
-		}
-	}
-
-	.wobble-slow {
-		animation: wobble 10s cubic-bezier(0.85, 0.09, 0.15, 0.91) infinite;
-		display: inline-block; /* Ensures transform works as expected */
-	}
-</style>
