@@ -1,20 +1,25 @@
 <script lang="ts">
 	import { runtime } from '$lib/client/runtime';
+	import Logo from '$lib/components/Logo.svelte';
 	import { ScheduleDay } from '$lib/schema';
 	import { HttpBody, HttpClient } from '@effect/platform';
 	import { Console, Effect, Schema, Stream, Chunk } from 'effect';
 </script>
 
 <div class="space-y-4">
-	<div class="space-y-2">
-		<h1 class="max-w-xs scroll-m-20 text-3xl font-bold tracking-tight text-balance sm:max-w-lg">
-			Pottery Calendar Assistant
-		</h1>
+	<div class="flex">
+		<div class="space-y-2">
+			<h1 class="max-w-xs scroll-m-20 text-3xl font-bold tracking-tight text-balance sm:max-w-lg">
+				Pottery Calendar Assistant
+			</h1>
 
-		<p class="text-muted-foreground max-w-md">
-			Add a link to the Google Sheet with your pottery schedule and I’ll help add it to your
-			calendar.
-		</p>
+			<p class="text-muted-foreground max-w-md">
+				Add a link to the Google Sheet with your pottery schedule and I’ll help add it to your
+				calendar.
+			</p>
+		</div>
+
+		<Logo class="text-accent-foreground w-24 scale-[1.2] mix-blend-plus-darker not-sm:hidden" />
 	</div>
 
 	<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
