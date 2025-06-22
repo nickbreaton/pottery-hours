@@ -28,7 +28,6 @@
 		"vite": "^6.2.6"
 	},
 	"dependencies": {
-		"@anthropic-ai/sdk": "^0.54.0",
 		"@effect/ai": "^0.19.4",
 		"@effect/ai-anthropic": "^0.9.5",
 		"@effect/ai-openai": "^0.22.4",
@@ -37,10 +36,8 @@
 		"@effect/platform": "^0.85.2",
 		"@effect/platform-node": "^0.86.4",
 		"@types/oboe": "^2.1.4",
-		"@types/stream-json": "^1.7.8",
 		"dedent": "^1.6.0",
 		"effect": "^3.16.8",
-		"oboe": "^2.1.7",
-		"stream-json": "^1.9.1"
+		"oboe": "^2.1.7"
 	}
 }
