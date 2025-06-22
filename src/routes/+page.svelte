@@ -7,9 +7,7 @@
 
 <div class="space-y-4">
 	<div class="space-y-2">
-		<h1
-			class="max-w-xs scroll-m-20 text-3xl font-extrabold tracking-tight text-balance sm:max-w-lg"
-		>
+		<h1 class="max-w-xs scroll-m-20 text-3xl font-bold tracking-tight text-balance sm:max-w-lg">
 			Pottery Calendar Assistant
 		</h1>
 
@@ -48,7 +46,7 @@
 					placeholder="https://docs.google.com/spreadsheets/d/..."
 					value="https://docs.google.com/spreadsheets/d/1Zh5blbFTgcDrdcQbswhbvtJFKRqepMPlNDcPK6K05bY/edit?pli=1&gid=0#gid=0"
 					class={[
-						'file:text-foreground placeholder:text-muted-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+						'file:text-foreground placeholder:text-muted-foreground dark:bg-input/30 border-input bg-card flex h-9 w-full min-w-0 rounded-sm border px-3 py-6 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
 						'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
 						'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive'
 					]}
