@@ -1,9 +1,9 @@
-import { Array, Effect, Schema, Stream, Chunk } from 'effect';
+import { Array, Effect, Schema, Stream, Chunk, ParseResult } from 'effect';
 import { AiLanguageModel, AiInput } from '@effect/ai';
 import { ScheduleDay } from './schema';
 import { JsonStreamParser } from './JsonStreamParser';
-import dedent from 'dedent';
 import { AnthropicLanguageModel } from '@effect/ai-anthropic';
+import dedent from 'dedent';
 
 // Important so that we don't make way too many requests to the Anthropic
 const MAX_WEEKS = 18;
@@ -30,17 +30,10 @@ export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('Schedu
 	effect: Effect.gen(function* () {
 		const model = yield* AiLanguageModel.AiLanguageModel;
 
-		const makeFileInput = Effect.fn(function* (file: File) {
-			return AiInput.FilePart.make({
-				mediaType: 'application/pdf',
-				data: yield* Effect.promise(() => file.bytes())
-			});
-		});
-
-		const getNumberOfWeeks = Effect.fn(function* (file: File) {
+		const getNumberOfWeeks = Effect.fn(function* (filePart: AiInput.FilePart) {
 			const prompt = AiInput.UserMessage.make({
 				parts: [
-					yield* makeFileInput(file),
+					filePart,
 					AiInput.TextPart.make({
 						text: dedent`
 							${GENERIC_CONTEXT}
@@ -70,10 +63,10 @@ export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('Schedu
 			return yield* Schema.decodeUnknown(responseSchema)(text);
 		});
 
-		const getDaysForWeek = Effect.fn(function* (file: File, week: number) {
+		const getDaysForWeek = (filePart: AiInput.FilePart, week: number) => {
 			const prompt = AiInput.UserMessage.make({
 				parts: [
-					yield* makeFileInput(file),
+					filePart,
 					AiInput.TextPart.make({
 						text: dedent`
 								${GENERIC_CONTEXT}
@@ -87,10 +80,6 @@ export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('Schedu
 									{ "month": "January", "day": 1, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] },
 									{ "month": "January", "day": 2, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] },
 									{ "month": "January", "day": 3, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] },
-									{ "month": "January", "day": 4, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] },
-									{ "month": "January", "day": 5, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] },
-									{ "month": "January", "day": 6, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] },
-									{ "month": "January", "day": 7, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] }
 								]
 							`
 					})
@@ -102,20 +91,24 @@ export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('Schedu
 				Stream.transduce(JsonStreamParser.makeSink(ScheduleDay)),
 				Stream.flattenChunks
 			);
-		});
+		};
 
 		return {
-			getSchedule(file: File) {
-				return getNumberOfWeeks(file).pipe(
-					Effect.andThen(({ weeks }) => {
-						const streams = Array.range(1, weeks).map((week) =>
-							Stream.unwrap(getDaysForWeek(file, week))
-						);
-						return Stream.mergeAll({ concurrency: 'unbounded' })(streams);
-					}),
-					Stream.unwrap
-				);
-			}
+			getSchedule: (file: File) =>
+				Effect.gen(function* () {
+					const filePart = AiInput.FilePart.make({
+						mediaType: 'application/pdf',
+						data: yield* Effect.promise(() => file.bytes())
+					});
+
+					const { weeks } = yield* getNumberOfWeeks(filePart);
+
+					const streams = Array.range(1, weeks).map((week) => {
+						return getDaysForWeek(filePart, week);
+					});
+
+					return Stream.mergeAll({ concurrency: 'unbounded' })(streams);
+				}).pipe(Stream.unwrap)
 		};
 	})
 }) {}

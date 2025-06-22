@@ -1,6 +1,6 @@
-import { Schema as S } from 'effect';
+import { Schema } from 'effect';
 
-export const Month = S.Literal(
+export const Month = Schema.Literal(
 	'January',
 	'February',
 	'March',
@@ -15,20 +15,28 @@ export const Month = S.Literal(
 	'December'
 );
 
-export const Meridiem = S.Literal('AM', 'PM');
+export const Meridiem = Schema.Literal('AM', 'PM');
 
-export class ScheduleDay extends S.Class<ScheduleDay>('ScheduleDay')({
+export class ScheduleDay extends Schema.Class<ScheduleDay>('ScheduleDay')({
 	month: Month,
-	day: S.Number,
-	label: S.String,
-	hours: S.Array(
-		S.Struct({
-			start_hour: S.Number,
-			start_minute: S.Number,
+	day: Schema.Number,
+	label: Schema.String,
+	hours: Schema.Array(
+		Schema.Struct({
+			start_hour: Schema.Number,
+			start_minute: Schema.Number,
 			start_meridiem: Meridiem,
-			end_hour: S.Number,
-			end_minute: S.Number,
+			end_hour: Schema.Number,
+			end_minute: Schema.Number,
 			end_meridiem: Meridiem
 		})
 	)
 }) {}
+
+export const FileFromSelf = Schema.declare((input: unknown): input is File => {
+	return input instanceof File;
+});
+
+export const PdfFile = FileFromSelf.pipe(Schema.filter((file) => file.type === 'application/pdf'));
+
+export type PdfFile = typeof PdfFile.Type;
