@@ -12,8 +12,7 @@ const DevToolsLive = DevTools.layerWebSocket().pipe(
 	Layer.provide(NodeSocket.layerWebSocketConstructor)
 );
 
-const layers = ScheduleAnalyzer.DevelopmentMock.pipe(
-	Layer.merge(GoogleSheetsClient.DevelopmentMock),
+const live = Layer.mergeAll(ScheduleAnalyzer.Default, GoogleSheetsClient.Default).pipe(
 	Layer.provide(
 		AnthropicClient.layerConfig({
 			apiKey: Config.redacted('ANTHROPIC_API_KEY')
@@ -26,8 +25,16 @@ const layers = ScheduleAnalyzer.DevelopmentMock.pipe(
 	),
 	Layer.provideMerge(FetchHttpClient.layer),
 	Layer.provide(Layer.setConfigProvider(ConfigProvider.fromJson(env))),
+	Layer.provide(DevToolsLive) // TODO: split out from deployed
+);
+
+const mock = Layer.mergeAll(
+	ScheduleAnalyzer.DevelopmentMock,
+	GoogleSheetsClient.DevelopmentMock
+).pipe(
+	Layer.provide(Layer.setConfigProvider(ConfigProvider.fromJson(env))),
 	Layer.provide(DevToolsLive),
 	Layer.provide(NodeContext.layer)
 );
 
-export const runtime = ManagedRuntime.make(layers);
+export const runtime = ManagedRuntime.make(live);
