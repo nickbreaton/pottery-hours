@@ -1,19 +1,23 @@
-import { ConfigProvider, Layer, ManagedRuntime } from 'effect';
-import { AnthropicClient } from './AnthropicClient';
+import { Config, ConfigProvider, Layer, ManagedRuntime } from 'effect';
+import { ScheduleAnalyzer } from './ScheduleAnalyzer';
 import { FetchHttpClient } from '@effect/platform';
 import { env } from '$env/dynamic/private';
-import { Base64 } from './Base64';
 import { DevTools } from '@effect/experimental';
 import { NodeSocket } from '@effect/platform-node';
+import { AnthropicClient, AnthropicLanguageModel } from '@effect/ai-anthropic';
 
 const DevToolsLive = DevTools.layerWebSocket().pipe(
 	Layer.provide(NodeSocket.layerWebSocketConstructor)
 );
 
-const layers = AnthropicClient.Default.pipe(
+const layers = ScheduleAnalyzer.Default.pipe(
+	Layer.provide(
+		AnthropicClient.layerConfig({
+			apiKey: Config.redacted('ANTHROPIC_API_KEY')
+		})
+	),
 	Layer.provide(FetchHttpClient.layer),
 	Layer.provide(Layer.setConfigProvider(ConfigProvider.fromJson(env))),
-	Layer.merge(Base64.Default),
 	Layer.provide(DevToolsLive)
 );
 

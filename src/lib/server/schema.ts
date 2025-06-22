@@ -17,7 +17,7 @@ export const Month = S.Literal(
 
 export const Meridiem = S.Literal('AM', 'PM');
 
-export class ChatEntry extends S.Class<ChatEntry>('ChatEntry')({
+export class ScheduleDay extends S.Class<ScheduleDay>('ScheduleDay')({
 	month: Month,
 	day: S.Number,
 	label: S.String,
