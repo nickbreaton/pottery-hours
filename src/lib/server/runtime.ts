@@ -1,6 +1,6 @@
-import { Config, ConfigProvider, Layer, ManagedRuntime } from 'effect';
+import { Config, ConfigProvider, Effect, Layer, ManagedRuntime } from 'effect';
 import { ScheduleAnalyzer } from './ScheduleAnalyzer';
-import { FetchHttpClient } from '@effect/platform';
+import { FetchHttpClient, HttpClient } from '@effect/platform';
 import { env } from '$env/dynamic/private';
 import { DevTools } from '@effect/experimental';
 import { NodeSocket } from '@effect/platform-node';
@@ -12,6 +12,11 @@ const DevToolsLive = DevTools.layerWebSocket().pipe(
 );
 
 const layers = ScheduleAnalyzer.Default.pipe(
+	Layer.provide(
+		AnthropicClient.layerConfig({
+			apiKey: Config.redacted('ANTHROPIC_API_KEY')
+		})
+	),
 	Layer.provide(
 		OpenAiClient.layerConfig({
 			apiKey: Config.redacted('OPENAI_API_KEY')

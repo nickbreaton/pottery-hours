@@ -4,6 +4,7 @@ import { ScheduleDay } from './schema';
 import { JsonStreamParser } from './JsonStreamParser';
 import { OpenAiLanguageModel } from '@effect/ai-openai';
 import dedent from 'dedent';
+import { AnthropicLanguageModel } from '@effect/ai-anthropic';
 
 // Important so that we don't make way too many requests to the Anthropic
 const MAX_WEEKS = 18;
@@ -25,9 +26,12 @@ const GENERIC_CONTEXT = dedent`
 
 export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('ScheduleAnalyzer', {
 	dependencies: [
-		OpenAiLanguageModel.layer({
-			model: 'o1'
+		AnthropicLanguageModel.layer({
+			model: 'claude-4-sonnet-20250514'
 		})
+		// OpenAiLanguageModel.layer({
+		// 	model: 'gpt-4'
+		// }),
 	],
 	effect: Effect.gen(function* () {
 		const model = yield* AiLanguageModel.AiLanguageModel;
@@ -47,6 +51,8 @@ export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('Schedu
 							Here is an example of the JSON format:
 
 							{ "weeks": 4 }
+
+							DO NOT INCLUDE ANY OTHER TEXT IN THE RESPONSE OTHER THAN JSON.
 					`
 					})
 				]
