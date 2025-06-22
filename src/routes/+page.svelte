@@ -6,7 +6,7 @@
 	import { Console, Effect, Schema, Stream, Chunk } from 'effect';
 </script>
 
-<div class="space-y-4">
+<div class="space-y-6 sm:space-y-10">
 	<div class="flex justify-between">
 		<div class="space-y-2">
 			<h1 class="max-w-xs scroll-m-20 text-3xl font-bold tracking-tight text-balance sm:max-w-lg">
@@ -14,18 +14,39 @@
 			</h1>
 
 			<p class="text-muted-foreground max-w-md">
-				Add a link to the Google Sheet with your pottery schedule and I’ll help add it to your
-				calendar.
+				Thud, whirr, clink... I’ve fired a calendar feed for you from the latest
+				Oddessy&nbsp;ClassWorks schedules.
 			</p>
 		</div>
 
-		<div class="relative w-36 not-sm:hidden">
-			<Logo class="text-accent-foreground absolute w-36 shrink-0 -translate-y-3 rotate-[4deg]" />
+		<div class="relative w-32 not-sm:hidden">
+			<Logo
+				class="text-accent-foreground absolute w-32 shrink-0 -translate-y-3 scale-110 rotate-[4deg]"
+			/>
 		</div>
 	</div>
 
-	<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+	<div class="grid grid-cols-1 gap-4">
+		<div class="space-y-2">
+			<!-- <button>View Schedule</button> -->
+			<div class="flex justify-between">
+				<h2 class="text-2xl font-bold tracking-tight text-balance">Schedule</h2>
+			</div>
+			<div class="flex items-start justify-between gap-4">
+				<section class="bg-card min-h-[500px] grow rounded-lg border p-4 shadow">
+					<nav class="flex justify-between">
+						<span>This is the calendar, controls go here...</span>
+						<button
+							class="bg-primary text-primary-foreground cursor-pointer items-stretch rounded-md px-2 py-1 text-sm font-medium"
+						>
+							Add to your calendar
+						</button>
+					</nav>
+				</section>
+			</div>
+		</div>
 		<form
+			hidden
 			method="POST"
 			onsubmit={async (event) => {
 				event.preventDefault();
