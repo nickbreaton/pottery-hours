@@ -7,7 +7,7 @@
 </script>
 
 <div class="space-y-6 sm:space-y-10">
-	<div class="flex justify-between">
+	<div class="flex justify-between gap-3">
 		<div class="space-y-2">
 			<h1 class="max-w-xs scroll-m-20 text-3xl font-bold tracking-tight text-balance sm:max-w-lg">
 				Pottery Calendar Assistant
@@ -19,9 +19,9 @@
 			</p>
 		</div>
 
-		<div class="relative w-32 not-sm:hidden">
+		<div class="relative w-32 sm:shrink-0">
 			<Logo
-				class="text-accent-foreground absolute w-32 shrink-0 -translate-y-3 scale-110 rotate-[4deg]"
+				class="text-accent-foreground absolute w-full shrink-0 translate-x-[8%] translate-y-2 scale-120 rotate-[4deg] sm:-translate-y-3 sm:scale-110"
 			/>
 		</div>
 	</div>
