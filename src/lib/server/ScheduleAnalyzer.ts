@@ -1,11 +1,14 @@
-import { Effect, Stream } from 'effect';
+import { Array, Effect, Schema, Stream, Chunk } from 'effect';
 import { AiLanguageModel, AiInput } from '@effect/ai';
 import { ScheduleDay } from './schema';
 import { JsonStreamParser } from './JsonStreamParser';
 import dedent from 'dedent';
 import { AnthropicLanguageModel } from '@effect/ai-anthropic';
 
-const genericContext = dedent`
+// Important so that we don't make way too many requests to the Anthropic
+const MAX_WEEKS = 18;
+
+const GENERIC_CONTEXT = dedent`
 	This is a PDF representation of a pottery studio schedule for open hours.
 	It's organized into blocks of time for a given day.
 	There can sometimes be multiple blocks of time per day.
@@ -27,40 +30,92 @@ export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('Schedu
 	effect: Effect.gen(function* () {
 		const model = yield* AiLanguageModel.AiLanguageModel;
 
-		const makeFileInput = (file: File) =>
-			Effect.gen(function* () {
-				return AiInput.FilePart.make({
-					mediaType: 'application/pdf',
-					data: yield* Effect.promise(() => file.bytes())
-				});
+		const makeFileInput = Effect.fn(function* (file: File) {
+			return AiInput.FilePart.make({
+				mediaType: 'application/pdf',
+				data: yield* Effect.promise(() => file.bytes())
+			});
+		});
+
+		const getNumberOfWeeks = Effect.fn(function* (file: File) {
+			const prompt = AiInput.UserMessage.make({
+				parts: [
+					yield* makeFileInput(file),
+					AiInput.TextPart.make({
+						text: dedent`
+							${GENERIC_CONTEXT}
+
+							Parse this document and return in a JSON format the number of weeks that have at least one day with hours defined.
+							DO NOT INCLUDE ANYTHING OTHER THAN WHATS SHOWN IN THE EXAMPLE.
+
+							Here is an example of the JSON format:
+
+							{ "weeks": 4 }
+					`
+					})
+				]
 			});
 
-		return {
-			getDaysForWeek: Effect.fn(function* (file: File, week: number) {
-				const prompt = AiInput.UserMessage.make({
-					parts: [
-						yield* makeFileInput(file),
-						AiInput.TextPart.make({
-							text: dedent`
-								${genericContext}
+			const text = yield* model.streamText({ prompt }).pipe(
+				// Manually collecting text from a stream as to avoid `generateText` which appears to have a bug
+				Stream.runCollect,
+				Effect.andThen(Chunk.map((text) => text.text)),
+				Effect.andThen(Chunk.join(''))
+			);
+
+			const responseSchema = Schema.parseJson(
+				Schema.Struct({ weeks: Schema.Number.pipe(Schema.lessThanOrEqualTo(MAX_WEEKS)) })
+			);
+
+			return yield* Schema.decodeUnknown(responseSchema)(text);
+		});
+
+		const getDaysForWeek = Effect.fn(function* (file: File, week: number) {
+			const prompt = AiInput.UserMessage.make({
+				parts: [
+					yield* makeFileInput(file),
+					AiInput.TextPart.make({
+						text: dedent`
+								${GENERIC_CONTEXT}
 
 								Parse this document and return in a JSON format for the hours for each day.
 								Provide results only for week ${week}. If that week contains not results, return an empty array.
 
 								Here is an example of the JSON format:
 
-								[ { "month": "January", "day": 1, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] } ]
+								[
+									{ "month": "January", "day": 1, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] },
+									{ "month": "January", "day": 2, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] },
+									{ "month": "January", "day": 3, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] },
+									{ "month": "January", "day": 4, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] },
+									{ "month": "January", "day": 5, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] },
+									{ "month": "January", "day": 6, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] },
+									{ "month": "January", "day": 7, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] }
+								]
 							`
-						})
-					]
-				});
+					})
+				]
+			});
 
-				return model.streamText({ prompt }).pipe(
-					Stream.map((response) => response.text),
-					Stream.transduce(JsonStreamParser.makeSink(ScheduleDay)),
-					Stream.flattenChunks
+			return model.streamText({ prompt }).pipe(
+				Stream.map((response) => response.text),
+				Stream.transduce(JsonStreamParser.makeSink(ScheduleDay)),
+				Stream.flattenChunks
+			);
+		});
+
+		return {
+			getSchedule(file: File) {
+				return getNumberOfWeeks(file).pipe(
+					Effect.andThen(({ weeks }) => {
+						const streams = Array.range(1, weeks).map((week) =>
+							Stream.unwrap(getDaysForWeek(file, week))
+						);
+						return Stream.mergeAll({ concurrency: 'unbounded' })(streams);
+					}),
+					Stream.unwrap
 				);
-			})
+			}
 		};
 	})
 }) {}

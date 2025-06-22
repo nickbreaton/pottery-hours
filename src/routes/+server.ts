@@ -14,16 +14,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
 			throw new Error('Expected a file to be uploaded');
 		}
 
-		// TODO: make sure we can't exceed a total number of weeks
-
-		const weeks = Stream.mergeAll({ concurrency: 10 })([
-			Stream.unwrap(scheduleAnalyzer.getDaysForWeek(file, 1)),
-			Stream.unwrap(scheduleAnalyzer.getDaysForWeek(file, 2)),
-			Stream.unwrap(scheduleAnalyzer.getDaysForWeek(file, 3)),
-			Stream.unwrap(scheduleAnalyzer.getDaysForWeek(file, 4))
-		]);
-
-		return weeks.pipe(
+		return scheduleAnalyzer.getSchedule(file).pipe(
 			Stream.map(JSON.stringify),
 			Stream.tapErrorCause((error) => Effect.logError('Stream failed with error', error)),
 			Stream.toReadableStream
