@@ -3,7 +3,7 @@ import { ScheduleAnalyzer } from './ScheduleAnalyzer';
 import { FetchHttpClient, HttpClient } from '@effect/platform';
 import { env } from '$env/dynamic/private';
 import { DevTools } from '@effect/experimental';
-import { NodeSocket } from '@effect/platform-node';
+import { NodeContext, NodeSocket } from '@effect/platform-node';
 import { AnthropicClient, AnthropicLanguageModel } from '@effect/ai-anthropic';
 import { OpenAiClient } from '@effect/ai-openai';
 import { GoogleSheetsClient } from './GoogleSheetsClient';
@@ -12,8 +12,8 @@ const DevToolsLive = DevTools.layerWebSocket().pipe(
 	Layer.provide(NodeSocket.layerWebSocketConstructor)
 );
 
-const layers = ScheduleAnalyzer.Default.pipe(
-	Layer.merge(GoogleSheetsClient.Default),
+const layers = ScheduleAnalyzer.DevelopmentMock.pipe(
+	Layer.merge(GoogleSheetsClient.DevelopmentMock),
 	Layer.provide(
 		AnthropicClient.layerConfig({
 			apiKey: Config.redacted('ANTHROPIC_API_KEY')
@@ -26,7 +26,8 @@ const layers = ScheduleAnalyzer.Default.pipe(
 	),
 	Layer.provideMerge(FetchHttpClient.layer),
 	Layer.provide(Layer.setConfigProvider(ConfigProvider.fromJson(env))),
-	Layer.provide(DevToolsLive)
+	Layer.provide(DevToolsLive),
+	Layer.provide(NodeContext.layer)
 );
 
 export const runtime = ManagedRuntime.make(layers);

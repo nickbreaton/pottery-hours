@@ -7,7 +7,8 @@ import {
 	ParseResult,
 	DateTime,
 	Schedule,
-	Duration
+	Duration,
+	Layer
 } from 'effect';
 import { AiLanguageModel, AiInput } from '@effect/ai';
 import { ScheduleDay } from './schema';
@@ -15,6 +16,7 @@ import { JsonStreamParser } from './JsonStreamParser';
 import { OpenAiLanguageModel } from '@effect/ai-openai';
 import dedent from 'dedent';
 import { AnthropicLanguageModel } from '@effect/ai-anthropic';
+import { FileSystem } from '@effect/platform';
 
 // Important so that we don't make way too many requests to the Anthropic
 const MAX_WEEKS = 18;
@@ -142,4 +144,27 @@ export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('Schedu
 				}).pipe(Stream.unwrap)
 		};
 	})
-}) {}
+}) {
+	static DevelopmentMock = Layer.effect(
+		ScheduleAnalyzer,
+		Effect.gen(function* () {
+			const fs = yield* FileSystem.FileSystem;
+
+			return ScheduleAnalyzer.make({
+				getSchedule: () =>
+					fs.readFile('mocks/ScheduleAnalyzer/default.json').pipe(
+						Effect.tap(() => Effect.log('Fetching mock response from file system')),
+						Effect.andThen((file) => new TextDecoder().decode(file)),
+						Effect.andThen(Schema.decodeUnknown(Schema.parseJson(Schema.Array(ScheduleDay)))),
+						Effect.orDie,
+						Stream.fromIterableEffect,
+						Stream.schedule(
+							Schedule.recurs(Infinity).pipe(
+								Schedule.delayed(() => Duration.millis(25 + Math.random() * 200))
+							)
+						)
+					)
+			});
+		})
+	);
+}

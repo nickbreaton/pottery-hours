@@ -1,5 +1,5 @@
-import { HttpClient, HttpClientResponse, HttpClientRequest } from '@effect/platform';
-import { Effect, Schema } from 'effect';
+import { HttpClient, HttpClientResponse, HttpClientRequest, FileSystem } from '@effect/platform';
+import { Effect, Layer, Schema } from 'effect';
 import { URLFromSpreadsheetId } from './schema';
 
 export class GoogleSheetsClient extends Effect.Service<GoogleSheetsClient>()('GoogleSheetsClient', {
@@ -21,4 +21,20 @@ export class GoogleSheetsClient extends Effect.Service<GoogleSheetsClient>()('Go
 				)
 		};
 	})
-}) {}
+}) {
+	static DevelopmentMock = Layer.effect(
+		GoogleSheetsClient,
+		Effect.gen(function* () {
+			const fs = yield* FileSystem.FileSystem;
+
+			return GoogleSheetsClient.make({
+				download: () =>
+					fs.readFile('mocks/GoogleSheetsClient/default.pdf').pipe(
+						Effect.tap(() => Effect.log('Fetching mock PDF from file system')),
+						Effect.andThen((file) => new Uint8Array(file)),
+						Effect.orDie
+					)
+			});
+		})
+	);
+}
