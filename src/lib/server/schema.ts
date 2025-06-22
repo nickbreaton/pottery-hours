@@ -19,15 +19,16 @@ export const Meridiem = Schema.Literal('AM', 'PM');
 
 export class ScheduleDay extends Schema.Class<ScheduleDay>('ScheduleDay')({
 	month: Month,
-	day: Schema.Number,
+	day: Schema.Int,
+	year: Schema.Int,
 	label: Schema.String,
 	hours: Schema.Array(
 		Schema.Struct({
-			start_hour: Schema.Number,
-			start_minute: Schema.Number,
+			start_hour: Schema.Int,
+			start_minute: Schema.Int,
 			start_meridiem: Meridiem,
-			end_hour: Schema.Number,
-			end_minute: Schema.Number,
+			end_hour: Schema.Int,
+			end_minute: Schema.Int,
 			end_meridiem: Meridiem
 		})
 	)
