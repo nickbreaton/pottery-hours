@@ -27,7 +27,7 @@
 
 <!-- <div class="size-20 rounded-md border border-border bg-card"></div> -->
 
-<div class="flex gap-4">
+<div class="flex gap-4 flex-col sm:flex-row">
 	<!-- weeks -->
 	<main class="grow space-y-3">
 		{#each weeks as week}
@@ -43,7 +43,7 @@
 						</p>
 						<div class="flex flex-col gap-0.5 justify-between">
 							<span class="text-lg text-grap-800">Open Studio</span>
-							<div class="flex gap-2">
+							<div class="flex gap-1.5">
 								<span class="text-xs py-1 px-3 rounded bg-gray-200 text-gray-500 tracking-wider"
 									>10am – 12:30pm</span
 								>
@@ -67,7 +67,7 @@
 		</div>
 
 		<div
-			class="h-11 bg-accent active:bg-accent-600 rounded-lg text-white font-medium grid place-items-center cursor-pointer"
+			class="h-11 bg-accent active:bg-accent-600 rounded-lg text-white font-medium grid place-items-center cursor-pointer touch-manipulation select-none inset-shadow-sm"
 		>
 			Add to Calendar
 		</div>
