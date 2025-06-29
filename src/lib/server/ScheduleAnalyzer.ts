@@ -157,12 +157,13 @@ export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('Schedu
 						Effect.andThen((file) => new TextDecoder().decode(file)),
 						Effect.andThen(Schema.decodeUnknown(Schema.parseJson(Schema.Array(ScheduleDay)))),
 						Effect.orDie,
-						Stream.fromIterableEffect,
-						Stream.schedule(
-							Schedule.recurs(Infinity).pipe(
-								Schedule.delayed(() => Duration.millis(25 + Math.random() * 200))
-							)
-						)
+						Stream.fromIterableEffect
+						// TODO: uncomment to simulate a slow response
+						// Stream.schedule(
+						// 	Schedule.recurs(Infinity).pipe(
+						// 		Schedule.delayed(() => Duration.millis(25 + Math.random() * 200))
+						// 	)
+						// )
 					)
 			});
 		})
