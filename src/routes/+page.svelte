@@ -13,7 +13,7 @@
 			days: [1, 2, 3, 4, 5, 6, 7]
 		},
 		{
-			title: 'Week of July 8',
+			title: 'Next week',
 			days: [8, 9, 10, 11, 12, 13, 14]
 		},
 		{
@@ -35,16 +35,22 @@
 				class="bg-gray-50 border-[1.5px] border-gray-200 rounded-lg p-4 space-y-3 tracking-tight"
 			>
 				<p class="text-2xl font-semibold">{week.title}</p>
-				<div class="grid grid-cols-[max-content_1fr] gap-y-2 gap-x-6">
+				<div class="grid grid-cols-[max-content_1fr] gap-y-3 gap-x-6">
 					{#each week.days as day, index}
 						<p class="flex flex-col">
 							<span class="text-lg font-semibold tracking-wider">{day}</span>
 							<span class="text-xs tracking-wide text-gray-500">{dayNames[index]}</span>
 						</p>
-						<div class="flex flex-col justify-between">
+						<div class="flex flex-col gap-0.5 justify-between">
 							<span class="text-lg text-grap-800">Open Studio</span>
-							<span class="text-xs text-gray-500 tracking-wider">10am – 12:30pm</span>
-							<span class="text-xs text-gray-500 tracking-wider">2pm – 4:30pm</span>
+							<div class="flex gap-2">
+								<span class="text-xs py-1 px-3 rounded bg-gray-200 text-gray-500 tracking-wider"
+									>10am – 12:30pm</span
+								>
+								<span class="text-xs py-1 px-3 rounded bg-gray-200 text-gray-500 tracking-wider"
+									>2pm – 4:30pm</span
+								>
+							</div>
 						</div>
 						<hr class="border-gray-200 col-span-2 last:hidden" />
 					{/each}
@@ -61,7 +67,7 @@
 		</div>
 
 		<div
-			class="h-11 bg-gray-400 rounded-lg text-white font-medium grid place-items-center cursor-pointer"
+			class="h-11 bg-accent active:bg-accent-600 rounded-lg text-white font-medium grid place-items-center cursor-pointer"
 		>
 			Add to Calendar
 		</div>

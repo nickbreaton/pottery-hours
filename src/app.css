@@ -4,4 +4,18 @@
 	--font-sans:
 		'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
 		'Open Sans', 'Helvetica Neue', sans-serif;
+
+	--color-accent-50: #fef7f3;
+	--color-accent-100: #feeddf;
+	--color-accent-200: #fcd9c5;
+	--color-accent-300: #f9be9d;
+	--color-accent-400: #f59973;
+	--color-accent-500: #f07d52;
+	--color-accent-600: #c65d21;
+	--color-accent-700: #a04518;
+	--color-accent-800: #7d3515;
+	--color-accent-900: #652b13;
+	--color-accent-950: #3d1a0b;
+
+	--color-accent: var(--color-accent-500);
 }
