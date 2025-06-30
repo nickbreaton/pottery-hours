@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type DisplayDay, type DisplayWeek } from './+page.server';
+	import { type DisplayDay, type DisplayWeek } from '$lib/schema/display';
 
 	const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
