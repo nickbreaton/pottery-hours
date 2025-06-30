@@ -20,9 +20,13 @@ import { ScheduleAnalyzer } from '$lib/server/ScheduleAnalyzer';
 import { MonthIndexFromMonth, ScheduleDay } from '$lib/schema';
 
 export class DisplayDay extends Schema.Class<DisplayDay>('DisplayDay')({
-	label: Schema.String,
 	day: Schema.Number,
-	hoursLabels: Schema.Array(Schema.String)
+	data: Schema.optional(
+		Schema.Struct({
+			label: Schema.String,
+			hoursLabels: Schema.Array(Schema.String)
+		})
+	)
 }) {}
 
 export class DisplayWeek extends Schema.Class<DisplayWeek>('DisplayWeek')({
@@ -58,20 +62,40 @@ const DisplayScheduleFromScheduleDays = Schema.transformOrFail(
 						return `${start}${hour.start_meridiem.toLowerCase()} – ${end}${hour.end_meridiem.toLowerCase()}`;
 					});
 
-					const date = yield* DateTime.makeZoned({
-						year: scheduleDay.year,
-						month: yield* Schema.encode(MonthIndexFromMonth)(scheduleDay.month),
-						day: scheduleDay.day,
-						zone: yield* DateTime.zoneFromString('America/New_York')
-					});
+					console.log('schedule', scheduleDay.day);
+
+					const date = yield* DateTime.makeZoned(
+						{
+							year: scheduleDay.year,
+							month: (yield* Schema.encode(MonthIndexFromMonth)(scheduleDay.month)) + 1,
+							day: scheduleDay.day,
+							zone: yield* DateTime.zoneFromString('America/New_York')
+						},
+						{ adjustForTimeZone: true }
+					);
+
+					console.log('date', date);
 
 					const startOfWeek = DateTime.startOf('week')(date);
+
+					const makeDefaultDisplayDateFor = (dayOfWeek: number) =>
+						DisplayDay.make({
+							day: DateTime.add(startOfWeek, { days: dayOfWeek }).pipe(DateTime.getPart('day'))
+						});
 
 					const week = HashMap.get(startOfWeek)(weeksByStartOfWeek).pipe(
 						Option.getOrElse(() =>
 							DisplayWeek.make({
 								label: 'Week of ' + DateTime.format(startOfWeek, { month: 'long', day: 'numeric' }),
-								days: {}
+								days: {
+									0: makeDefaultDisplayDateFor(0),
+									1: makeDefaultDisplayDateFor(1),
+									2: makeDefaultDisplayDateFor(2),
+									3: makeDefaultDisplayDateFor(3),
+									4: makeDefaultDisplayDateFor(4),
+									5: makeDefaultDisplayDateFor(5),
+									6: makeDefaultDisplayDateFor(6)
+								}
 							})
 						)
 					);
@@ -81,19 +105,17 @@ const DisplayScheduleFromScheduleDays = Schema.transformOrFail(
 						days: {
 							...week.days,
 							[DateTime.getPart(date, 'weekDay')]: DisplayDay.make({
-								label: scheduleDay.label,
-								hoursLabels,
-								day: scheduleDay.day
+								day: scheduleDay.day,
+								data: {
+									label: scheduleDay.label,
+									hoursLabels
+								}
 							})
 						}
 					});
 
 					HashMap.set(startOfWeek, newWeek)(weeksByStartOfWeek);
 				}
-
-				// HashMap.endMutation(weeksByStartOfWeek);
-
-				// console.log(HashMap.toEntries(weeksByStartOfWeek)
 
 				return pipe(
 					HashMap.toEntries(weeksByStartOfWeek),

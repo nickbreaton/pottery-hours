@@ -12,21 +12,14 @@
 	let { weeks } = $derived(data);
 
 	const asArray = (days: DisplayWeek['days']) => {
-		const result: (DisplayDay | undefined)[] = Array.from({ length: 7 });
+		const result: DisplayDay[] = Array.from({ length: 7 });
 		for (const idx in days) {
 			const index = parseInt(idx);
 			result[index] = (days as any)?.[index as any];
 		}
-		console.log({ result });
 		return result;
 	};
-
-	// $inspect(weeks);
 </script>
-
-<!-- <p class="text-foreground underline">test</p> -->
-
-<!-- <div class="size-20 rounded-md border border-border bg-card"></div> -->
 
 <div class="flex gap-4 flex-col sm:flex-row">
 	<!-- weeks -->
@@ -38,15 +31,15 @@
 				<p class="text-2xl font-semibold">{week.label}</p>
 				<div class="grid grid-cols-[max-content_1fr] gap-y-3 gap-x-6">
 					{#each asArray(week.days) as day, index}
-						{#if day}
-							<p class="flex flex-col">
-								<span class="text-lg font-semibold tracking-wider">{day.day}</span>
-								<span class="text-xs tracking-wide text-gray-500">{dayNames[index]}</span>
-							</p>
-							<div class="flex flex-col gap-0.5 justify-between">
-								<span class="text-lg text-grap-800">{day.label}</span>
+						<p class="flex flex-col">
+							<span class="text-lg font-semibold tracking-wider">{day.day}</span>
+							<span class="text-xs tracking-wide text-gray-500">{dayNames[index]}</span>
+						</p>
+						<div class="flex flex-col gap-0.5 justify-between">
+							{#if day.data}
+								<span class="text-lg text-grap-800">{day.data.label}</span>
 								<div class="flex gap-1.5">
-									{#each day.hoursLabels as hoursLabel}
+									{#each day.data.hoursLabels as hoursLabel}
 										<span
 											class="text-xs py-1 px-3 rounded bg-gray-200 text-gray-500 tracking-wider"
 										>
@@ -54,12 +47,10 @@
 										</span>
 									{/each}
 								</div>
-							</div>
-						{:else}
-							<!-- TODO: preseve day on server so that we can render the correct date -->
-							<span />
-							<span>Nothing scheduled</span>
-						{/if}
+							{:else}
+								<span>Nothing scheduled</span>
+							{/if}
+						</div>
 						<hr class="border-gray-200 col-span-2 last:hidden" />
 					{/each}
 				</div>
