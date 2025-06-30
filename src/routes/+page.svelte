@@ -1,9 +1,4 @@
 <script lang="ts">
-	import { runtime } from '$lib/client/runtime';
-	import Logo from '$lib/components/Logo.svelte';
-	import { ScheduleDay } from '$lib/schema';
-	import { HttpBody, HttpClient } from '@effect/platform';
-	import { Console, Effect, Schema, Stream, Chunk } from 'effect';
 	import { type DisplayDay, type DisplayWeek } from './+page.server';
 
 	const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
