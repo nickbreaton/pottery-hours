@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ConfigurationModal from '$lib/components/ConfigurationModal.svelte';
 	import { type DisplayDay, type DisplayWeek } from '$lib/schema/display';
 	import { CalendarCog } from 'lucide-svelte';
 
@@ -73,17 +74,23 @@
 				July 2025
 			</div>
 
-			<div class="space-y-1.5">
-				<div
+			<div class="flex flex-col gap-1.5">
+				<button
 					class="h-11 bg-accent active:bg-accent-600 rounded-lg text-white font-medium flex items-center justify-center gap-2 cursor-pointer touch-manipulation select-none"
 				>
 					Subscribe to calendar
-				</div>
-				<div
-					class="h-11 bg-gray-400/33 active:bg-gray-400/55 rounded-lg text-gray-600 font-medium flex items-center justify-center gap-2 cursor-pointer touch-manipulation select-none"
-				>
-					Configure schedule <CalendarCog size={20} strokeWidth={2} />
-				</div>
+				</button>
+
+				<ConfigurationModal>
+					{#snippet children({ open })}
+						<button
+							class="h-11 bg-gray-400/33 active:bg-gray-400/55 rounded-lg text-gray-600 font-medium flex items-center justify-center gap-2 cursor-pointer touch-manipulation select-none"
+							onclick={open}
+						>
+							Configure schedule <CalendarCog size={20} strokeWidth={2} />
+						</button>
+					{/snippet}
+				</ConfigurationModal>
 			</div>
 		</aside>
 	</div>
