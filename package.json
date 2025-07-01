@@ -39,6 +39,7 @@
 		"@types/oboe": "^2.1.4",
 		"dedent": "^1.6.0",
 		"effect": "^3.16.8",
+		"lucide-svelte": "^0.525.0",
 		"oboe": "^2.1.7"
 	}
 }

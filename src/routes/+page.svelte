@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { type DisplayDay, type DisplayWeek } from '$lib/schema/display';
+	import { CalendarCog } from 'lucide-svelte';
 
 	const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -19,10 +20,21 @@
 <div class="flex gap-4 flex-col sm:flex-row">
 	<!-- weeks -->
 	<main class="grow space-y-3">
-		{#each weeks as week}
+		{#if weeks.length === 0}
 			<div
-				class="bg-gray-50 border-[1.5px] border-gray-200 rounded-lg p-4 space-y-3 tracking-tight"
+				class="bg-gray-50 border-[1.5px] border-gray-200 rounded-lg p-5 grid place-items-center min-h-96 text-2xl font-semibold"
 			>
+				<div class="text-center space-y-2">
+					<h2>No current schedule</h2>
+					<p class="text-gray-400 font-light text-base text-balance leading-tight">
+						There are no sessions available right now. You can still subscribe to the calendar which
+						will be updated with future sessions automatically.
+					</p>
+				</div>
+			</div>
+		{/if}
+		{#each weeks as week}
+			<div class="bg-gray-50 border-[1.5px] border-gray-200 rounded-lg p-4 space-y-3">
 				<p class="text-2xl font-semibold">{week.label}</p>
 				<div class="grid grid-cols-[max-content_1fr] gap-y-3 gap-x-6">
 					{#each asArray(week.days) as day, index}
@@ -61,10 +73,17 @@
 				July 2025
 			</div>
 
-			<div
-				class="h-11 bg-accent active:bg-accent-600 rounded-lg text-white font-medium grid place-items-center cursor-pointer touch-manipulation select-none inset-shadow-sm"
-			>
-				Subscribe to calendar
+			<div class="space-y-1.5">
+				<div
+					class="h-11 bg-accent active:bg-accent-600 rounded-lg text-white font-medium flex items-center justify-center gap-2 cursor-pointer touch-manipulation select-none"
+				>
+					Subscribe to calendar
+				</div>
+				<div
+					class="h-11 bg-gray-400/33 active:bg-gray-400/55 rounded-lg text-gray-600 font-medium flex items-center justify-center gap-2 cursor-pointer touch-manipulation select-none"
+				>
+					Configure schedule <CalendarCog size={20} strokeWidth={2} />
+				</div>
 			</div>
 		</aside>
 	</div>
