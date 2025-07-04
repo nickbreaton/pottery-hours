@@ -14,7 +14,7 @@
 <Modal bind:this={modal}>
 	<div class="space-y-8">
 		<section class="space-y-2">
-			<h2 class="text-2xl font-semibold">New schedule</h2>
+			<h2 class="text-2xl font-semibold">Add new schedule</h2>
 			<p class="text-gray-500 font-light text-base leading-tight">
 				Provide a Google Spreadsheet URL to get started importing your schedule.
 			</p>
