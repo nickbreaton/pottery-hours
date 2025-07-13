@@ -12,20 +12,7 @@
 	let modal: Modal;
 
 	let valid = $state(false);
-
-	onMount(() => {
-		const program = Effect.gen(function* () {
-			const client = yield* RpcClient.make(ImportRpcs);
-			yield* Stream.runForEach(
-				client.ParseSpreadsheet(
-					'https://docs.google.com/spreadsheets/d/1lAC9Kw9sTuaOcvRHznlWlsMZ2RyenqnBY74fbQyoY9c/edit?gid=0#gid=0'
-				),
-				(result) => Console.log(result)
-			);
-		}).pipe(Effect.scoped);
-
-		runtime.runPromise(program);
-	});
+	let error = $state<string | null>(null);
 </script>
 
 {@render children({ open: () => modal.open() })}
@@ -43,27 +30,20 @@
 				onsubmit={async (event) => {
 					event.preventDefault();
 
-					const response = await fetch('/api/import', {
-						method: 'POST',
-						body: JSON.stringify({
-							url:
-								new FormData(event.currentTarget).get('url') ||
-								'https://docs.google.com/spreadsheets/d/1lAC9Kw9sTuaOcvRHznlWlsMZ2RyenqnBY74fbQyoY9c/edit?gid=0#gid=0'
-						})
-					});
-
-					const reader = response.body!.getReader();
-
-					await reader.read().then(function pump({ done, value }): any {
-						if (done) {
-							// Do something with last chunk of data then exit reader
-							return;
-						}
-						// Otherwise do something here to process current chunk
-						console.log(new TextDecoder().decode(value));
-						// Read some more, and call this function again
-						return reader.read().then(pump);
-					});
+					runtime.runPromise(
+						Effect.gen(function* () {
+							const client = yield* RpcClient.make(ImportRpcs);
+							yield* client
+								.ParseSpreadsheet({ url: new FormData(event.currentTarget).get('url') as string })
+								.pipe(
+									Stream.catchAll((message) => {
+										error = message;
+										return Stream.empty;
+									}),
+									Stream.runForEach(Console.log)
+								);
+						}).pipe(Effect.scoped)
+					);
 				}}
 			>
 				<label for="sheet-url" class="sr-only">Google Spreadsheet URL</label>
@@ -71,11 +51,12 @@
 					id="sheet-url"
 					name="url"
 					class="resize-none placeholder:text-gray-400 p-3 w-full rounded bg-gray-50 border border-gray-300 focus:outline-accent-300 focus:outline-3"
-					placeholder="https://docs.google.com/spreadsheets/d/...."
+					placeholder="https://docs.google.com/spreadsheets/d/..."
 					rows={3}
 					required
 				></textarea>
-				<div class="flex justify-end">
+				<div class="flex justify-between items-center">
+					<p class="text-red-500">{error}</p>
 					<button
 						type="submit"
 						disabled={!valid}

@@ -7,7 +7,11 @@ import { ImportLive } from '$lib/rpc/handlers';
 import { layer } from '$lib/server/runtime';
 
 const { handler } = RpcServer.toWebHandler(ImportRpcs, {
-	layer: Layer.mergeAll(layer, ImportLive, RpcSerialization.layerNdjson, HttpServer.layerContext)
+	layer: Layer.mergeAll(
+		ImportLive.pipe(Layer.provide(layer)),
+		RpcSerialization.layerNdjson,
+		HttpServer.layerContext
+	)
 });
 
 export const POST: RequestHandler = async ({ request }) => {
