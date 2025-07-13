@@ -9,9 +9,12 @@ export const load: PageServerLoad = async ({ url }) => {
 		// Temporary get days directly from parser (since its mocked),
 		// we'll want to fetch this from our store at some point
 		const scheduleAnalyzer = yield* ScheduleAnalyzer;
-		const schedule = yield* scheduleAnalyzer
-			.getSchedule(new Uint8Array())
-			.pipe(Stream.runCollect, Effect.map(Chunk.toArray));
+		const schedule = yield* scheduleAnalyzer.getSchedule(new Uint8Array()).pipe(
+			Effect.map((result) => result.stream),
+			Stream.unwrap,
+			Stream.runCollect,
+			Effect.map(Chunk.toArray)
+		);
 
 		const weeks = yield* Schema.decode(DisplayScheduleFromScheduleDays)(schedule).pipe(
 			Effect.andThen(Schema.encode(DisplaySchedule))
