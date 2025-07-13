@@ -1,6 +1,11 @@
 import { FetchHttpClient } from '@effect/platform';
-import { ManagedRuntime } from 'effect';
+import { Layer, ManagedRuntime } from 'effect';
+import { RpcClient, RpcSerialization } from '@effect/rpc';
 
-const layers = FetchHttpClient.layer.pipe();
+const ProtocolLive = RpcClient.layerProtocolHttp({ url: '/api/rpc' }).pipe(
+	Layer.provide([FetchHttpClient.layer, RpcSerialization.layerNdjson])
+);
+
+const layers = Layer.mergeAll(FetchHttpClient.layer, ProtocolLive);
 
 export const runtime = ManagedRuntime.make(layers);

@@ -5,7 +5,7 @@
 	import { RpcClient, RpcSerialization } from '@effect/rpc';
 	import { Console, Effect, Layer, Stream } from 'effect';
 	import { FetchHttpClient } from '@effect/platform';
-	import { UserRpcs } from '$lib/rpc';
+	import { ImportRpcs } from '$lib/rpc/schema';
 	import { runtime } from '$lib/client/runtime';
 
 	let { children }: { children: Snippet<[{ open: () => void }]> } = $props();
@@ -14,18 +14,17 @@
 	let valid = $state(false);
 
 	onMount(() => {
-		// Choose which protocol to use
-		const ProtocolLive = RpcClient.layerProtocolHttp({
-			url: '/api/rpc'
-		}).pipe(Layer.provide([FetchHttpClient.layer, RpcSerialization.layerNdjson]));
-
-		// Use the client
 		const program = Effect.gen(function* () {
-			const client = yield* RpcClient.make(UserRpcs);
-			yield* Stream.runForEach(client.UserList(), (user) => Console.log(user));
+			const client = yield* RpcClient.make(ImportRpcs);
+			yield* Stream.runForEach(
+				client.ParseSpreadsheet(
+					'https://docs.google.com/spreadsheets/d/1lAC9Kw9sTuaOcvRHznlWlsMZ2RyenqnBY74fbQyoY9c/edit?gid=0#gid=0'
+				),
+				(result) => Console.log(result)
+			);
 		}).pipe(Effect.scoped);
 
-		runtime.runPromise(program.pipe(Effect.provide(ProtocolLive)));
+		runtime.runPromise(program);
 	});
 </script>
 
