@@ -37,4 +37,6 @@ const mock = Layer.mergeAll(
 	Layer.provide(NodeContext.layer)
 );
 
-export const runtime = ManagedRuntime.make(mock);
+export const layer = mock;
+
+export const runtime = ManagedRuntime.make(layer);
