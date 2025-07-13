@@ -7,6 +7,7 @@ import { NodeContext, NodeSocket } from '@effect/platform-node';
 import { AnthropicClient, AnthropicLanguageModel } from '@effect/ai-anthropic';
 import { OpenAiClient } from '@effect/ai-openai';
 import { GoogleSheetsClient } from './GoogleSheetsClient';
+import { ScheduleStore } from './ScheduleStore';
 
 const DevToolsLive = DevTools.layerWebSocket().pipe(
 	Layer.provide(NodeSocket.layerWebSocketConstructor)
@@ -30,7 +31,8 @@ const live = Layer.mergeAll(ScheduleAnalyzer.Default, GoogleSheetsClient.Default
 
 const mock = Layer.mergeAll(
 	ScheduleAnalyzer.DevelopmentMock,
-	GoogleSheetsClient.DevelopmentMock
+	GoogleSheetsClient.DevelopmentMock,
+	ScheduleStore.Default
 ).pipe(
 	Layer.provide(Layer.setConfigProvider(ConfigProvider.fromJson(env))),
 	Layer.provide(DevToolsLive),

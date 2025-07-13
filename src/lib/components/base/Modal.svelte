@@ -9,7 +9,9 @@
 		dialog.showModal();
 	}
 
-	onMount(open);
+	export function close() {
+		dialog.close();
+	}
 </script>
 
 <dialog

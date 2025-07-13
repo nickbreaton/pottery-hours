@@ -7,6 +7,7 @@
 	import { FetchHttpClient } from '@effect/platform';
 	import { ImportRpcs } from '$lib/rpc/schema';
 	import { runtime } from '$lib/client/runtime';
+	import { invalidateAll } from '$app/navigation';
 
 	let { children }: { children: Snippet<[{ open: () => void }]> } = $props();
 	let modal: Modal;
@@ -40,7 +41,13 @@
 										error = message;
 										return Stream.empty;
 									}),
-									Stream.runForEach(Console.log)
+									Stream.runForEach(Console.log),
+									Effect.tap(() =>
+										Effect.sync(() => {
+											modal.close();
+											invalidateAll();
+										})
+									)
 								);
 						}).pipe(Effect.scoped)
 					);

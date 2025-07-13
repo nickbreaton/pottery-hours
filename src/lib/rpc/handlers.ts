@@ -3,11 +3,13 @@ import { ImportRpcs, ParseSpreadsheetProgress } from './schema';
 import { ScheduleDay, URLFromSpreadsheetId } from '$lib/schema';
 import { ScheduleAnalyzer } from '$lib/server/ScheduleAnalyzer';
 import { GoogleSheetsClient } from '$lib/server/GoogleSheetsClient';
+import { ScheduleStore } from '$lib/server/ScheduleStore';
 
 export const ImportLive = ImportRpcs.toLayer(
 	Effect.gen(function* () {
 		const scheduleAnalyzer = yield* ScheduleAnalyzer;
 		const googleSheetsClient = yield* GoogleSheetsClient;
+		const scheduleStore = yield* ScheduleStore;
 
 		return {
 			ParseSpreadsheet: ({ url }) =>
@@ -33,9 +35,10 @@ export const ImportLive = ImportRpcs.toLayer(
 							})
 						),
 						Stream.onDone(() =>
-							Effect.gen(function* () {
-								console.log('save some data!', days.length);
-							})
+							scheduleStore.update((values) => ({
+								...values,
+								[spreadsheetId]: { days }
+							}))
 						)
 					);
 				}).pipe(
