@@ -1,7 +1,8 @@
-import { Effect, Schema } from 'effect';
+import { Effect, Layer, Schema, Stream, Console } from 'effect';
 import { ScheduleAnalyzer } from './ScheduleAnalyzer';
 import type { DisplaySchedule } from '$lib/schema/display';
 import { ScheduleDay } from '$lib/schema';
+import { FileSystem } from '@effect/platform';
 
 export const ScheduleStoreMap = Schema.Record({
 	key: Schema.String,
@@ -30,7 +31,41 @@ export class ScheduleStore extends Effect.Service<ScheduleStore>()('ScheduleStor
 					globalThis.scheduleStoreValue = updater(globalThis.scheduleStoreValue ?? {});
 				});
 			},
-			get: Effect.sync(() => globalThis.scheduleStoreValue ?? {})
+			get: Effect.sync(() => {
+				return globalThis.scheduleStoreValue ?? {};
+			})
 		};
 	})
-}) {}
+}) {
+	static DevelopmentMock = Layer.effect(
+		ScheduleStore,
+		Effect.gen(function* () {
+			const fs = yield* FileSystem.FileSystem;
+			const file = 'tmp/schedule-store.json';
+
+			const set = Effect.fn(
+				function* (data: ScheduleStoreMap) {
+					yield* fs.makeDirectory('tmp', { recursive: true });
+					yield* fs.writeFileString(file, JSON.stringify(data));
+				},
+				Effect.tapError((error) => Console.error('Error', error)),
+				Effect.orDie
+			);
+
+			const get = fs.readFileString(file).pipe(
+				Effect.andThen(Schema.decodeUnknown(Schema.parseJson(ScheduleStoreMap))),
+				Effect.catchAll(() => Effect.succeed({}))
+			);
+
+			return ScheduleStore.make({
+				set,
+				get,
+				update: (updater) =>
+					Effect.gen(function* () {
+						const data = yield* get;
+						yield* set(updater(data));
+					})
+			});
+		})
+	);
+}

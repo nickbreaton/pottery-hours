@@ -32,7 +32,7 @@ const live = Layer.mergeAll(ScheduleAnalyzer.Default, GoogleSheetsClient.Default
 const mock = Layer.mergeAll(
 	ScheduleAnalyzer.DevelopmentMock,
 	GoogleSheetsClient.DevelopmentMock,
-	ScheduleStore.Default
+	ScheduleStore.DevelopmentMock
 ).pipe(
 	Layer.provide(Layer.setConfigProvider(ConfigProvider.fromJson(env))),
 	Layer.provide(DevToolsLive),
