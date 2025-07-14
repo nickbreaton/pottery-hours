@@ -37,17 +37,18 @@
 							yield* client
 								.ParseSpreadsheet({ url: new FormData(event.currentTarget).get('url') as string })
 								.pipe(
-									Stream.catchAll((message) => {
-										error = message;
-										return Stream.empty;
-									}),
-									Stream.runForEach(Console.log),
-									Effect.tap(() =>
+									Stream.onDone(() =>
 										Effect.sync(() => {
 											modal.close();
 											invalidateAll();
 										})
-									)
+									),
+									Stream.tapError((message) => {
+										return Effect.sync(() => {
+											error = message;
+										});
+									}),
+									Stream.runForEach(Console.log)
 								);
 						}).pipe(Effect.scoped)
 					);
