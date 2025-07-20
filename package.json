@@ -39,6 +39,8 @@
 		"@types/oboe": "^2.1.4",
 		"dedent": "^1.6.0",
 		"effect": "^3.16.12",
+		"hour-convert": "^1.0.1",
+		"ical-generator": "^9.0.0",
 		"lucide-svelte": "^0.525.0",
 		"oboe": "^2.1.7"
 	}
