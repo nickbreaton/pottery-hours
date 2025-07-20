@@ -6,7 +6,7 @@
 	const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 	let { data } = $props();
-	let { weeks, schedules } = $derived(data);
+	let { weeks, schedules, currentId, activeId } = $derived(data);
 
 	// TODO: clean this up
 	const asArray = (days: DisplayWeek['days']) => {
@@ -71,15 +71,41 @@
 	<div class="relative">
 		<aside class="flex flex-col gap-3 sm:sticky sm:top-3">
 			<!-- Calendar -->
-			<div class="bg-gray-50 border-[1.5px] basis-56 border-gray-200 rounded-lg p-4 min-w-64">
-				July 2025
-			</div>
+			<article
+				class="bg-gray-50 border-[1.5px] basis-56 border-gray-200 p-4 min-w-64 space-y-2 rounded-lg"
+			>
+				<h2 class="font-medium">Schedules</h2>
+
+				{#if schedules.length === 0}
+					<p class="text-gray-500 text-sm font-light leading-tight">
+						No current or future schedules available.
+					</p>
+				{/if}
+
+				{#each schedules as schedule}
+					<ol class="space-y-1">
+						<li class="text-sm font-light leading-tight flex items-center gap-2">
+							<a
+								href={schedule.id === currentId ? '/' : `/schedule/${schedule.id}`}
+								class="hover:underline">{schedule.label}</a
+							>
+							{#if schedule.id === activeId}
+								<span
+									role="img"
+									aria-label="Current schedule"
+									class="bg-accent rounded-full size-2 inline-block"
+								></span>
+							{/if}
+						</li>
+					</ol>
+				{/each}
+			</article>
 
 			<div class="flex flex-col gap-1.5">
 				<button
 					class="h-11 bg-accent active:bg-accent-600 rounded-lg text-white font-medium flex items-center justify-center gap-2 cursor-pointer touch-manipulation select-none"
 				>
-					Subscribe to calendar
+					Subscribe to all schedules
 				</button>
 
 				<ConfigurationModal {schedules}>
@@ -88,7 +114,7 @@
 							class="h-11 bg-gray-400/33 active:bg-gray-400/55 rounded-lg text-gray-600 font-medium flex items-center justify-center gap-2 cursor-pointer touch-manipulation select-none"
 							onclick={open}
 						>
-							Configure schedule <CalendarCog size={20} strokeWidth={2} />
+							Configure schedules <CalendarCog size={20} strokeWidth={2} />
 						</button>
 					{/snippet}
 				</ConfigurationModal>

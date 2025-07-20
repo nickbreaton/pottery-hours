@@ -46,7 +46,7 @@ export const load: PageServerLoad = async ({ url }) => {
 
 		const days = pipe(
 			schedules,
-			Record.findFirst(() => true), // TODO: get closest schedule
+			Record.findFirst(() => true), // TODO: get or selected current schedule
 			Option.map(([key, value]) => value.days),
 			Option.getOrElse((): readonly ScheduleDay[] => [])
 		);
@@ -55,7 +55,12 @@ export const load: PageServerLoad = async ({ url }) => {
 			Effect.andThen(Schema.encode(DisplaySchedule))
 		);
 
-		return { weeks, schedules: scheduleList };
+		return {
+			weeks,
+			schedules: scheduleList,
+			currentId: Object.keys(schedules)[0], // TODO: get current or selceted schedule
+			activeId: Object.keys(schedules)[0] // TODO: get current or selceted schedule
+		};
 	});
 
 	const result = await program.pipe(

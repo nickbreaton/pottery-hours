@@ -32,7 +32,7 @@
 {@render children({ open: () => modal.open() })}
 
 <Modal bind:this={modal}>
-	<div class="space-y-8">
+	<div class="space-y-8 mb-4">
 		<section class="space-y-2">
 			<div class="flex justify-end">
 				<button aria-label="Close" onclick={() => modal.close()}>
