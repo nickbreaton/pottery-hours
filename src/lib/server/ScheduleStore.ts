@@ -7,7 +7,7 @@ import { FileSystem } from '@effect/platform';
 export const ScheduleStoreMap = Schema.Record({
 	key: Schema.String,
 	value: Schema.Struct({
-		days: Schema.Array(ScheduleDay)
+		days: Schema.NonEmptyArray(ScheduleDay)
 	})
 });
 

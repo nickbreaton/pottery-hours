@@ -1,7 +1,14 @@
 <script lang="ts">
 	import { onMount, type Snippet } from 'svelte';
 	import Modal from './base/Modal.svelte';
-	import { CornerDownRight, CornerRightDown, MoveRight } from 'lucide-svelte';
+	import {
+		CornerDownRight,
+		CornerRightDown,
+		ExternalLink,
+		MoveRight,
+		Trash,
+		Trash2
+	} from 'lucide-svelte';
 	import { RpcClient, RpcSerialization } from '@effect/rpc';
 	import { Console, Effect, Layer, Stream } from 'effect';
 	import { FetchHttpClient } from '@effect/platform';
@@ -9,7 +16,12 @@
 	import { runtime } from '$lib/client/runtime';
 	import { invalidateAll } from '$app/navigation';
 
-	let { children }: { children: Snippet<[{ open: () => void }]> } = $props();
+	type Props = {
+		children: Snippet<[{ open: () => void }]>;
+		schedules: Array<{ id: string; label: string; url: string }>;
+	};
+
+	let { children, schedules }: Props = $props();
 	let modal: Modal;
 
 	let valid = $state(false);
@@ -76,11 +88,32 @@
 			</form>
 		</section>
 
-		<!-- <section class="space-y-2">
-			<h2 class="text-2xl font-semibold">Existing schedules</h2>
-			<p class="text-gray-500 font-light text-base leading-tight">
-				All known schedules are listed below.
-			</p>
-		</section> -->
+		{#if schedules.length > 0}
+			<section class="space-y-3">
+				<h2 class="text-2xl font-semibold">Existing schedules</h2>
+
+				<div class="space-y-2">
+					{#each schedules as schedule}
+						<article class="grid grid-cols-[1fr_auto] gap-2 items-center">
+							<p class="text-base font-light leading-tight">{schedule.label}</p>
+							<div class="flex gap-2">
+								<a aria-label="Open" href={schedule.url} class="text-gray-900" target="_blank">
+									<ExternalLink size="1.25em" />
+								</a>
+								<button
+									aria-label="Delete"
+									class="text-red-600 cursor-pointer"
+									onclick={() => {
+										// TODO: actually delete
+									}}
+								>
+									<Trash2 size="1.25em" />
+								</button>
+							</div>
+						</article>
+					{/each}
+				</div>
+			</section>
+		{/if}
 	</div>
 </Modal>

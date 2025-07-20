@@ -6,8 +6,9 @@
 	const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 	let { data } = $props();
-	let { weeks } = $derived(data);
+	let { weeks, schedules } = $derived(data);
 
+	// TODO: clean this up
 	const asArray = (days: DisplayWeek['days']) => {
 		const result: DisplayDay[] = Array.from({ length: 7 });
 		for (const idx in days) {
@@ -20,7 +21,7 @@
 
 <div class="flex gap-4 flex-col sm:flex-row">
 	<!-- weeks -->
-	<main class="grow space-y-3">
+	<main class="grow space-y-4">
 		{#if weeks.length === 0}
 			<div
 				class="bg-gray-50 border-[1.5px] border-gray-200 rounded-lg p-5 grid place-items-center min-h-96 text-2xl font-semibold"
@@ -81,7 +82,7 @@
 					Subscribe to calendar
 				</button>
 
-				<ConfigurationModal>
+				<ConfigurationModal {schedules}>
 					{#snippet children({ open })}
 						<button
 							class="h-11 bg-gray-400/33 active:bg-gray-400/55 rounded-lg text-gray-600 font-medium flex items-center justify-center gap-2 cursor-pointer touch-manipulation select-none"
