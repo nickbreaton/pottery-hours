@@ -46,22 +46,23 @@
 					runtime.runPromise(
 						Effect.gen(function* () {
 							const client = yield* RpcClient.make(ImportRpcs);
-							yield* client
-								.ParseSpreadsheet({ url: new FormData(event.currentTarget).get('url') as string })
-								.pipe(
-									Stream.onDone(() =>
-										Effect.sync(() => {
-											modal.close();
-											invalidateAll();
-										})
-									),
-									Stream.tapError((message) => {
-										return Effect.sync(() => {
-											error = message;
-										});
-									}),
-									Stream.runForEach(Console.log)
-								);
+							const form = event.currentTarget;
+							yield* client.ParseSpreadsheet({ url: new FormData(form).get('url') as string }).pipe(
+								Stream.onDone(() =>
+									Effect.sync(() => {
+										error = null;
+										form.reset();
+										modal.close();
+										invalidateAll();
+									})
+								),
+								Stream.tapError((message) => {
+									return Effect.sync(() => {
+										error = message;
+									});
+								}),
+								Stream.runForEach(Console.log)
+							);
 						}).pipe(Effect.scoped)
 					);
 				}}
@@ -104,7 +105,13 @@
 									aria-label="Delete"
 									class="text-red-600 cursor-pointer"
 									onclick={() => {
-										// TODO: actually delete
+										if (confirm('Are you sure you want to delete this schedule?')) {
+											Effect.gen(function* () {
+												const client = yield* RpcClient.make(ImportRpcs);
+												yield* client.DeleteSchedule({ id: schedule.id });
+												invalidateAll();
+											}).pipe(Effect.scoped, runtime.runPromise);
+										}
 									}}
 								>
 									<Trash2 size="1.25em" />

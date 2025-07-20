@@ -1,4 +1,4 @@
-import { Effect, Schema, Stream } from 'effect';
+import { Effect, Record, Schema, Stream } from 'effect';
 import { ImportRpcs, ParseSpreadsheetProgress } from './schema';
 import { ScheduleDay, URLFromSpreadsheetId } from '$lib/schema';
 import { ScheduleAnalyzer } from '$lib/server/ScheduleAnalyzer';
@@ -12,6 +12,11 @@ export const ImportLive = ImportRpcs.toLayer(
 		const scheduleStore = yield* ScheduleStore;
 
 		return {
+			DeleteSchedule: ({ id }) =>
+				scheduleStore.update((values) => {
+					const { [id]: _, ...rest } = values;
+					return rest;
+				}),
 			ParseSpreadsheet: ({ url }) =>
 				Effect.gen(function* () {
 					const spreadsheetId = yield* Schema.decode(URLFromSpreadsheetId)(url);
@@ -37,7 +42,7 @@ export const ImportLive = ImportRpcs.toLayer(
 						Stream.onDone(() =>
 							scheduleStore.update((values) => ({
 								...values,
-								[spreadsheetId]: { days }
+								[spreadsheetId]: { days: days as [ScheduleDay, ...ScheduleDay[]] }
 							}))
 						)
 					);

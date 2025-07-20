@@ -11,6 +11,11 @@ export class ParseSpreadsheetProgress extends Schema.Class<ParseSpreadsheetProgr
 }) {}
 
 export class ImportRpcs extends RpcGroup.make(
+	Rpc.make('DeleteSchedule', {
+		payload: Schema.Struct({ id: Schema.String }),
+		success: Schema.Void,
+		error: Schema.String
+	}),
 	Rpc.make('ParseSpreadsheet', {
 		payload: Schema.Struct({ url: Schema.String }),
 		success: ParseSpreadsheetProgress,
