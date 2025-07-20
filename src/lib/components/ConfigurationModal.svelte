@@ -7,7 +7,8 @@
 		ExternalLink,
 		MoveRight,
 		Trash,
-		Trash2
+		Trash2,
+		X
 	} from 'lucide-svelte';
 	import { RpcClient, RpcSerialization } from '@effect/rpc';
 	import { Console, Effect, Layer, Stream } from 'effect';
@@ -33,6 +34,11 @@
 <Modal bind:this={modal}>
 	<div class="space-y-8">
 		<section class="space-y-2">
+			<div class="flex justify-end">
+				<button aria-label="Close" onclick={() => modal.close()}>
+					<X class="cursor-pointer" />
+				</button>
+			</div>
 			<h2 class="text-2xl font-semibold">Add new schedule</h2>
 			<p class="text-gray-500 font-light text-base leading-tight">
 				Provide a Google Spreadsheet URL to get started importing your schedule.
