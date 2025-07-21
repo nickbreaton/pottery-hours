@@ -40,7 +40,7 @@ export class ScheduleOrchestrator extends Effect.Service<ScheduleOrchestrator>()
 					}
 
 					return {
-						order: Array.map(sorted, ({ id }) => id),
+						sorted,
 						active: Option.getOrElse(active, () => sorted.at(-1)?.id!)
 					};
 				}),

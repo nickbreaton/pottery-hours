@@ -13,23 +13,21 @@ export const load: PageServerLoad = async ({ url }) => {
 		const scheduleOrchestrator = yield* ScheduleOrchestrator;
 
 		const schedules = yield* scheduleStore.get;
+		const meta = yield* scheduleOrchestrator.getSchedulesMeta(schedules);
 
 		const scheduleList = yield* pipe(
-			// TODO: get order via meta
-			schedules,
-			Record.toEntries,
+			meta.sorted,
 			Effect.forEach(
-				Effect.fn(function* ([id, schedule]) {
+				Effect.fn(function* ({ id, days }) {
 					const url = yield* Schema.encode(URLFromSpreadsheetId)(id);
-					const label = yield* scheduleOrchestrator.getScheduleLabel(schedule.days);
+					const label = yield* scheduleOrchestrator.getScheduleLabel(days);
 					return { id, url, label };
-				})
+				}),
+				{ concurrency: 'unbounded' }
 			)
 		);
 
-		const meta = yield* scheduleOrchestrator.getSchedulesMeta(schedules);
-
-		const activeId = meta.active; // TODO: determine current schedule from URL with fallback to active
+		const activeId = meta.active;
 		const currentId = meta.active; // TODO: determine current schedule from URL with fallback to active
 
 		const days = pipe(
