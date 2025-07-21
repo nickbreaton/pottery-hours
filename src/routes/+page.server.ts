@@ -1,11 +1,12 @@
 import { runtime } from '$lib/server/runtime';
-import { Array, Chunk, Effect, Option, Order, pipe, Record, Schema, Stream } from 'effect';
+import { Effect, Option, pipe, Record, Schema } from 'effect';
 import type { PageServerLoad } from './$types';
-import { ScheduleAnalyzer } from '$lib/server/ScheduleAnalyzer';
 import { DisplaySchedule, DisplayScheduleFromScheduleDays } from '$lib/schema/display';
 import { ScheduleStore } from '$lib/server/ScheduleStore';
-import { Month, MonthIndexFromMonth, ScheduleDay, URLFromSpreadsheetId } from '$lib/schema';
+import { URLFromSpreadsheetId } from '$lib/schema';
 import { ScheduleOrchestrator } from '$lib/server/ScheduleOrchestrator';
+import { error, redirect } from '@sveltejs/kit';
+import { withSvelteKitResponses } from '$lib/compat/responses';
 
 export const load: PageServerLoad = async ({ url }) => {
 	const program = Effect.gen(function* () {
@@ -28,16 +29,25 @@ export const load: PageServerLoad = async ({ url }) => {
 		);
 
 		const activeId = meta.active;
-		const currentId = meta.active; // TODO: determine current schedule from URL with fallback to active
+		const parsedId = url.pathname.match(/^\/schedule\/(.*)$/)?.[1];
+
+		if (parsedId === meta.active && url.pathname !== '/') {
+			throw redirect(302, '/'); // keep URL pretty for active schedule
+		}
+
+		const currentId = parsedId ?? meta.active;
 
 		const days = pipe(
 			schedules,
 			Record.get(currentId),
-			Option.map(({ days }) => days),
-			Option.getOrElse((): readonly ScheduleDay[] => [])
+			Option.map(({ days }) => days)
 		);
 
-		const weeks = yield* Schema.decode(DisplayScheduleFromScheduleDays)(days).pipe(
+		if (Option.isNone(days)) {
+			throw error(404);
+		}
+
+		const weeks = yield* Schema.decode(DisplayScheduleFromScheduleDays)(days.value).pipe(
 			Effect.andThen(Schema.encode(DisplaySchedule))
 		);
 
@@ -52,7 +62,8 @@ export const load: PageServerLoad = async ({ url }) => {
 	const result = await program.pipe(
 		Effect.scoped,
 		Effect.withSpan('load', { attributes: { pathname: url.pathname } }),
-		runtime.runPromise
+		runtime.runPromise,
+		withSvelteKitResponses
 	);
 
 	return result;
