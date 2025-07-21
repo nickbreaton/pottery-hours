@@ -8,12 +8,17 @@ import { AnthropicClient, AnthropicLanguageModel } from '@effect/ai-anthropic';
 import { OpenAiClient } from '@effect/ai-openai';
 import { GoogleSheetsClient } from './GoogleSheetsClient';
 import { ScheduleStore } from './ScheduleStore';
+import { ScheduleOrchestrator } from './ScheduleOrchestrator';
 
 const DevToolsLive = DevTools.layerWebSocket().pipe(
 	Layer.provide(NodeSocket.layerWebSocketConstructor)
 );
 
-const live = Layer.mergeAll(ScheduleAnalyzer.Default, GoogleSheetsClient.Default).pipe(
+const live = Layer.mergeAll(
+	ScheduleAnalyzer.Default,
+	GoogleSheetsClient.Default,
+	ScheduleOrchestrator.Default
+).pipe(
 	Layer.provide(
 		AnthropicClient.layerConfig({
 			apiKey: Config.redacted('ANTHROPIC_API_KEY')
@@ -25,14 +30,14 @@ const live = Layer.mergeAll(ScheduleAnalyzer.Default, GoogleSheetsClient.Default
 		})
 	),
 	Layer.provideMerge(FetchHttpClient.layer),
-	Layer.provide(Layer.setConfigProvider(ConfigProvider.fromJson(env))),
-	Layer.provide(DevToolsLive) // TODO: split out from deployed
+	Layer.provide(Layer.setConfigProvider(ConfigProvider.fromJson(env)))
 );
 
 const mock = Layer.mergeAll(
 	ScheduleAnalyzer.DevelopmentMock,
 	GoogleSheetsClient.DevelopmentMock,
-	ScheduleStore.DevelopmentMock
+	ScheduleStore.DevelopmentMock,
+	ScheduleOrchestrator.Default
 ).pipe(
 	Layer.provide(Layer.setConfigProvider(ConfigProvider.fromJson(env))),
 	Layer.provide(DevToolsLive),

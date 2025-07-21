@@ -85,10 +85,7 @@
 				{#each schedules as schedule}
 					<ol class="space-y-1">
 						<li class="text-sm font-light leading-tight flex items-center gap-2">
-							<a
-								href={schedule.id === currentId ? '/' : `/schedule/${schedule.id}`}
-								class="hover:underline">{schedule.label}</a
-							>
+							<a href="/schedule/{schedule.id}" class="hover:underline">{schedule.label}</a>
 							{#if schedule.id === activeId}
 								<span
 									role="img"

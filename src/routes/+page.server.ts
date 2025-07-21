@@ -5,49 +5,37 @@ import { ScheduleAnalyzer } from '$lib/server/ScheduleAnalyzer';
 import { DisplaySchedule, DisplayScheduleFromScheduleDays } from '$lib/schema/display';
 import { ScheduleStore } from '$lib/server/ScheduleStore';
 import { Month, MonthIndexFromMonth, ScheduleDay, URLFromSpreadsheetId } from '$lib/schema';
+import { ScheduleOrchestrator } from '$lib/server/ScheduleOrchestrator';
 
 export const load: PageServerLoad = async ({ url }) => {
 	const program = Effect.gen(function* () {
 		const scheduleStore = yield* ScheduleStore;
+		const scheduleOrchestrator = yield* ScheduleOrchestrator;
 
 		const schedules = yield* scheduleStore.get;
 
 		const scheduleList = yield* pipe(
+			// TODO: get order via meta
 			schedules,
 			Record.toEntries,
 			Effect.forEach(
 				Effect.fn(function* ([id, schedule]) {
 					const url = yield* Schema.encode(URLFromSpreadsheetId)(id);
-
-					const order = Order.struct({
-						year: Order.number,
-						month: Order.mapInput(Schema.encodeSync(MonthIndexFromMonth))(Order.number),
-						day: Order.number
-					});
-
-					const labelStart = pipe(
-						schedule.days,
-						Array.min(order),
-						({ month, year }) => `${month} ${year}`
-					);
-
-					const labelEnd = pipe(
-						schedule.days,
-						Array.max(order),
-						({ month, year }) => `${month} ${year}`
-					);
-
-					const label = `${labelStart} - ${labelEnd}`;
-
+					const label = yield* scheduleOrchestrator.getScheduleLabel(schedule.days);
 					return { id, url, label };
 				})
 			)
 		);
 
+		const meta = yield* scheduleOrchestrator.getSchedulesMeta(schedules);
+
+		const activeId = meta.active; // TODO: determine current schedule from URL with fallback to active
+		const currentId = meta.active; // TODO: determine current schedule from URL with fallback to active
+
 		const days = pipe(
 			schedules,
-			Record.findFirst(() => true), // TODO: get or selected current schedule
-			Option.map(([key, value]) => value.days),
+			Record.get(currentId),
+			Option.map(({ days }) => days),
 			Option.getOrElse((): readonly ScheduleDay[] => [])
 		);
 
@@ -58,8 +46,8 @@ export const load: PageServerLoad = async ({ url }) => {
 		return {
 			weeks,
 			schedules: scheduleList,
-			currentId: Object.keys(schedules)[0], // TODO: get current or selceted schedule
-			activeId: Object.keys(schedules)[0] // TODO: get current or selceted schedule
+			currentId,
+			activeId
 		};
 	});
 
