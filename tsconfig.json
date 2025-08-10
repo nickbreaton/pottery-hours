@@ -10,6 +10,7 @@
 		"sourceMap": true,
 		"strict": true,
 		"moduleResolution": "bundler",
+		"noImplicitAny": true,
 		"plugins": [
 			{
 				"name": "@effect/language-service",
