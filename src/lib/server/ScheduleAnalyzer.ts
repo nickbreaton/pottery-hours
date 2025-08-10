@@ -1,0 +1,75 @@
+import { AiInput, AiLanguageModel } from '@effect/ai';
+import { OpenAiLanguageModel } from '@effect/ai-openai';
+import dedent from 'dedent';
+import { Console, DateTime, Effect, Stream } from 'effect';
+import { JsonStreamParser } from './JsonStreamParser';
+import { ScheduleDay } from './schema';
+import { FetchHttpClient } from '@effect/platform';
+
+export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('ScheduleAnalyzer', {
+	dependencies: [
+		OpenAiLanguageModel.layer({
+			model: 'google/gemini-2.5-flash-lite'
+		}),
+		FetchHttpClient.layer
+	],
+	effect: Effect.gen(function* () {
+		const model = yield* AiLanguageModel.AiLanguageModel;
+		const currentYear = DateTime.getPart('year')(yield* DateTime.now);
+
+		return {
+			analyze: (fileData: Uint8Array) => {
+				const filePart = AiInput.FilePart.make({
+					mediaType: 'application/pdf',
+					data: fileData
+				});
+
+				const textPart = AiInput.TextPart.make({
+					text: dedent`
+						This is a PDF representation of a pottery studio schedule for open studio hours.
+						It's organized into blocks of time for a given day.
+						There can sometimes be multiple blocks of time per day.
+
+						Dates always appear above the box containing the hours.
+
+						Only entries for dates that have hours defined should be included in the result.
+						Do NOT include any dates that do not have hours defined,
+						this typically means the studio is closed which is not relevant to us.
+
+						When parsing, ensure the JSON format provided is followed exactly.
+						Do not add any additional text or information. DO NOT MAKE UP DATA WHICH DOES NOT APPEAR IN THE PDF.
+
+						Parse this document and return in a JSON format for the hours for each day.
+
+						Each week also has a description in the left column which should be included in the results.
+						Sometimes a more detailed description is provided in the box itself. Do not include times in the label.
+						If there is no description, use the title of the sheet as fallback - keeping it as brief as possible, ideally under 4 words.
+						Use only a singular fallback label. Typically its best to indicate "Open Studio" or similar with the label.
+
+						Here is an example of the JSON format. Remember include absolutely no additional text or information. DO NOT FORMAT LIKE MARKDOWN.
+
+						[
+							{ "month": "January", "day": 1, "year": ${currentYear}, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] },
+							{ "month": "January", "day": 2, "year": ${currentYear}, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" }, { "start_hour": 5, "start_minute": 0, "start_meridiem": "PM", "end_hour": 6, "end_minute": 30, "end_meridiem": "PM" } ] },
+							{ "month": "January", "day": 3, "year": ${currentYear}, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] },
+						]
+
+						DO NOT INCLUDE THE DATE IF THERE ARE NO HOURS DEFINED.
+						BE SUPER SURE TO INCLUDE MULTIPLE SETS OF HOURS IF APPLICABLE. THIS IS REALLY REALLY IMPORTANT.
+						THESE HOUR SLOTS ARE TYPICALLY STACKED VERTICALLY. ITS VERY RARE TO HAVE MORE THAN TWO SLOTS.
+					`
+				});
+
+				const prompt = AiInput.UserMessage.make({
+					parts: [filePart, textPart]
+				});
+
+				return model.streamText({ prompt }).pipe(
+					Stream.map((response) => response.text),
+					Stream.transduce(JsonStreamParser.makeSink(ScheduleDay)),
+					Stream.flattenChunks
+				);
+			}
+		};
+	})
+}) {}

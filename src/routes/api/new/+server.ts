@@ -2,7 +2,7 @@ import { runtime } from '$lib/server/runtime';
 import { ScheduleRepo } from '$lib/server/ScheduleRepo';
 import { HttpServerResponse } from '@effect/platform';
 import type { RequestHandler } from '@sveltejs/kit';
-import { Effect, Schema, Stream } from 'effect';
+import { Console, Effect, Schema, Stream } from 'effect';
 import { CreateEvent, DayEvent, InvalidEvent, Complete } from './schema';
 
 export const GET: RequestHandler = ({ url }) => {
@@ -20,6 +20,7 @@ export const GET: RequestHandler = ({ url }) => {
 			Stream.map((data) =>
 				new TextEncoder().encode([`event:${data.type}`, `data: ${JSON.stringify(data)}\n\n`].join('\n'))
 			),
+			Stream.tapError((x) => Console.error(x.cause)),
 			(stream) =>
 				HttpServerResponse.stream(stream, {
 					contentType: 'text/event-stream',
