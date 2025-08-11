@@ -69,4 +69,8 @@ export class PotterySchedule extends Schema.Class<PotterySchedule>('PotterySched
 	id: Schema.String,
 	days: Schema.Array(ScheduleDay),
 	createdAt: Schema.Date
-}) {}
+}) {
+	get file() {
+		return `/file/${this.id}.pdf`;
+	}
+}

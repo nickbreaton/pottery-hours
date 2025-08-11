@@ -1,6 +1,6 @@
 import { DateTime, Effect, Layer, List, MutableList, Random, Schema, Stream } from 'effect';
 import { GoogleSheetsClient } from './GoogleSheetsClient';
-import { PotterySchedule, ScheduleDay, URLFromSpreadsheetId } from './schema';
+import { PotterySchedule, ScheduleDay, SpreadsheetURL } from './schema';
 import { ScheduleAnalyzer } from './ScheduleAnalyzer';
 import { KeyValueStore } from './KeyValueStore';
 
@@ -13,7 +13,7 @@ export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo',
 		const fileKv = (yield* KeyValueStore).forSchema(Schema.Uint8ArrayFromBase64, 'files');
 
 		const create = Effect.fn('create')(function* (spreadsheetURL: string) {
-			const url = yield* Schema.decode(URLFromSpreadsheetId)(spreadsheetURL);
+			const url = yield* Schema.decode(SpreadsheetURL)(spreadsheetURL);
 			const file = yield* googleSheetsClient.download(url);
 
 			const days: ScheduleDay[] = [];
@@ -43,6 +43,10 @@ export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo',
 			return yield* scheduleKv.get(id);
 		});
 
+		const getFile = Effect.fn('getFile')(function* (id: string) {
+			return yield* fileKv.get(id);
+		});
+
 		const del = Effect.fn('delete')(function* (id: string) {
 			yield* fileKv.delete(id);
 			yield* scheduleKv.delete(id);
@@ -52,6 +56,7 @@ export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo',
 			create,
 			list,
 			get,
+			getFile,
 			delete: del
 		};
 	})
