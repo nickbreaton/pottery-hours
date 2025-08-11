@@ -1,7 +1,8 @@
-import { Effect, Schema, Stream } from 'effect';
+import { Effect, Layer, Schema, Stream } from 'effect';
 import { GoogleSheetsClient } from './GoogleSheetsClient';
 import { ScheduleDay, URLFromSpreadsheetId } from './schema';
 import { ScheduleAnalyzer } from './ScheduleAnalyzer';
+import { KeyValueStore } from '@effect/platform';
 
 export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo', {
 	dependencies: [GoogleSheetsClient.Default, ScheduleAnalyzer.Default],

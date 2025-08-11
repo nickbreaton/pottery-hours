@@ -1,7 +1,7 @@
 import { AiInput, AiLanguageModel } from '@effect/ai';
 import { OpenAiLanguageModel } from '@effect/ai-openai';
 import dedent from 'dedent';
-import { Console, DateTime, Effect, Stream } from 'effect';
+import { Console, DateTime, Effect, MutableList, Stream } from 'effect';
 import { JsonStreamParser } from './JsonStreamParser';
 import { ScheduleDay } from './schema';
 import { FetchHttpClient } from '@effect/platform';
@@ -64,10 +64,22 @@ export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('Schedu
 					parts: [filePart, textPart]
 				});
 
+				const days = MutableList.make<ScheduleDay>();
+
+				// TODO: actually implement
+				const save = Effect.fn(function* () {
+					console.log(`Saving schedule with ${MutableList.length(days)} days`);
+				});
+
 				return model.streamText({ prompt }).pipe(
 					Stream.map((response) => response.text),
 					Stream.transduce(JsonStreamParser.makeSink(ScheduleDay)),
-					Stream.flattenChunks
+					Stream.flattenChunks,
+					Stream.tap((day) => {
+						MutableList.append(days, day);
+						return Effect.void;
+					}),
+					Stream.onEnd(save())
 				);
 			}
 		};
