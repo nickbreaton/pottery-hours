@@ -36,9 +36,19 @@ export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo',
 
 		const list = kv.list();
 
+		const get = Effect.fn('get')(function* (id: string) {
+			return yield* kv.get(id);
+		});
+
+		const del = Effect.fn('delete')(function* (id: string) {
+			return yield* kv.delete(id);
+		});
+
 		return {
 			create,
-			list
+			list,
+			get,
+			delete: del
 		};
 	})
 }) {}
