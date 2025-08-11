@@ -1,4 +1,4 @@
-import { command, query } from '$app/server';
+import { command, form, query } from '$app/server';
 import { Effect, Option, Schema } from 'effect';
 import { KeyValueStore } from '$lib/server/KeyValueStore';
 import { ScheduleRepo } from './server/ScheduleRepo';
@@ -31,15 +31,15 @@ export const getSchedule = query(Schema.standardSchemaV1(Schema.String), (id) =>
 	return runtime.runPromise(handler);
 });
 
-export const deleteSchedule = command(Schema.standardSchemaV1(Schema.String), async (id) => {
+export const deleteSchedule = form(async (formData) => {
 	const handler = Effect.gen(function* () {
 		const repo = yield* ScheduleRepo;
+		const id = yield* Schema.decodeUnknown(Schema.String)(formData.get('id'));
 		yield* repo.delete(id);
 	});
 
-	await Promise.all([getSchedule(id).refresh(), getSchedules().refresh()]);
 	await runtime.runPromise(handler);
+	await Promise.all([getSchedules().refresh()]);
 
-	// TODOL this does not appear to work
 	redirect(302, '/');
 });

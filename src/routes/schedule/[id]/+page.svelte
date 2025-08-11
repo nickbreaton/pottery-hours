@@ -12,6 +12,10 @@
 		<p>Something went wrong loading schedule</p>
 	{/snippet}
 
-	<button onclick={() => deleteSchedule(params.id)}>Delete</button>
+	<form {...deleteSchedule}>
+		<input type="hidden" name="id" value={params.id} />
+		<button type="submit">Delete</button>
+	</form>
+
 	<pre>{JSON.stringify(await getSchedule(params.id), null, 4)}</pre>
 </svelte:boundary>
