@@ -7,16 +7,8 @@
 	let validationMessage: string | null = $state(null);
 	let days: (typeof ScheduleDay.Encoded)[] = $state([]);
 
-	$inspect(days);
-
-	const submit: EventHandler<SubmitEvent, HTMLFormElement> = (event) => {
-		event.preventDefault();
-
-		const formData = new FormData(event.currentTarget);
-		const searchParams = new URLSearchParams(formData as {});
-
-		sse?.close();
-		sse = new EventSource(`/api/new?${searchParams}`);
+	$effect(() => {
+		if (!sse) return;
 
 		sse.addEventListener('day', (event) => {
 			const data: typeof DayEvent.Encoded = JSON.parse(event.data);
@@ -33,11 +25,29 @@
 		sse.addEventListener('complete', (event) => {
 			sse?.close();
 		});
+
+		return () => {
+			sse?.close();
+		};
+	});
+
+	const submit: EventHandler<SubmitEvent, HTMLFormElement> = (event) => {
+		event.preventDefault();
+		const formData = new FormData(event.currentTarget);
+		const searchParams = new URLSearchParams(formData as {});
+		sse?.close();
+		sse = new EventSource(`/api/new?${searchParams}`);
 	};
 </script>
 
 <form onsubmit={submit}>
-	<input type="text" name="spreadsheet" placeholder="Enter URL" required />
+	<input
+		type="text"
+		name="spreadsheet"
+		placeholder="Enter URL"
+		required
+		value="https://docs.google.com/spreadsheets/d/1lAC9Kw9sTuaOcvRHznlWlsMZ2RyenqnBY74fbQyoY9c/edit?gid=0#gid=0"
+	/>
 	<button type="submit">Create Schedule</button>
 
 	{#if validationMessage}

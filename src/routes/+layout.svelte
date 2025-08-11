@@ -4,6 +4,17 @@
 	let { children } = $props();
 </script>
 
-<div class="mx-auto max-w-4xl p-3">
-	{@render children()}
-</div>
+<aside>
+	<nav>
+		<ul>
+			<li><a aria-current="page" href="/">New Schedule</a></li>
+			{#each [0, 1, 2] as row}
+				<li>
+					<a href="/schedule/{row}">Schedule {row}</a>
+				</li>
+			{/each}
+		</ul>
+	</nav>
+</aside>
+
+<main>{@render children()}</main>
