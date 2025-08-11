@@ -1,4 +1,4 @@
-import { Effect, Layer, List, MutableList, Random, Schema, Stream } from 'effect';
+import { DateTime, Effect, Layer, List, MutableList, Random, Schema, Stream } from 'effect';
 import { GoogleSheetsClient } from './GoogleSheetsClient';
 import { PotterySchedule, ScheduleDay, URLFromSpreadsheetId } from './schema';
 import { ScheduleAnalyzer } from './ScheduleAnalyzer';
@@ -10,6 +10,7 @@ export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo',
 		const googleSheetsClient = yield* GoogleSheetsClient;
 		const scheduleAnalyzer = yield* ScheduleAnalyzer;
 		const scheduleKv = (yield* KeyValueStore).forSchema(PotterySchedule, 'schedule');
+		const fileKv = (yield* KeyValueStore).forSchema(Schema.Uint8ArrayFromBase64, 'files');
 
 		const create = Effect.fn('create')(function* (spreadsheetURL: string) {
 			const url = yield* Schema.decode(URLFromSpreadsheetId)(spreadsheetURL);
@@ -17,10 +18,12 @@ export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo',
 
 			const days: ScheduleDay[] = [];
 			const id = crypto.randomUUID();
+			const now = yield* DateTime.nowAsDate;
 
 			const save = Effect.gen(function* () {
-				yield* scheduleKv.set(id, PotterySchedule.make({ id, days }));
-				console.log(yield* scheduleKv.list());
+				yield* fileKv.set(id, file);
+				yield* scheduleKv.set(id, PotterySchedule.make({ id, days, createdAt: now }));
+				yield* Effect.log(`Saved schedule id=${id}`);
 			});
 
 			const stream = scheduleAnalyzer.analyze(file).pipe(
@@ -41,7 +44,8 @@ export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo',
 		});
 
 		const del = Effect.fn('delete')(function* (id: string) {
-			return yield* scheduleKv.delete(id);
+			yield* fileKv.delete(id);
+			yield* scheduleKv.delete(id);
 		});
 
 		return {

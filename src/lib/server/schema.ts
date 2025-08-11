@@ -67,5 +67,6 @@ export class ScheduleDay extends Schema.Class<ScheduleDay>('ScheduleDay')({
 
 export class PotterySchedule extends Schema.Class<PotterySchedule>('PotterySchedule')({
 	id: Schema.String,
-	days: Schema.Array(ScheduleDay)
+	days: Schema.Array(ScheduleDay),
+	createdAt: Schema.Date
 }) {}
