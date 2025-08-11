@@ -2,6 +2,7 @@
 	import type { EventHandler } from 'svelte/elements';
 	import type { DayEvent, InvalidEvent } from './api/new/schema';
 	import type { ScheduleDay } from '$lib/server/schema';
+	import { getSchedules } from '$lib/main.remote';
 
 	let sse: EventSource | null = $state(null);
 	let validationMessage: string | null = $state(null);
@@ -22,8 +23,9 @@
 			sse?.close();
 		});
 
-		sse.addEventListener('complete', (event) => {
+		sse.addEventListener('complete', async (event) => {
 			sse?.close();
+			await getSchedules().refresh();
 		});
 
 		return () => {

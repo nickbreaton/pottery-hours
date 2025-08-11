@@ -64,22 +64,10 @@ export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('Schedu
 					parts: [filePart, textPart]
 				});
 
-				const days = MutableList.make<ScheduleDay>();
-
-				// TODO: actually implement
-				const save = Effect.fn(function* () {
-					console.log(`Saving schedule with ${MutableList.length(days)} days`);
-				});
-
 				return model.streamText({ prompt }).pipe(
 					Stream.map((response) => response.text),
 					Stream.transduce(JsonStreamParser.makeSink(ScheduleDay)),
-					Stream.flattenChunks,
-					Stream.tap((day) => {
-						MutableList.append(days, day);
-						return Effect.void;
-					}),
-					Stream.onEnd(save())
+					Stream.flattenChunks
 				);
 			}
 		};

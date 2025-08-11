@@ -1,20 +1,26 @@
 <script lang="ts">
+	import { getSchedules } from '$lib/main.remote';
 	import '../app.css';
 
 	let { children } = $props();
 </script>
 
 <aside>
-	<nav>
-		<ul>
-			<li><a aria-current="page" href="/">New Schedule</a></li>
-			{#each [0, 1, 2] as row}
-				<li>
-					<a href="/schedule/{row}">Schedule {row}</a>
-				</li>
-			{/each}
-		</ul>
-	</nav>
+	<svelte:boundary>
+		{#snippet pending()}
+			<!-- ignore? -->
+		{/snippet}
+		<nav>
+			<ul>
+				<li><a aria-current="page" href="/">New Schedule</a></li>
+				{#each await getSchedules() as id}
+					<li>
+						<a href="/schedule/{id}">Schedule {id}</a>
+					</li>
+				{/each}
+			</ul>
+		</nav>
+	</svelte:boundary>
 </aside>
 
 <main>{@render children()}</main>
