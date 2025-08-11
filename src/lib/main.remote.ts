@@ -39,7 +39,7 @@ export const deleteSchedule = form(async (formData) => {
 	});
 
 	await runtime.runPromise(handler);
-	await Promise.all([getSchedules().refresh()]);
+	await getSchedules().refresh();
 
 	redirect(302, '/');
 });
