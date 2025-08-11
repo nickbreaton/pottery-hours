@@ -9,7 +9,7 @@ import { error, redirect } from '@sveltejs/kit';
 export const getSchedules = query(() => {
 	const handler = Effect.gen(function* () {
 		const repo = yield* ScheduleRepo;
-		return yield* repo.list;
+		return (yield* repo.list()).map((schedule) => schedule.id);
 	});
 
 	return runtime.runPromise(handler);

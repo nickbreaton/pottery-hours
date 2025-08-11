@@ -1,4 +1,4 @@
-import { DateTime, Effect, Layer, List, MutableList, Random, Schema, Stream } from 'effect';
+import { Array, DateTime, Effect, Layer, List, MutableList, Order, Random, Schema, Stream } from 'effect';
 import { GoogleSheetsClient } from './GoogleSheetsClient';
 import { PotterySchedule, ScheduleDay, URLFromSpreadsheetId } from './schema';
 import { ScheduleAnalyzer } from './ScheduleAnalyzer';
@@ -44,9 +44,18 @@ export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo',
 			return stream;
 		});
 
-		// TODO: ensure this returns in chronilogical order
 		// TODO: when building calendar ensure we filter out non-published
-		const list = scheduleKv.list();
+		const list = Effect.fn('list')(function* () {
+			const ids = yield* scheduleKv.list();
+
+			const schedules = yield* Effect.all(
+				ids.map((id) => scheduleKv.get(id).pipe(Effect.flatten)),
+				{ concurrency: 'unbounded' }
+			);
+
+			// TODO: file and fix bug https://github.com/Effect-TS/effect/commit/9dd8979e940915b1cc1b1f264f3d019c77a65a02
+			return Array.sortBy(PotterySchedule.order)(schedules) as PotterySchedule[];
+		});
 
 		const get = Effect.fn('get')(function* (id: string) {
 			return yield* scheduleKv.get(id);

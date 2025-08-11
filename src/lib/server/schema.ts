@@ -1,4 +1,4 @@
-import { ParseResult, Schema } from 'effect';
+import { ParseResult, Schema, Order } from 'effect';
 
 export const URLFromSpreadsheetId = Schema.transformOrFail(Schema.URL, Schema.String, {
 	strict: true,
@@ -72,6 +72,10 @@ export class PotterySchedule extends Schema.Class<PotterySchedule>('PotterySched
 	spreadsheetId: Schema.String,
 	published: Schema.Boolean
 }) {
+	static get order() {
+		return Order.reverse(Order.mapInput(Order.Date, (schedule: PotterySchedule) => schedule.createdAt));
+	}
+
 	get file() {
 		return `/file/${this.id}.pdf`;
 	}
