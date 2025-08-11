@@ -68,7 +68,9 @@ export class ScheduleDay extends Schema.Class<ScheduleDay>('ScheduleDay')({
 export class PotterySchedule extends Schema.Class<PotterySchedule>('PotterySchedule')({
 	id: Schema.String,
 	days: Schema.Array(ScheduleDay),
-	createdAt: Schema.Date
+	createdAt: Schema.Date,
+	spreadsheetId: Schema.String,
+	published: Schema.Boolean
 }) {
 	get file() {
 		return `/file/${this.id}.pdf`;
