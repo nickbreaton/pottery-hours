@@ -1,4 +1,4 @@
-import { ParseResult, Schema, Order } from 'effect';
+import { Order, ParseResult, Schema } from 'effect';
 
 export const URLFromSpreadsheetId = Schema.transformOrFail(Schema.URL, Schema.String, {
 	strict: true,

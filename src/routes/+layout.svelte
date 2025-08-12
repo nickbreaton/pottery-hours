@@ -13,9 +13,9 @@
 		<nav>
 			<ul>
 				<li><a aria-current="page" href="/">New Schedule</a></li>
-				{#each await getSchedules() as id}
+				{#each await getSchedules() as { id, published } (id)}
 					<li>
-						<a href="/schedule/{id}">Schedule {id}</a>
+						<a href="/schedule/{id}">Schedule {id} ({published ? 'Published' : 'Draft'})</a>
 					</li>
 				{/each}
 			</ul>

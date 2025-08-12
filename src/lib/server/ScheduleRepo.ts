@@ -1,8 +1,8 @@
-import { Array, DateTime, Effect, Layer, List, MutableList, Order, Random, Schema, Stream } from 'effect';
+import { Array, DateTime, Effect, Schema, Stream } from 'effect';
 import { GoogleSheetsClient } from './GoogleSheetsClient';
-import { PotterySchedule, ScheduleDay, URLFromSpreadsheetId } from './schema';
-import { ScheduleAnalyzer } from './ScheduleAnalyzer';
 import { KeyValueStore } from './KeyValueStore';
+import { ScheduleAnalyzer } from './ScheduleAnalyzer';
+import { PotterySchedule, ScheduleDay, URLFromSpreadsheetId } from './schema';
 
 export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo', {
 	dependencies: [GoogleSheetsClient.Default, ScheduleAnalyzer.Default, KeyValueStore.Default],
@@ -53,8 +53,7 @@ export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo',
 				{ concurrency: 'unbounded' }
 			);
 
-			// TODO: file and fix bug https://github.com/Effect-TS/effect/commit/9dd8979e940915b1cc1b1f264f3d019c77a65a02
-			return Array.sortBy(PotterySchedule.order)(schedules) as PotterySchedule[];
+			return Array.sortBy<PotterySchedule[]>(PotterySchedule.order)(schedules);
 		});
 
 		const get = Effect.fn('get')(function* (id: string) {
@@ -63,6 +62,13 @@ export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo',
 
 		const getFile = Effect.fn('getFile')(function* (id: string) {
 			return yield* fileKv.get(id);
+		});
+
+		const update = Effect.fn('delete')(function* (id: string, schedule: Partial<PotterySchedule>) {
+			const current = yield* yield* scheduleKv.get(id);
+			const next = PotterySchedule.make({ ...current, ...schedule });
+			yield* scheduleKv.set(id, next);
+			return next;
 		});
 
 		const del = Effect.fn('delete')(function* (id: string) {
@@ -75,6 +81,7 @@ export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo',
 			list,
 			get,
 			getFile,
+			update,
 			delete: del
 		};
 	})

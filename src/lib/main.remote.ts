@@ -1,15 +1,17 @@
 import { command, form, query } from '$app/server';
-import { Effect, Option, Schema } from 'effect';
-import { KeyValueStore } from '$lib/server/KeyValueStore';
-import { ScheduleRepo } from './server/ScheduleRepo';
 import { runtime } from '$lib/server/runtime';
-import { PotterySchedule } from './server/schema';
 import { error, redirect } from '@sveltejs/kit';
+import { Effect, Option, Schema } from 'effect';
+import { ScheduleRepo } from './server/ScheduleRepo';
+import { PotterySchedule } from './server/schema';
 
 export const getSchedules = query(() => {
 	const handler = Effect.gen(function* () {
 		const repo = yield* ScheduleRepo;
-		return (yield* repo.list()).map((schedule) => schedule.id);
+		return (yield* repo.list()).map((schedule) => ({
+			id: schedule.id,
+			published: schedule.published
+		}));
 	});
 
 	return runtime.runPromise(handler);
@@ -30,6 +32,19 @@ export const getSchedule = query(Schema.standardSchemaV1(Schema.String), (id) =>
 
 	return runtime.runPromise(handler);
 });
+
+export const setSchedulePublished = command(
+	Schema.standardSchemaV1(Schema.Struct({ id: Schema.String, published: Schema.Boolean })),
+	async ({ id, published }) => {
+		const handler = Effect.gen(function* () {
+			const repo = yield* ScheduleRepo;
+			yield* repo.update(id, { published });
+		});
+
+		await runtime.runPromise(handler);
+		await Promise.all([getSchedule(id).refresh(), getSchedules().refresh()]);
+	}
+);
 
 export const deleteSchedule = form(async (formData) => {
 	const handler = Effect.gen(function* () {
