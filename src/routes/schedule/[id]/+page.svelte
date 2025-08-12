@@ -13,6 +13,7 @@
 		<p>Something went wrong loading schedule</p>
 	{/snippet}
 
+	<!-- TODO: refactor from snippet to {@const await} -->
 	{@render contents(await getSchedule(params.id))}
 </svelte:boundary>
 
