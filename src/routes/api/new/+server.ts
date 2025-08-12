@@ -3,20 +3,21 @@ import { ScheduleRepo } from '$lib/server/ScheduleRepo';
 import { HttpServerResponse } from '@effect/platform';
 import type { RequestHandler } from '@sveltejs/kit';
 import { Console, Effect, Schema, Stream } from 'effect';
-import { CreateEvent, DayEvent, InvalidEvent, Complete } from './schema';
+import { CreateEvent, DayEvent, InvalidEvent, CompleteEvent } from './schema';
 
 export const GET: RequestHandler = ({ url }) => {
 	const handler = Effect.gen(function* () {
 		const repo = yield* ScheduleRepo;
 
-		return repo.create(url.searchParams.get('spreadsheet')!).pipe(
-			Stream.unwrap,
+		const { stream, id } = yield* repo.create(url.searchParams.get('spreadsheet')!);
+
+		return stream.pipe(
 			Stream.map((day) => DayEvent.make({ type: 'day', data: day })),
 			Stream.catchTags({
 				ParseError: (error) => Stream.succeed(InvalidEvent.make({ type: 'invalid', message: error.message }))
 			}),
 			Stream.flatMap(Schema.encode(CreateEvent)),
-			Stream.concat(Stream.succeed(Complete.make({ type: 'complete' }))),
+			Stream.concat(Stream.succeed(CompleteEvent.make({ type: 'complete', id }))),
 			Stream.map((data) =>
 				new TextEncoder().encode([`event:${data.type}`, `data: ${JSON.stringify(data)}\n\n`].join('\n'))
 			),

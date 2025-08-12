@@ -11,8 +11,9 @@ export const DayEvent = Schema.Struct({
 	data: ScheduleDay
 });
 
-export const Complete = Schema.Struct({
-	type: Schema.Literal('complete')
+export const CompleteEvent = Schema.Struct({
+	type: Schema.Literal('complete'),
+	id: Schema.String
 });
 
-export const CreateEvent = Schema.Union(InvalidEvent, DayEvent, Complete);
+export const CreateEvent = Schema.Union(InvalidEvent, DayEvent, CompleteEvent);

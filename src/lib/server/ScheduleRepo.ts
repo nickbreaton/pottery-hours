@@ -41,7 +41,7 @@ export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo',
 				Stream.onEnd(save)
 			);
 
-			return stream;
+			return { stream, id };
 		});
 
 		const list = Effect.fn('list')(function* ({ published = false } = {}) {

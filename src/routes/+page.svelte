@@ -1,8 +1,9 @@
 <script lang="ts">
 	import type { EventHandler } from 'svelte/elements';
-	import type { DayEvent, InvalidEvent } from './api/new/schema';
+	import type { CompleteEvent, DayEvent, InvalidEvent } from './api/new/schema';
 	import type { ScheduleDay } from '$lib/server/schema';
-	import { getSchedules } from '$lib/main.remote';
+	import { getSchedule, getSchedules } from '$lib/main.remote';
+	import { replaceState } from '$app/navigation';
 
 	let sse: EventSource | null = $state(null);
 	let validationMessage: string | null = $state(null);
@@ -24,8 +25,12 @@
 		});
 
 		sse.addEventListener('complete', async (event) => {
+			const data: typeof CompleteEvent.Encoded = JSON.parse(event.data);
+
 			sse?.close();
-			await getSchedules().refresh();
+			await Promise.all([getSchedule(data.id).refresh(), getSchedules().refresh()]);
+
+			replaceState(`/schedule/${data.id}`, {});
 		});
 
 		return () => {
