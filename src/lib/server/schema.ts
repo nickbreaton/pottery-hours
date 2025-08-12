@@ -63,7 +63,12 @@ export class ScheduleDay extends Schema.Class<ScheduleDay>('ScheduleDay')({
 			end_meridiem: Meridiem
 		})
 	)
-}) {}
+}) {
+	get iso8601() {
+		const monthIndex = Schema.encodeSync(MonthIndexFromMonth)(this.month) + 1;
+		return `${this.year}-${String(monthIndex).padStart(2, '0')}-${String(this.day).padStart(2, '0')}`;
+	}
+}
 
 export class PotterySchedule extends Schema.Class<PotterySchedule>('PotterySchedule')({
 	id: Schema.String,

@@ -3,6 +3,7 @@ import { ScheduleRepo } from './ScheduleRepo';
 import { OpenAiClient, OpenAiConfig } from '@effect/ai-openai';
 import { env } from '$env/dynamic/private';
 import { FetchHttpClient } from '@effect/platform';
+import { CalendarRepo } from './CalendarRepo';
 
 const openRouterLayer = Layer.effect(
 	OpenAiClient.OpenAiClient,
@@ -12,6 +13,7 @@ const openRouterLayer = Layer.effect(
 );
 
 const live = ScheduleRepo.Default.pipe(
+	Layer.merge(CalendarRepo.Default),
 	Layer.provide(openRouterLayer),
 	Layer.provide(Layer.setConfigProvider(ConfigProvider.fromJson(env))),
 	Layer.provide(FetchHttpClient.layer)
