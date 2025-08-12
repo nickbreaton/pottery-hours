@@ -14,7 +14,7 @@ export class CalendarRepo extends Effect.Service<CalendarRepo>()('CalendarRepo',
 		const zoneString = 'America/New_York';
 		const zone = yield* DateTime.zoneFromString(zoneString);
 
-		const feed = Effect.gen(function* () {
+		const feed = Effect.fn('feed')(function* ({ origin }: { origin: string }) {
 			const schedules = yield* scheduleRepo.list({ published: true });
 
 			const calendar = ical({
@@ -67,12 +67,11 @@ export class CalendarRepo extends Effect.Service<CalendarRepo>()('CalendarRepo',
 							created: schedule.createdAt,
 							summary: day.label,
 							timezone: zoneString,
-							attachments: [],
 							url: yield* Schema.encode(URLFromSpreadsheetId)(schedule.spreadsheetId)
 						});
 
 						// TODO: need to get fully resolved URL of deployment
-						event.createAttachment(`http://localhost:5173/file/${schedule.id}.pdf`);
+						event.createAttachment(`${origin}/file/${schedule.id}.pdf`);
 					}
 				}
 			}

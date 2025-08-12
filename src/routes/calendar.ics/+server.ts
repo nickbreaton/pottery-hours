@@ -7,7 +7,7 @@ import { CalendarRepo } from '$lib/server/CalendarRepo';
 export const GET: RequestHandler = async ({ url }) => {
 	const handler = Effect.gen(function* () {
 		const repo = yield* CalendarRepo;
-		return yield* repo.feed;
+		return yield* repo.feed({ origin: url.origin });
 	});
 
 	const response = await runtime.runPromise(handler);
