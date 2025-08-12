@@ -1,10 +1,11 @@
-import { Channel, Schema, Sink, Chunk, Data, Effect } from 'effect';
+import { Channel, Chunk, Data, Effect, Schema, Sink } from 'effect';
 import oboe from 'oboe';
 
 class JsonStreamParseError extends Data.TaggedError('JsonStreamError')<{
 	cause: unknown;
 }> {}
 
+// TODO: revist using Stream.pipeThroughChannel
 export class JsonStreamParser {
 	static makeSink<A, I, R>(schema: Schema.Schema<A, I, R>) {
 		const ob = oboe();
