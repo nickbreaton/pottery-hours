@@ -1,9 +1,9 @@
 <script lang="ts">
+	import { replaceState } from '$app/navigation';
+	import { getSchedule, getSchedules } from '$lib/main.remote';
+	import type { ScheduleDay } from '$lib/server/schema';
 	import type { EventHandler } from 'svelte/elements';
 	import type { CompleteEvent, DayEvent, InvalidEvent } from './api/new/schema';
-	import type { ScheduleDay } from '$lib/server/schema';
-	import { getSchedule, getSchedules } from '$lib/main.remote';
-	import { replaceState } from '$app/navigation';
 
 	let sse: EventSource | null = $state(null);
 	let validationMessage: string | null = $state(null);

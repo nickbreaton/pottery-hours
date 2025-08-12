@@ -1,8 +1,7 @@
+import { CalendarRepo } from '$lib/server/CalendarRepo';
+import { runtime } from '$lib/server/runtime';
 import { Effect } from 'effect';
 import type { RequestHandler } from '../api/new/$types';
-import { ScheduleRepo } from '$lib/server/ScheduleRepo';
-import { runtime } from '$lib/server/runtime';
-import { CalendarRepo } from '$lib/server/CalendarRepo';
 
 export const GET: RequestHandler = async ({ url }) => {
 	const handler = Effect.gen(function* () {

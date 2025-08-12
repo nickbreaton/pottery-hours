@@ -1,11 +1,5 @@
-import {
-	HttpClient,
-	HttpClientResponse,
-	HttpClientRequest,
-	FileSystem,
-	FetchHttpClient
-} from '@effect/platform';
-import { Effect, Layer, Schema } from 'effect';
+import { FetchHttpClient, FileSystem, HttpClient, HttpClientRequest, HttpClientResponse } from '@effect/platform';
+import { Effect, Layer } from 'effect';
 
 export class GoogleSheetsClient extends Effect.Service<GoogleSheetsClient>()('GoogleSheetsClient', {
 	dependencies: [FetchHttpClient.layer],

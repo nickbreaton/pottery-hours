@@ -1,10 +1,10 @@
 import { AiInput, AiLanguageModel } from '@effect/ai';
 import { OpenAiLanguageModel } from '@effect/ai-openai';
+import { FetchHttpClient } from '@effect/platform';
 import dedent from 'dedent';
-import { Console, DateTime, Effect, MutableList, Stream } from 'effect';
+import { DateTime, Effect, Stream } from 'effect';
 import { JsonStreamParser } from './JsonStreamParser';
 import { ScheduleDay } from './schema';
-import { FetchHttpClient } from '@effect/platform';
 
 export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('ScheduleAnalyzer', {
 	dependencies: [
@@ -52,7 +52,7 @@ export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('Schedu
 						{ "month": "January", "day": 2, "year": ${currentYear}, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" }, { "start_hour": 5, "start_minute": 0, "start_meridiem": "PM", "end_hour": 6, "end_minute": 30, "end_meridiem": "PM" } ] },
 						{ "month": "January", "day": 3, "year": ${currentYear}, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] },
 					]
-					`;
+				`;
 
 				const prompt = AiInput.UserMessage.make({
 					parts: [filePart]

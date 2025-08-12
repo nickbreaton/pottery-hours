@@ -1,9 +1,9 @@
-import { Layer, ManagedRuntime, Config, ConfigProvider, Redacted, Effect } from 'effect';
-import { ScheduleRepo } from './ScheduleRepo';
-import { OpenAiClient, OpenAiConfig } from '@effect/ai-openai';
 import { env } from '$env/dynamic/private';
+import { OpenAiClient } from '@effect/ai-openai';
 import { FetchHttpClient } from '@effect/platform';
+import { Config, ConfigProvider, Effect, Layer, ManagedRuntime } from 'effect';
 import { CalendarRepo } from './CalendarRepo';
+import { ScheduleRepo } from './ScheduleRepo';
 
 const openRouterLayer = Layer.effect(
 	OpenAiClient.OpenAiClient,

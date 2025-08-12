@@ -3,7 +3,7 @@ import { ScheduleRepo } from '$lib/server/ScheduleRepo';
 import { HttpServerResponse } from '@effect/platform';
 import type { RequestHandler } from '@sveltejs/kit';
 import { Console, Effect, Schema, Stream } from 'effect';
-import { CreateEvent, DayEvent, InvalidEvent, CompleteEvent } from './schema';
+import { CompleteEvent, CreateEvent, DayEvent, InvalidEvent } from './schema';
 
 export const GET: RequestHandler = ({ url }) => {
 	const handler = Effect.gen(function* () {

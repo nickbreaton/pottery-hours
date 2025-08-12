@@ -1,9 +1,9 @@
-import { Effect, DateTime, MutableHashSet, Schema } from 'effect';
+import dedent from 'dedent';
+import { DateTime, Effect, MutableHashSet, Schema } from 'effect';
+import hourConvert from 'hour-convert';
 import ical from 'ical-generator';
 import { ScheduleRepo } from './ScheduleRepo';
 import { MonthIndexFromMonth, URLFromSpreadsheetId } from './schema';
-import dedent from 'dedent';
-import hourConvert from 'hour-convert';
 
 export class CalendarRepo extends Effect.Service<CalendarRepo>()('CalendarRepo', {
 	dependencies: [ScheduleRepo.Default],

@@ -1,6 +1,6 @@
-import { Effect, Option, Schema } from 'effect';
 import { FileSystem } from '@effect/platform';
 import { NodeFileSystem } from '@effect/platform-node';
+import { Effect, Option, Schema } from 'effect';
 
 class KeyValueError extends Schema.TaggedError<KeyValueError>('KeyValueError')('KeyValueError', {}) {}
 

@@ -1,9 +1,9 @@
+import { runtime } from '$lib/server/runtime';
+import { ScheduleRepo } from '$lib/server/ScheduleRepo';
+import { HttpServerResponse } from '@effect/platform';
+import { error } from '@sveltejs/kit';
 import { Effect, Option } from 'effect';
 import type { RequestHandler } from './$types';
-import { ScheduleRepo } from '$lib/server/ScheduleRepo';
-import { error } from '@sveltejs/kit';
-import { runtime } from '$lib/server/runtime';
-import { HttpServerResponse } from '@effect/platform';
 
 export const GET: RequestHandler = async ({ params }) => {
 	const handler = Effect.gen(function* () {
