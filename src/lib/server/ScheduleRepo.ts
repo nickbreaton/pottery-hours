@@ -1,4 +1,4 @@
-import { Array, DateTime, Effect, Schema, Stream } from 'effect';
+import { Array, DateTime, Effect, pipe, Schema, Stream } from 'effect';
 import { GoogleSheetsClient } from './GoogleSheetsClient';
 import { KeyValueStore } from './KeyValueStore';
 import { ScheduleAnalyzer } from './ScheduleAnalyzer';
@@ -44,8 +44,7 @@ export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo',
 			return stream;
 		});
 
-		// TODO: when building calendar ensure we filter out non-published
-		const list = Effect.fn('list')(function* () {
+		const list = Effect.fn('list')(function* ({ published = false } = {}) {
 			const ids = yield* scheduleKv.list();
 
 			const schedules = yield* Effect.all(
@@ -53,7 +52,11 @@ export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo',
 				{ concurrency: 'unbounded' }
 			);
 
-			return Array.sortBy<PotterySchedule[]>(PotterySchedule.order)(schedules);
+			return pipe(
+				schedules,
+				Array.sortBy(PotterySchedule.order),
+				Array.filter((schedule) => (published ? schedule.published : true))
+			);
 		});
 
 		const get = Effect.fn('get')(function* (id: string) {
