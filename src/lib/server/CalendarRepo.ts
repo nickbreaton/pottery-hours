@@ -2,8 +2,7 @@ import { Effect, DateTime, MutableHashSet, Schema } from 'effect';
 import ical from 'ical-generator';
 import { ScheduleRepo } from './ScheduleRepo';
 import { MonthIndexFromMonth, URLFromSpreadsheetId } from './schema';
-
-// @ts-ignore
+import dedent from 'dedent';
 import hourConvert from 'hour-convert';
 
 export class CalendarRepo extends Effect.Service<CalendarRepo>()('CalendarRepo', {
@@ -20,7 +19,6 @@ export class CalendarRepo extends Effect.Service<CalendarRepo>()('CalendarRepo',
 			const calendar = ical({
 				name: 'Pottery Hours',
 				timezone: zoneString,
-				// TODO: consider using domain name
 				prodId: 'https://github.com/nickbreaton/pottery-hours'
 			});
 
@@ -60,18 +58,22 @@ export class CalendarRepo extends Effect.Service<CalendarRepo>()('CalendarRepo',
 							minutes: hours.end_minute
 						});
 
-						const event = calendar.createEvent({
+						calendar.createEvent({
 							id: `${schedule.id}/${day.iso8601}/${hours.start_hour + hours.start_meridiem}`,
 							start: DateTime.formatIsoZoned(start),
 							end: DateTime.formatIsoZoned(end),
 							created: schedule.createdAt,
 							summary: day.label,
 							timezone: zoneString,
-							url: yield* Schema.encode(URLFromSpreadsheetId)(schedule.spreadsheetId)
-						});
+							description: dedent`
+							  Google Sheet: ${yield* Schema.encode(URLFromSpreadsheetId)(schedule.spreadsheetId)}
 
-						// TODO: need to get fully resolved URL of deployment
-						event.createAttachment(`${origin}/file/${schedule.id}.pdf`);
+								Source document: ${origin}/file/${schedule.id}.pdf
+							`,
+							// Apple Calendar does not support attachments this, but included for completeness.
+							// PDF document is also referenced in the description.
+							attachments: [`${origin}/file/${schedule.id}.pdf`]
+						});
 					}
 				}
 			}
