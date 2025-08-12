@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { deleteSchedule, getSchedule, getSchedules, setSchedulePublished } from '$lib/main.remote';
-	import type { RemoteValue } from '$lib/types/svelte';
 	import type { PageProps } from './$types';
 
 	let { params }: PageProps = $props();
@@ -13,11 +12,12 @@
 		<p>Something went wrong loading schedule</p>
 	{/snippet}
 
-	<!-- TODO: refactor from snippet to {@const await} -->
-	{@render contents(await getSchedule(params.id))}
+	{@render contents()}
 </svelte:boundary>
 
-{#snippet contents(schedule: RemoteValue<typeof getSchedule>)}
+{#snippet contents()}
+	{@const schedule = await getSchedule(params.id)}
+
 	<form {...deleteSchedule}>
 		<input type="hidden" name="id" value={params.id} />
 		<button type="submit">Delete</button>
