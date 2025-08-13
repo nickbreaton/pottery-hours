@@ -17,6 +17,7 @@
         "hour-convert": "^1.0.1",
         "ical-generator": "^9.0.0",
         "lucide-svelte": "^0.539.0",
+        "noop": "^1.0.1",
         "oboe": "^2.1.7",
       },
       "devDependencies": {
@@ -428,6 +429,8 @@
     "node-addon-api": ["node-addon-api@7.1.1", "", {}, "sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ=="],
 
     "node-gyp-build-optional-packages": ["node-gyp-build-optional-packages@5.2.2", "", { "dependencies": { "detect-libc": "^2.0.1" }, "bin": { "node-gyp-build-optional-packages": "bin.js", "node-gyp-build-optional-packages-optional": "optional.js", "node-gyp-build-optional-packages-test": "build-test.js" } }, "sha512-s+w+rBWnpTMwSFbaE0UXsRlg7hU4FjekKU4eyAih5T8nJuNZT1nNsskXpxmeqSK9UzkBl6UgRlnKc8hz8IEqOw=="],
+
+    "noop": ["noop@1.0.1", "", {}, "sha512-Ie26MApU6CpCVRyp1GHFSQsY+zKe3uUXqQnu6bW9dYO/Cb1cpp34nvfi69WHpMvxLeG3Bhu9YV9ItP8z5z1HCQ=="],
 
     "oboe": ["oboe@2.1.7", "", { "dependencies": { "http-https": "^1.0.0" } }, "sha512-Y2oCMU2xgITORaNvIDCvUyn2ZG/5NI19lLjMFThgYzCH+GA/fgYvVcwxAqnZPiMiUrPq64jLzCkBXqKSu/R6MA=="],
 

@@ -42,6 +42,7 @@
 		"hour-convert": "^1.0.1",
 		"ical-generator": "^9.0.0",
 		"lucide-svelte": "^0.539.0",
+		"noop": "^1.0.1",
 		"oboe": "^2.1.7"
 	}
 }
