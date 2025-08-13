@@ -1,6 +1,7 @@
 import { FileSystem } from '@effect/platform';
 import { Config, Effect, Layer, Option, Redacted, Schema } from 'effect';
 import { getStore } from '@netlify/blobs';
+import { env } from '$env/dynamic/private';
 
 class KeyValueError extends Schema.TaggedError<KeyValueError>('KeyValueError')('KeyValueError', {}) {}
 
@@ -101,7 +102,8 @@ export class KeyValueStore extends Effect.Service<KeyValueStore>()('KeyValueStor
 	static Auto = Layer.unwrapEffect(
 		Effect.gen(function* () {
 			const netlifySiteName = yield* Config.option(Config.string('SITE_NAME'));
-			console.log(import.meta.env);
+			console.log('Netlify: ', 'Netlify' in globalThis);
+			console.log(env);
 			if (Option.isSome(netlifySiteName)) {
 				return KeyValueStore.Netlify;
 			} else {
