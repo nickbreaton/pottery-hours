@@ -8,12 +8,12 @@ export const GET: RequestHandler = async ({ request, cookies }) => {
 	const url = new URL(request.url);
 	const secret = url.searchParams.get('secret');
 
-	const result = await AuthRepo.pipe(
+	const isValid = await AuthRepo.pipe(
 		Effect.andThen((repo) => repo.validate(secret)),
-		runtime.runPromiseExit
+		runtime.runPromise
 	);
 
-	if (Exit.isSuccess(result) && result.value) {
+	if (isValid) {
 		cookies.set(AuthRepo.COOKIE_NAME, secret!, {
 			path: '/',
 			httpOnly: true,

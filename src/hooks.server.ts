@@ -14,12 +14,12 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	const cookie = event.cookies.get(AuthRepo.COOKIE_NAME);
 
-	const result = await AuthRepo.pipe(
+	const isValid = await AuthRepo.pipe(
 		Effect.andThen((repo) => repo.validate(cookie)),
-		runtime.runPromiseExit
+		runtime.runPromise
 	);
 
-	if (Exit.isSuccess(result) && result.value) {
+	if (isValid) {
 		return resolve(event);
 	}
 
