@@ -6,7 +6,8 @@ import { Effect, Exit } from 'effect';
 const UNAUTHED_PATH_PREFIX = ['/auth', '/calendar.ics', '/file/'];
 
 export const handle: Handle = async ({ event, resolve }) => {
-	const isUnauthedRoute = UNAUTHED_PATH_PREFIX.some((prefix) => event.url.pathname.startsWith(prefix));
+	console.log(process.env)
+ const isUnauthedRoute = UNAUTHED_PATH_PREFIX.some((prefix) => event.url.pathname.startsWith(prefix));
 
 	if (isUnauthedRoute) {
 		return resolve(event);
