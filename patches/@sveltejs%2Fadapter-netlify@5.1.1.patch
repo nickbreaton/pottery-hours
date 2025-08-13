@@ -1,0 +1,16 @@
+diff --git a/index.js b/index.js
+index 876d57f3372c60346af95a51141bc1e3b12db922..649ab704e2b3a940fbc0c7e84cacd30597f8629c 100644
+--- a/index.js
++++ b/index.js
+@@ -145,8 +145,9 @@ async function generate_edge_functions({ builder }) {
+ 	// We only need to specify paths without the trailing slash because
+ 	// Netlify will handle the optional trailing slash for us
+ 	const excluded = [
+-		// Contains static files
+-		`/${builder.getAppPath()}/*`,
++		// Contains static files – follows Cloudflare adapter setup: https://github.com/sveltejs/kit/blob/233ea22e4e4676c7041d7e225c836c7dc8096c31/packages/adapter-cloudflare/index.js#L214
++		`/${builder.getAppPath()}/immutable/*`,
++		`/${builder.getAppPath()}/version.json`,
+ 		...builder.prerendered.paths,
+ 		...Array.from(assets).flatMap((asset) => {
+ 			if (asset.endsWith('/index.html')) {
