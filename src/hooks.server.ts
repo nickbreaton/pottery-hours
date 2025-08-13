@@ -1,7 +1,7 @@
 import { AuthRepo } from '$lib/server/AuthRepo';
 import { runtime } from '$lib/server/runtime';
 import { error, type Handle } from '@sveltejs/kit';
-import { Effect, Exit } from 'effect';
+import { Effect } from 'effect';
 
 const UNAUTHED_PATH_PREFIX = ['/auth', '/calendar.ics', '/file/'];
 

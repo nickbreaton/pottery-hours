@@ -1,7 +1,7 @@
 import { AuthRepo } from '$lib/server/AuthRepo';
 import { runtime } from '$lib/server/runtime';
 import { error, redirect } from '@sveltejs/kit';
-import { Effect, Exit } from 'effect';
+import { Effect } from 'effect';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ request, cookies }) => {
