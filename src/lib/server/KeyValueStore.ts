@@ -64,14 +64,8 @@ export class KeyValueStore extends Effect.Service<KeyValueStore>()('KeyValueStor
 		Effect.succeed(
 			KeyValueStore.make({
 				forSchema: Effect.fn(function* (schema, namespace) {
-					const siteID = yield* Config.string('SITE_ID').pipe(Effect.orDie);
-					const token = yield* Config.redacted('NETLIFY_FUNCTIONS_TOKEN').pipe(Effect.orDie);
-
-					const store = getStore({
-						name: namespace,
-						siteID,
-						token: Redacted.value(token)
-					});
+					console.log(process.env);
+					const store = getStore(namespace);
 
 					return {
 						set: (key, value) =>
