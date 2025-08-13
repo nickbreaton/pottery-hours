@@ -5,22 +5,27 @@
 	let { children } = $props();
 </script>
 
-<aside>
-	<svelte:boundary>
-		{#snippet pending()}
-			<!-- ignore? -->
-		{/snippet}
-		<nav>
-			<ul>
-				<li><a aria-current="page" href="/">New Schedule</a></li>
-				{#each await getSchedules() as { id, published } (id)}
-					<li>
-						<a href="/schedule/{id}">Schedule {id} ({published ? 'Published' : 'Draft'})</a>
-					</li>
-				{/each}
-			</ul>
-		</nav>
-	</svelte:boundary>
-</aside>
+<div class="flex">
+	<aside class="max-w-72 bg-stone-100 p-4 relative overflow-hidden">
+		<div
+			class="absolute pointer-events-none right-0 -left-5 -top-5 -bottom-5 inset-shadow-sm inset-shadow-zinc-300/25"
+		></div>
+		<svelte:boundary>
+			{#snippet pending()}
+				<!-- ignore? -->
+			{/snippet}
+			<nav>
+				<ul>
+					<li><a aria-current="page" href="/">New schedule</a></li>
+					{#each await getSchedules() as { id, published } (id)}
+						<li>
+							<a href="/schedule/{id}">Schedule {id} ({published ? 'Published' : 'Draft'})</a>
+						</li>
+					{/each}
+				</ul>
+			</nav>
+		</svelte:boundary>
+	</aside>
 
-<main>{@render children()}</main>
+	<main class="flex-1">{@render children()}</main>
+</div>
