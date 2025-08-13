@@ -5,12 +5,14 @@ import { ScheduleAnalyzer } from './ScheduleAnalyzer';
 import { PotterySchedule, ScheduleDay, URLFromSpreadsheetId } from './schema';
 
 export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo', {
-	dependencies: [GoogleSheetsClient.Default, ScheduleAnalyzer.Default, KeyValueStore.Default],
+	dependencies: [GoogleSheetsClient.Default, ScheduleAnalyzer.Default],
 	effect: Effect.gen(function* () {
 		const googleSheetsClient = yield* GoogleSheetsClient;
 		const scheduleAnalyzer = yield* ScheduleAnalyzer;
-		const scheduleKv = (yield* KeyValueStore).forSchema(PotterySchedule, 'schedule');
-		const fileKv = (yield* KeyValueStore).forSchema(Schema.Uint8ArrayFromBase64, 'files');
+
+		const kv = yield* KeyValueStore;
+		const scheduleKv = yield* kv.forSchema(PotterySchedule, 'schedule');
+		const fileKv = yield* kv.forSchema(Schema.Uint8ArrayFromBase64, 'files');
 
 		const create = Effect.fn('create')(function* (spreadsheetURL: string) {
 			const spreadsheetId = yield* Schema.decode(URLFromSpreadsheetId)(spreadsheetURL);

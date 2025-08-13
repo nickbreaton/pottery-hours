@@ -34,6 +34,8 @@
 		"@effect/language-service": "^0.35.2",
 		"@effect/platform": "^0.90.2",
 		"@effect/platform-node": "^0.95.0",
+		"@netlify/blobs": "^10.0.8",
+		"@sveltejs/adapter-netlify": "^5.1.1",
 		"@types/oboe": "^2.1.4",
 		"dedent": "^1.6.0",
 		"effect": "^3.17.7",
