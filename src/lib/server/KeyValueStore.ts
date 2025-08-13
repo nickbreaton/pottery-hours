@@ -1,5 +1,4 @@
 import { FileSystem } from '@effect/platform';
-import { NodeFileSystem } from '@effect/platform-node';
 import { Config, Effect, Layer, Option, Redacted, Schema } from 'effect';
 import { getStore } from '@netlify/blobs';
 
@@ -8,7 +7,7 @@ class KeyValueError extends Schema.TaggedError<KeyValueError>('KeyValueError')('
 const asKeyValueError = Effect.catchAll(() => Effect.fail(new KeyValueError()));
 
 export class KeyValueStore extends Effect.Service<KeyValueStore>()('KeyValueStore', {
-	dependencies: [NodeFileSystem.layer],
+	dependencies: [],
 	effect: Effect.gen(function* () {
 		const dir = './tmp';
 		const path = `${dir}/kv.json`;
@@ -103,7 +102,13 @@ export class KeyValueStore extends Effect.Service<KeyValueStore>()('KeyValueStor
 	static Auto = Layer.unwrapEffect(
 		Effect.gen(function* () {
 			const netlifySiteName = yield* Config.option(Config.string('SITE_NAME'));
-			return Option.isSome(netlifySiteName) ? KeyValueStore.Netlify : KeyValueStore.Default;
+
+			if (Option.isSome(netlifySiteName)) {
+				return KeyValueStore.Netlify;
+			} else {
+				const { NodeFileSystem } = yield* Effect.promise(() => import('@effect/platform-node'));
+				return KeyValueStore.Default.pipe(Layer.provide(NodeFileSystem.layer));
+			}
 		})
 	);
 }
