@@ -101,10 +101,7 @@ export class KeyValueStore extends Effect.Service<KeyValueStore>()('KeyValueStor
 
 	static Auto = Layer.unwrapEffect(
 		Effect.gen(function* () {
-			const netlifySiteName = yield* Config.option(Config.string('SITE_NAME'));
-			console.log('Netlify: ', 'Netlify' in globalThis);
-			console.log(env);
-			if (Option.isSome(netlifySiteName)) {
+			if ('Netlify' in globalThis) {
 				return KeyValueStore.Netlify;
 			} else {
 				const { NodeFileSystem } = yield* Effect.promise(() => import('@effect/platform-node'));
