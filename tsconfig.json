@@ -13,8 +13,7 @@
 		"noImplicitAny": true,
 		"plugins": [
 			{
-				"name": "@effect/language-service",
-				"namespaceImportPackages": ["effect", "@effect/*"]
+				"name": "@effect/language-service"
 			}
 		]
 	}

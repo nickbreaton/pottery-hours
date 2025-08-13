@@ -4,6 +4,7 @@ import { FetchHttpClient } from '@effect/platform';
 import { Config, ConfigProvider, Effect, Layer, ManagedRuntime } from 'effect';
 import { CalendarRepo } from './CalendarRepo';
 import { ScheduleRepo } from './ScheduleRepo';
+import { AuthRepo } from './AuthRepo';
 
 const openRouterLayer = Layer.effect(
 	OpenAiClient.OpenAiClient,
@@ -13,6 +14,7 @@ const openRouterLayer = Layer.effect(
 );
 
 const live = ScheduleRepo.Default.pipe(
+	Layer.merge(AuthRepo.Default),
 	Layer.merge(CalendarRepo.Default),
 	Layer.provide(openRouterLayer),
 	Layer.provide(Layer.setConfigProvider(ConfigProvider.fromJson(env))),
