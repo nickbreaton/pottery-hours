@@ -1,6 +1,6 @@
 import { FileSystem } from '@effect/platform';
 import { NodeFileSystem } from '@effect/platform-node';
-import { Config, Effect, Layer, Option, Schema } from 'effect';
+import { Config, Effect, Layer, Option, Redacted, Schema } from 'effect';
 import { getDeployStore } from '@netlify/blobs';
 
 class KeyValueError extends Schema.TaggedError<KeyValueError>('KeyValueError')('KeyValueError', {}) {}
@@ -64,7 +64,15 @@ export class KeyValueStore extends Effect.Service<KeyValueStore>()('KeyValueStor
 		Effect.succeed(
 			KeyValueStore.make({
 				forSchema: Effect.fn(function* (schema, namespace) {
-					const store = getDeployStore(namespace);
+					const siteID = yield* Config.string('SITE_ID').pipe(Effect.orDie);
+					const token = yield* Config.redacted('NETLIFY_FUNCTIONS_TOKEN').pipe(Effect.orDie);
+
+					const store = getDeployStore({
+						name: namespace,
+						siteID,
+						token: Redacted.value(token)
+					});
+
 					return {
 						set: (key, value) =>
 							Effect.gen(function* () {
