@@ -19,7 +19,7 @@ const live = ScheduleRepo.Default.pipe(
 	Layer.merge(CalendarRepo.Default),
 	Layer.provide(KeyValueStore.Auto),
 	Layer.provide(openRouterLayer),
-	Layer.provide(Layer.setConfigProvider(ConfigProvider.fromJson(env))),
+	Layer.provide(Layer.setConfigProvider(ConfigProvider.fromJson({ ...process.env, ...env }))),
 	Layer.provide(FetchHttpClient.layer)
 );
 
