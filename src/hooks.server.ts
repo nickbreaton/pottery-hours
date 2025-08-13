@@ -15,7 +15,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const cookie = event.cookies.get(AuthRepo.COOKIE_NAME);
 
 	const isValid = await AuthRepo.pipe(
-		Effect.andThen((repo) => repo.validate(cookie)),
+		Effect.andThen((repo) => repo.validate(cookie ?? '')),
 		runtime.runPromise
 	);
 
