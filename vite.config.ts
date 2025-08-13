@@ -1,14 +1,8 @@
 import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
-
-console.log(process.env);
+import { netlifyCompat } from './src/vite/plugin-netlify-compat';
 
 export default defineConfig({
-	plugins: [tailwindcss(), sveltekit()],
-	resolve: {
-		alias: {
-			'@effect/platform-node': 'noop'
-		}
-	}
+	plugins: [tailwindcss(), sveltekit(), netlifyCompat()]
 });

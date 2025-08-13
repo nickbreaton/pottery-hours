@@ -63,7 +63,6 @@ export class KeyValueStore extends Effect.Service<KeyValueStore>()('KeyValueStor
 		Effect.succeed(
 			KeyValueStore.make({
 				forSchema: Effect.fn(function* (schema, namespace) {
-					console.log(process.env);
 					const store = getStore(namespace);
 
 					return {
