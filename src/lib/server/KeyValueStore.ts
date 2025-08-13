@@ -101,7 +101,7 @@ export class KeyValueStore extends Effect.Service<KeyValueStore>()('KeyValueStor
 	static Auto = Layer.unwrapEffect(
 		Effect.gen(function* () {
 			const isNetlify = yield* Config.option(Config.boolean('NETLIFY'));
-			return isNetlify ? KeyValueStore.Netlify : KeyValueStore.Default;
+			return Option.getOrElse(isNetlify, () => false) ? KeyValueStore.Netlify : KeyValueStore.Default;
 		})
 	);
 }
