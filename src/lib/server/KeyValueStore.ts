@@ -89,8 +89,9 @@ export class KeyValueStore extends Effect.Service<KeyValueStore>()('KeyValueStor
 
 						list: () =>
 							Effect.gen(function* () {
-								const result = yield* Effect.promise(() => store.list({ paginate: false }));
-								return result.directories;
+								const result = yield* Effect.promise(() => store.list());
+								console.log(result.blobs);
+								return result.blobs.map((blob) => blob.key);
 							}).pipe(asKeyValueError)
 					};
 				})
