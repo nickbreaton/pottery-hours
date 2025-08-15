@@ -63,7 +63,10 @@ export class KeyValueStore extends Effect.Service<KeyValueStore>()('KeyValueStor
 		Effect.succeed(
 			KeyValueStore.make({
 				forSchema: Effect.fn(function* (schema, namespace) {
-					const store = getStore(namespace);
+					const store = getStore({
+						name: namespace,
+						consistency: 'strong'
+					});
 
 					return {
 						set: (key, value) =>
@@ -90,7 +93,6 @@ export class KeyValueStore extends Effect.Service<KeyValueStore>()('KeyValueStor
 						list: () =>
 							Effect.gen(function* () {
 								const result = yield* Effect.promise(() => store.list());
-								console.log(result.blobs);
 								return result.blobs.map((blob) => blob.key);
 							}).pipe(asKeyValueError)
 					};
