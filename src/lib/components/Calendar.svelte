@@ -17,15 +17,21 @@
 	function parseEnigmaMonth(date: string) {
 		return parseInt(date.split('-')[1]);
 	}
+
+	function formatEnigmaCalendarDay(date: string) {
+		const day = parseEnigmaDay(date);
+		const monthPrefix = MONTHS[parseEnigmaMonth(date) - 1].substring(0, 3);
+		return day === 1 ? `${monthPrefix} ${day}` : day;
+	}
 </script>
 
 <script lang="ts">
-	import CalendarJS from '@enigmaoffline/calendarjs';
+	import EnigmaCalendar from '@enigmaoffline/calendarjs';
 	import { type ScheduleDay } from '$lib/server/schema';
 	import { MONTHS } from '$lib/utils/datetime';
 
 	let { days }: { days: Readonly<EncodedDay[]> } = $props();
-	let activeMonthSubsetIndex = $state(0);
+	let visibleMonthIndex = $state(0);
 
 	const months = $derived.by(() => {
 		const result: [year: number, month: number][] = [];
@@ -45,55 +51,57 @@
 		return result;
 	});
 
-	const month = $derived(months[activeMonthSubsetIndex]);
+	const month = $derived(months[visibleMonthIndex]);
 	const monthIndex = $derived(month[1] - 1);
 
 	const monthLabel = $derived(MONTHS[monthIndex]);
 	const yearLabel = $derived(month[0]);
 
-	const cal = $derived(new CalendarJS(...month));
+	const cal = $derived(new EnigmaCalendar(...month));
 	const grid = $derived(cal.getGrid());
 </script>
 
 <div class="p-6 text-left">
 	<div>
 		<button
-			onclick={() => (activeMonthSubsetIndex = Math.max(0, activeMonthSubsetIndex - 1))}
-			disabled={activeMonthSubsetIndex <= 0}
+			onclick={() => (visibleMonthIndex = Math.max(0, visibleMonthIndex - 1))}
+			disabled={visibleMonthIndex <= 0}
 			class="disabled:opacity-35">←</button
 		>
 		<button
-			onclick={() => (activeMonthSubsetIndex = Math.min(months.length - 1, activeMonthSubsetIndex + 1))}
-			disabled={activeMonthSubsetIndex >= months.length - 1}
+			onclick={() => (visibleMonthIndex = Math.min(months.length - 1, visibleMonthIndex + 1))}
+			disabled={visibleMonthIndex >= months.length - 1}
 			class="disabled:opacity-35">→</button
 		>
 	</div>
 
 	<h1>{monthLabel} {yearLabel}</h1>
 
-	<table class="table-fixed w-full border-zinc-200/75">
+	<table class="table-fixed w-full">
 		<thead>
 			<tr>
-				<th>Sunday</th>
-				<th>Monday</th>
-				<th>Tuesday</th>
-				<th>Wednesday</th>
-				<th>Thursday</th>
-				<th>Friday</th>
-				<th>Saturday</th>
+				<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 border border-zinc-200/75">Sunday</th>
+				<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 border border-zinc-200/75">Monday</th>
+				<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 border border-zinc-200/75">Tuesday</th>
+				<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 border border-zinc-200/75">Wednesday</th>
+				<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 border border-zinc-200/75">Thursday</th>
+				<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 border border-zinc-200/75">Friday</th>
+				<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 border border-zinc-200/75">Saturday</th>
 			</tr>
 		</thead>
-		<tbody class="border-inherit">
+		<tbody>
 			{#each grid as row, index (`${row[0]}-${index}`)}
-				<tr class="border-inherit">
+				<tr>
 					{#each row as date}
 						{@const day = days.find((day) => date === toEnigmaDateString(day))}
 						<td
 							data-inactive={monthIndex !== parseEnigmaMonth(date) - 1 ? 'true' : null}
-							class="align-top h-32 border border-inherit p-2 cursor-default"
+							class="align-top h-32 border border-zinc-200/75 p-2 cursor-default"
 						>
 							<div class="flex flex-col gap-1">
-								<span class="text-end text-zinc-800 in-data-inactive:text-zinc-400">{parseEnigmaDay(date)}</span>
+								<span class="text-end text-zinc-800 in-data-inactive:text-zinc-400">
+									{formatEnigmaCalendarDay(date)}
+								</span>
 								{#if day}
 									<ul class="space-y-1.5 pb-2">
 										{#each day.hours as hour}
@@ -104,7 +112,7 @@
 												<span class="font-medium text-sm overflow-ellipsis overflow-hidden whitespace-nowrap">
 													{day.label}
 												</span>
-												<span class="text-xs"> {formatHour(hour, 'start')} – {formatHour(hour, 'end')}</span>
+												<span class="text-xs">{formatHour(hour, 'start')} – {formatHour(hour, 'end')}</span>
 											</li>
 										{/each}
 									</ul>

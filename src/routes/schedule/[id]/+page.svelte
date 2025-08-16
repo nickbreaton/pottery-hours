@@ -13,7 +13,9 @@
 		<p>Something went wrong loading schedule</p>
 	{/snippet}
 
-	{@render contents()}
+	{#key params.id}
+		{@render contents()}
+	{/key}
 </svelte:boundary>
 
 {#snippet contents()}
