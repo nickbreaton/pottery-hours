@@ -9,6 +9,14 @@
 	function formatHour(hour: EncodedDay['hours'][number], type: 'start' | 'end') {
 		return `${hour[`${type}_hour`]}:${String(hour[`${type}_minute`]).padStart(2, '0')}${hour[`${type}_meridiem`].toLowerCase()}`;
 	}
+
+	function parseEnigmaDay(date: string) {
+		return parseInt(date.split('-')[0]);
+	}
+
+	function parseEnigmaMonth(date: string) {
+		return parseInt(date.split('-')[1]);
+	}
 </script>
 
 <script lang="ts">
@@ -17,7 +25,7 @@
 	import { MONTHS } from '$lib/utils/datetime';
 
 	let { days }: { days: Readonly<EncodedDay[]> } = $props();
-	let activeMonthIndex = $state(0);
+	let activeMonthSubsetIndex = $state(0);
 
 	const months = $derived.by(() => {
 		const result: [year: number, month: number][] = [];
@@ -37,9 +45,10 @@
 		return result;
 	});
 
-	const month = $derived(months[activeMonthIndex]);
+	const month = $derived(months[activeMonthSubsetIndex]);
+	const monthIndex = $derived(month[1] - 1);
 
-	const monthLabel = $derived(MONTHS[month[1] - 1]);
+	const monthLabel = $derived(MONTHS[monthIndex]);
 	const yearLabel = $derived(month[0]);
 
 	const cal = $derived(new CalendarJS(...month));
@@ -49,13 +58,13 @@
 <div class="p-6 text-left">
 	<div>
 		<button
-			onclick={() => (activeMonthIndex = Math.max(0, activeMonthIndex - 1))}
-			disabled={activeMonthIndex <= 0}
+			onclick={() => (activeMonthSubsetIndex = Math.max(0, activeMonthSubsetIndex - 1))}
+			disabled={activeMonthSubsetIndex <= 0}
 			class="disabled:opacity-35">←</button
 		>
 		<button
-			onclick={() => (activeMonthIndex = Math.min(months.length - 1, activeMonthIndex + 1))}
-			disabled={activeMonthIndex >= months.length - 1}
+			onclick={() => (activeMonthSubsetIndex = Math.min(months.length - 1, activeMonthSubsetIndex + 1))}
+			disabled={activeMonthSubsetIndex >= months.length - 1}
 			class="disabled:opacity-35">→</button
 		>
 	</div>
@@ -79,23 +88,28 @@
 				<tr class="border-inherit">
 					{#each row as date}
 						{@const day = days.find((day) => date === toEnigmaDateString(day))}
-						<td class="align-top h-32 border border-inherit p-1.5 cursor-default">
-							{#if day}
-								<ul class="space-y-1.5">
-									{#each day.hours as hour}
-										<li
-											class="bg-purple-100 text-purple-900/90 rounded-md p-1 px-2 flex -space-y-0.5 flex-col border border-purple-900/10"
-										>
-											<span class="font-medium text-sm overflow-ellipsis overflow-hidden whitespace-nowrap">
-												{day.label}
-											</span>
-											<span class="text-xs"> {formatHour(hour, 'start')} – {formatHour(hour, 'end')}</span>
-										</li>
-									{/each}
-								</ul>
-							{:else}
-								<span>-</span>
-							{/if}
+						<td
+							data-inactive={monthIndex !== parseEnigmaMonth(date) - 1 ? 'true' : null}
+							class="align-top h-32 border border-inherit p-2 cursor-default"
+						>
+							<div class="flex flex-col gap-1">
+								<span class="text-end text-zinc-800 in-data-inactive:text-zinc-400">{parseEnigmaDay(date)}</span>
+								{#if day}
+									<ul class="space-y-1.5 pb-2">
+										{#each day.hours as hour}
+											<li
+												class="bg-purple-100 text-purple-900/90 rounded-md p-1 px-2 flex -space-y-0.5 flex-col border border-purple-900/10 in-data-inactive:opacity-50"
+												title={day.label}
+											>
+												<span class="font-medium text-sm overflow-ellipsis overflow-hidden whitespace-nowrap">
+													{day.label}
+												</span>
+												<span class="text-xs"> {formatHour(hour, 'start')} – {formatHour(hour, 'end')}</span>
+											</li>
+										{/each}
+									</ul>
+								{/if}
+							</div>
 						</td>
 					{/each}
 				</tr>
