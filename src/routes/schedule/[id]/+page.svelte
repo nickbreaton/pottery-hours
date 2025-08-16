@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Calendar from '$lib/components/Calendar.svelte';
 	import { deleteSchedule, getSchedule, getSchedules, setSchedulePublished } from '$lib/main.remote';
 	import type { PageProps } from './$types';
 
@@ -42,5 +43,5 @@
 		{schedule.published ? 'Unpublish' : 'Publish'}
 	</button>
 
-	<pre>{JSON.stringify(schedule, null, 4)}</pre>
+	<Calendar days={schedule.days} />
 {/snippet}

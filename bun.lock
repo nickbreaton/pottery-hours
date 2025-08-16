@@ -9,6 +9,7 @@
         "@effect/language-service": "^0.35.2",
         "@effect/platform": "^0.90.2",
         "@effect/platform-node": "^0.95.0",
+        "@enigmaoffline/calendarjs": "^1.0.5",
         "@netlify/blobs": "^10.0.8",
         "@sveltejs/adapter-netlify": "^5.1.1",
         "@types/oboe": "^2.1.4",
@@ -64,6 +65,8 @@
     "@effect/sql": ["@effect/sql@0.38.2", "", { "dependencies": { "@opentelemetry/semantic-conventions": "^1.33.0", "uuid": "^11.0.3" }, "peerDependencies": { "@effect/experimental": "^0.49.2", "@effect/platform": "^0.85.2", "effect": "^3.16.8" } }, "sha512-hZNFlVDINrORcLyVuL8zhjjR3ghR4WxzQZZdqmkKKi3C5sE7AOl6TUNogkqmepKw0aLWF0MbLi46/htgeRtsCQ=="],
 
     "@effect/workflow": ["@effect/workflow@0.2.4", "", { "peerDependencies": { "@effect/platform": "^0.85.2", "@effect/rpc": "^0.62.4", "effect": "^3.16.8" } }, "sha512-FUvZ3x2uDqRwNYJ4e5Mz0YO9MncH3o4uDLOtFRuTCW+NnMN0dLAiEwg2TsLwtWEm1xayAyk6Nn1+AM6TUmFLhw=="],
+
+    "@enigmaoffline/calendarjs": ["@enigmaoffline/calendarjs@1.0.5", "", {}, "sha512-LzGb53H3BYJCjFvAvnpoQtJB0AdLmHBNkUZ958UCI27U9AV2EEa465ld97v12u96TGq8is/rpnuXHktI4kbvgQ=="],
 
     "@envelop/instrumentation": ["@envelop/instrumentation@1.0.0", "", { "dependencies": { "@whatwg-node/promise-helpers": "^1.2.1", "tslib": "^2.5.0" } }, "sha512-cxgkB66RQB95H3X27jlnxCRNTmPuSTgmBAq6/4n2Dtv4hsk4yz8FadA1ggmd0uZzvKqWD6CR+WFgTjhDqg7eyw=="],
 

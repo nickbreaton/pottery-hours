@@ -5,6 +5,7 @@
 	import type { EventHandler } from 'svelte/elements';
 	import type { CompleteEvent, DayEvent, InvalidEvent } from './api/new/schema';
 	import { WandSparkles } from 'lucide-svelte';
+	import Calendar from '$lib/components/Calendar.svelte';
 
 	let sse: EventSource | null = $state(null);
 	let validationMessage: string | null = $state(null);
@@ -92,7 +93,7 @@
 		{/if}
 	</form>
 
-	<!-- {#each days as day}
-		<pre>{JSON.stringify(day, null, 2)}</pre>
-	{/each} -->
+	{#if days.length > 0}
+		<Calendar {days} />
+	{/if}
 </div>

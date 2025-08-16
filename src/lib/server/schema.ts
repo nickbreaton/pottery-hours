@@ -1,3 +1,5 @@
+import { MONTHS } from '$lib/utils/datetime';
+
 import { Order, ParseResult, Schema } from 'effect';
 
 export const URLFromSpreadsheetId = Schema.transformOrFail(Schema.URL, Schema.String, {
@@ -25,25 +27,12 @@ export const URLFromSpreadsheetId = Schema.transformOrFail(Schema.URL, Schema.St
 	}
 });
 
-export const Month = Schema.Literal(
-	'January',
-	'February',
-	'March',
-	'April',
-	'May',
-	'June',
-	'July',
-	'August',
-	'September',
-	'October',
-	'November',
-	'December'
-);
+export const Month = Schema.Literal(...MONTHS);
 
 export const MonthIndexFromMonth = Schema.transform(Schema.Int, Month, {
 	strict: true,
-	decode: (index) => Array.from(Month.literals)[index],
-	encode: (month) => Array.from(Month.literals).findIndex((m) => m === month)
+	decode: (index) => MONTHS[index],
+	encode: (month) => MONTHS.findIndex((m) => m === month)
 });
 
 export const Meridiem = Schema.Literal('AM', 'PM');
