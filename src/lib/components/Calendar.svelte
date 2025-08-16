@@ -46,49 +46,60 @@
 	const grid = $derived(cal.getGrid());
 </script>
 
-<div>
-	<button
-		onclick={() => (activeMonthIndex = Math.max(0, activeMonthIndex - 1))}
-		disabled={activeMonthIndex <= 0}
-		class="disabled:opacity-35">←</button
-	>
-	<button
-		onclick={() => (activeMonthIndex = Math.min(months.length - 1, activeMonthIndex + 1))}
-		disabled={activeMonthIndex >= months.length - 1}
-		class="disabled:opacity-35">→</button
-	>
-</div>
+<div class="p-6 text-left">
+	<div>
+		<button
+			onclick={() => (activeMonthIndex = Math.max(0, activeMonthIndex - 1))}
+			disabled={activeMonthIndex <= 0}
+			class="disabled:opacity-35">←</button
+		>
+		<button
+			onclick={() => (activeMonthIndex = Math.min(months.length - 1, activeMonthIndex + 1))}
+			disabled={activeMonthIndex >= months.length - 1}
+			class="disabled:opacity-35">→</button
+		>
+	</div>
 
-<h1>{monthLabel} {yearLabel}</h1>
+	<h1>{monthLabel} {yearLabel}</h1>
 
-<table>
-	<thead>
-		<tr>
-			<th>Sunday</th>
-			<th>Monday</th>
-			<th>Tuesday</th>
-			<th>Wednesday</th>
-			<th>Thursday</th>
-			<th>Friday</th>
-			<th>Saturday</th>
-		</tr>
-	</thead>
-	<tbody>
-		{#each grid as row, index (`${row[0]}-${index}`)}
+	<table class="table-fixed w-full border-zinc-200/75">
+		<thead>
 			<tr>
-				{#each row as date}
-					{@const day = days.find((day) => date === toEnigmaDateString(day))}
-					<td class="p-2">
-						{#if day}
-							{#each day.hours as hour}
-								<div>{formatHour(hour, 'start')} – {formatHour(hour, 'end')}</div>
-							{/each}
-						{:else}
-							<span>-</span>
-						{/if}
-					</td>
-				{/each}
+				<th>Sunday</th>
+				<th>Monday</th>
+				<th>Tuesday</th>
+				<th>Wednesday</th>
+				<th>Thursday</th>
+				<th>Friday</th>
+				<th>Saturday</th>
 			</tr>
-		{/each}
-	</tbody>
-</table>
+		</thead>
+		<tbody class="border-inherit">
+			{#each grid as row, index (`${row[0]}-${index}`)}
+				<tr class="border-inherit">
+					{#each row as date}
+						{@const day = days.find((day) => date === toEnigmaDateString(day))}
+						<td class="align-top h-32 border border-inherit p-1.5 cursor-default">
+							{#if day}
+								<ul class="space-y-1.5">
+									{#each day.hours as hour}
+										<li
+											class="bg-purple-100 text-purple-900/90 rounded-md p-1 px-2 flex -space-y-0.5 flex-col border border-purple-900/10"
+										>
+											<span class="font-medium text-sm overflow-ellipsis overflow-hidden whitespace-nowrap">
+												{day.label}
+											</span>
+											<span class="text-xs"> {formatHour(hour, 'start')} – {formatHour(hour, 'end')}</span>
+										</li>
+									{/each}
+								</ul>
+							{:else}
+								<span>-</span>
+							{/if}
+						</td>
+					{/each}
+				</tr>
+			{/each}
+		</tbody>
+	</table>
+</div>
