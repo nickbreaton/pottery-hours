@@ -3,6 +3,7 @@ import { GoogleSheetsClient } from './GoogleSheetsClient';
 import { KeyValueStore } from './KeyValueStore';
 import { ScheduleAnalyzer } from './ScheduleAnalyzer';
 import { PotterySchedule, ScheduleDay, URLFromSpreadsheetId } from './schema';
+import { nanoid } from 'nanoid';
 
 export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo', {
 	dependencies: [GoogleSheetsClient.Default, ScheduleAnalyzer.Default],
@@ -19,7 +20,7 @@ export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo',
 			const file = yield* googleSheetsClient.download(spreadsheetId);
 
 			const days: ScheduleDay[] = [];
-			const id = crypto.randomUUID();
+			const id = nanoid(8).replace(/_|-/g, 'a');
 			const now = yield* DateTime.nowAsDate;
 
 			const save = Effect.gen(function* () {
