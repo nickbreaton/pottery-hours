@@ -94,6 +94,6 @@
 	</form>
 
 	{#if days.length > 0}
-		<Calendar {days} />
+		<Calendar {days} followDays={true} />
 	{/if}
 </div>

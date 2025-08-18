@@ -31,8 +31,12 @@
 	import { MONTHS } from '$lib/utils/datetime';
 	import { ArrowLeft, ArrowRight } from 'lucide-svelte';
 
-	let { days }: { days: Readonly<EncodedDay[]> } = $props();
-	let visibleMonthIndex = $state(0);
+	interface Props {
+		days: Readonly<EncodedDay[]>;
+		followDays?: boolean;
+	}
+
+	let { days, followDays }: Props = $props();
 
 	const months = $derived.by(() => {
 		const result: [year: number, month: number][] = [];
@@ -52,6 +56,8 @@
 		return result;
 	});
 
+	let visibleMonthIndex = $derived(followDays ? months.length - 1 : 0);
+
 	const month = $derived(months[visibleMonthIndex]);
 	const monthIndex = $derived(month[1] - 1);
 
@@ -66,18 +72,24 @@
 	<div class="grid grid-cols-[1fr_auto_1fr] items-center">
 		<div class="flex gap-1.5">
 			<button
-				onclick={() => (visibleMonthIndex = Math.max(0, visibleMonthIndex - 1))}
 				disabled={visibleMonthIndex <= 0}
-				aria-label="Previous month"
+				title="Previous month"
 				class="size-10 grid place-items-center border border-zinc-200 text-zinc-500 bg-zinc-100 rounded cursor-pointer disabled:bg-transparent disabled:text-zinc-300 disabled:cursor-default"
+				onclick={() => {
+					followDays = false;
+					visibleMonthIndex = Math.max(0, visibleMonthIndex - 1);
+				}}
 			>
 				<ArrowLeft size="1.25rem" />
 			</button>
 			<button
-				onclick={() => (visibleMonthIndex = Math.min(months.length - 1, visibleMonthIndex + 1))}
 				disabled={visibleMonthIndex >= months.length - 1}
-				aria-label="Next month"
+				title="Next month"
 				class="size-10 grid place-items-center border border-zinc-200 text-zinc-500 bg-zinc-100 rounded cursor-pointer disabled:bg-transparent disabled:text-zinc-300 disabled:cursor-default"
+				onclick={() => {
+					followDays = false;
+					visibleMonthIndex = Math.min(months.length - 1, visibleMonthIndex + 1);
+				}}
 			>
 				<ArrowRight size="1.25rem" />
 			</button>
