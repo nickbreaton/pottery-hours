@@ -29,6 +29,7 @@
 	import EnigmaCalendar from '@enigmaoffline/calendarjs';
 	import { type ScheduleDay } from '$lib/server/schema';
 	import { MONTHS } from '$lib/utils/datetime';
+	import { ArrowLeft, ArrowRight } from 'lucide-svelte';
 
 	let { days }: { days: Readonly<EncodedDay[]> } = $props();
 	let visibleMonthIndex = $state(0);
@@ -61,21 +62,29 @@
 	const grid = $derived(cal.getGrid());
 </script>
 
-<div class="p-6 text-left">
-	<div>
-		<button
-			onclick={() => (visibleMonthIndex = Math.max(0, visibleMonthIndex - 1))}
-			disabled={visibleMonthIndex <= 0}
-			class="disabled:opacity-35">←</button
-		>
-		<button
-			onclick={() => (visibleMonthIndex = Math.min(months.length - 1, visibleMonthIndex + 1))}
-			disabled={visibleMonthIndex >= months.length - 1}
-			class="disabled:opacity-35">→</button
-		>
-	</div>
+<div class="p-6 text-left flex flex-col gap-2">
+	<div class="grid grid-cols-[1fr_auto_1fr] items-center">
+		<div class="flex gap-1.5">
+			<button
+				onclick={() => (visibleMonthIndex = Math.max(0, visibleMonthIndex - 1))}
+				disabled={visibleMonthIndex <= 0}
+				aria-label="Previous month"
+				class="size-10 grid place-items-center border border-zinc-200 text-zinc-500 bg-zinc-100 rounded cursor-pointer disabled:bg-transparent disabled:text-zinc-300 disabled:cursor-default"
+			>
+				<ArrowLeft size="1.25rem" />
+			</button>
+			<button
+				onclick={() => (visibleMonthIndex = Math.min(months.length - 1, visibleMonthIndex + 1))}
+				disabled={visibleMonthIndex >= months.length - 1}
+				aria-label="Next month"
+				class="size-10 grid place-items-center border border-zinc-200 text-zinc-500 bg-zinc-100 rounded cursor-pointer disabled:bg-transparent disabled:text-zinc-300 disabled:cursor-default"
+			>
+				<ArrowRight size="1.25rem" />
+			</button>
+		</div>
 
-	<h1>{monthLabel} {yearLabel}</h1>
+		<p class="text-2xl font-extrabold flex">{monthLabel} {yearLabel}</p>
+	</div>
 
 	<table class="table-fixed w-full">
 		<thead>
