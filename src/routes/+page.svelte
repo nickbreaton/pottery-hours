@@ -43,9 +43,13 @@
 
 	const submit: EventHandler<SubmitEvent, HTMLFormElement> = (event) => {
 		event.preventDefault();
+
+		if (sse) {
+			return;
+		}
+
 		const formData = new FormData(event.currentTarget);
 		const searchParams = new URLSearchParams(formData as {});
-		sse?.close();
 		sse = new EventSource(`/api/new?${searchParams}`);
 	};
 </script>
@@ -81,10 +85,16 @@
 		<div class="flex justify-end w-full">
 			<button
 				type="submit"
-				class="bg-linear-to-tl from-purple-500 to-purple-400 bg-black active:from-purple-500/90 active:to-purple-400/90 flex items-center gap-2 inset-shadow-purple-800 text-sm text-white font-medium py-2.5 px-7 rounded-md cursor-pointer disabled:opacity-30 disabled:cursor-default"
+				class="
+					relative overflow-hidden bg-linear-to-tl from-purple-500 to-purple-400 bg-black inset-shadow-purple-800 text-sm text-white font-medium py-2.5 px-7 rounded-md cursor-pointer
+					disabled:opacity-30 disabled:cursor-default
+					data-loading:cursor-default
+					not-data-loading:active:from-purple-500/90 not-data-loading:active:to-purple-400/90"
+				aria-label={sse ? 'Loading' : null}
+				data-loading={sse ? '' : null}
 				disabled={!input.startsWith('https://docs.google.com/spreadsheets/d/')}
 			>
-				Analyze schedule <WandSparkles size="1.25em" />
+				<span class="flex items-center gap-2 relative">Analyze schedule <WandSparkles size="1.25em" /></span>
 			</button>
 		</div>
 
@@ -97,3 +107,24 @@
 		<Calendar {days} followDays={true} />
 	{/if}
 </div>
+
+<style>
+	button[data-loading]::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background-color: rgba(0, 0, 0, 0.2);
+		right: 100%;
+		animation: grow 20s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+		will-change: right;
+	}
+
+	@keyframes grow {
+		0% {
+			right: 100%;
+		}
+		100% {
+			right: 0%;
+		}
+	}
+</style>
