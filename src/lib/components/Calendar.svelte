@@ -95,7 +95,7 @@
 			</button>
 		</div>
 
-		<p class="text-2xl font-extrabold flex">{monthLabel} {yearLabel}</p>
+		<p class="text-xl font-normal flex text-zinc-900">{monthLabel} {yearLabel}</p>
 	</div>
 
 	<table class="table-fixed w-full">
@@ -123,21 +123,23 @@
 								<span class="text-end text-zinc-800 in-data-inactive:text-zinc-400">
 									{formatEnigmaCalendarDay(date)}
 								</span>
-								{#if day}
-									<ul class="space-y-1.5 pb-2">
-										{#each day.hours as hour}
-											<li
-												class="bg-purple-100 text-purple-900/90 rounded-md p-1 px-2 flex -space-y-0.5 flex-col border border-purple-900/10 in-data-inactive:opacity-50"
-												title={day.label}
-											>
-												<span class="font-medium text-sm overflow-ellipsis overflow-hidden whitespace-nowrap">
-													{day.label}
-												</span>
-												<span class="text-xs">{formatHour(hour, 'start')} – {formatHour(hour, 'end')}</span>
-											</li>
-										{/each}
-									</ul>
-								{/if}
+								<div class="min-h-[6rem]">
+									{#if day}
+										<ul class="space-y-1.5">
+											{#each day.hours as hour}
+												<li
+													class="bg-purple-100 text-purple-900/90 rounded-md p-1 px-2 flex -space-y-0.5 flex-col border border-purple-900/10 in-data-inactive:opacity-50"
+													title={day.label}
+												>
+													<span class="font-medium text-sm overflow-ellipsis overflow-hidden whitespace-nowrap">
+														{day.label}
+													</span>
+													<span class="text-xs">{formatHour(hour, 'start')} – {formatHour(hour, 'end')}</span>
+												</li>
+											{/each}
+										</ul>
+									{/if}
+								</div>
 							</div>
 						</td>
 					{/each}
