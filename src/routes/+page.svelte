@@ -76,7 +76,7 @@
 					name="spreadsheet"
 					placeholder="https://docs.google.com/spreadsheets/d/..."
 					rows="3"
-					class="border-2 bg-white text-zinc-900 border-zinc-200/75 placeholder-zinc-400/75 outline-none rounded-lg resize-none p-2 w-full max-w-lg focus:outline-3 focus:border-purple-200 focus:outline-solid focus:outline-purple-100"
+					class="border-[1.5px] bg-white text-zinc-900 border-zinc-200/75 placeholder-zinc-400/75 outline-none rounded-lg resize-none p-2 w-full max-w-lg focus:outline-3 focus:border-purple-200 focus:outline-solid focus:outline-purple-100"
 					bind:value={input}
 					onkeydown={(event) => {
 						if (event.key === 'Enter') {
