@@ -66,6 +66,9 @@
 
 	const cal = $derived(new EnigmaCalendar(...month));
 	const grid = $derived(cal.getGrid());
+
+	const borderColor = 'border-zinc-200/75';
+	const cellBorder = `border first:border-l-0 last:border-r-0 group-first:border-t-0 not-[th]:group-last:border-b-0 ${borderColor}`;
 </script>
 
 <div class="p-6 text-left flex flex-col gap-2">
@@ -98,53 +101,55 @@
 		<p class="text-xl font-normal flex text-zinc-900">{monthLabel} {yearLabel}</p>
 	</div>
 
-	<table class="table-fixed w-full">
-		<thead>
-			<tr>
-				<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 border border-zinc-200/75">Sunday</th>
-				<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 border border-zinc-200/75">Monday</th>
-				<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 border border-zinc-200/75">Tuesday</th>
-				<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 border border-zinc-200/75">Wednesday</th>
-				<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 border border-zinc-200/75">Thursday</th>
-				<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 border border-zinc-200/75">Friday</th>
-				<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 border border-zinc-200/75">Saturday</th>
-			</tr>
-		</thead>
-		<tbody>
-			{#each grid as row, index (`${row[0]}-${index}`)}
-				<tr>
-					{#each row as date}
-						{@const day = days.find((day) => date === toEnigmaDateString(day))}
-						<td
-							data-inactive={monthIndex !== parseEnigmaMonth(date) - 1 ? 'true' : null}
-							class="align-top h-32 border border-zinc-200/75 p-2 cursor-default"
-						>
-							<div class="flex flex-col gap-1">
-								<span class="text-end text-zinc-800 in-data-inactive:text-zinc-400">
-									{formatEnigmaCalendarDay(date)}
-								</span>
-								<div class="min-h-[6rem]">
-									{#if day}
-										<ul class="space-y-1.5">
-											{#each day.hours as hour}
-												<li
-													class="bg-purple-100 text-purple-900/90 rounded-md p-1 px-2 flex -space-y-0.5 flex-col border border-purple-900/10 in-data-inactive:opacity-50"
-													title={day.label}
-												>
-													<span class="font-medium text-sm overflow-ellipsis overflow-hidden whitespace-nowrap">
-														{day.label}
-													</span>
-													<span class="text-xs">{formatHour(hour, 'start')} – {formatHour(hour, 'end')}</span>
-												</li>
-											{/each}
-										</ul>
-									{/if}
-								</div>
-							</div>
-						</td>
-					{/each}
+	<div class="border {borderColor} rounded overflow-hidden">
+		<table class="table-fixed w-full">
+			<thead>
+				<tr class="group">
+					<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Sunday</th>
+					<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Monday</th>
+					<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Tuesday</th>
+					<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Wednesday</th>
+					<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Thursday</th>
+					<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Friday</th>
+					<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Saturday</th>
 				</tr>
-			{/each}
-		</tbody>
-	</table>
+			</thead>
+			<tbody>
+				{#each grid as row, index (`${row[0]}-${index}`)}
+					<tr class="group">
+						{#each row as date}
+							{@const day = days.find((day) => date === toEnigmaDateString(day))}
+							<td
+								data-inactive={monthIndex !== parseEnigmaMonth(date) - 1 ? 'true' : null}
+								class="align-top h-32 p-2 cursor-default {cellBorder}"
+							>
+								<div class="flex flex-col gap-1">
+									<span class="text-end text-zinc-800 in-data-inactive:text-zinc-400">
+										{formatEnigmaCalendarDay(date)}
+									</span>
+									<div class="min-h-[6rem]">
+										{#if day}
+											<ul class="space-y-1.5">
+												{#each day.hours as hour}
+													<li
+														class="bg-purple-100 text-purple-900/90 rounded-md p-1 px-2 flex -space-y-0.5 flex-col border border-purple-900/10 in-data-inactive:opacity-50"
+														title={day.label}
+													>
+														<span class="font-medium text-sm overflow-ellipsis overflow-hidden whitespace-nowrap">
+															{day.label}
+														</span>
+														<span class="text-xs">{formatHour(hour, 'start')} – {formatHour(hour, 'end')}</span>
+													</li>
+												{/each}
+											</ul>
+										{/if}
+									</div>
+								</div>
+							</td>
+						{/each}
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+	</div>
 </div>
