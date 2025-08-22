@@ -79,7 +79,7 @@
 			<button
 				disabled={visibleMonthIndex <= 0}
 				title="Previous month"
-				class="size-10 grid place-items-center border border-zinc-200 text-zinc-500 bg-white rounded cursor-pointer disabled:bg-transparent disabled:text-zinc-300 disabled:cursor-default"
+				class="size-10 grid place-items-center border border-zinc-200 text-zinc-500 bg-white/80 rounded cursor-pointer disabled:bg-transparent disabled:text-zinc-300 disabled:cursor-default"
 				onclick={() => {
 					followDays = false;
 					visibleMonthIndex = Math.max(0, visibleMonthIndex - 1);
@@ -90,7 +90,7 @@
 			<button
 				disabled={visibleMonthIndex >= months.length - 1}
 				title="Next month"
-				class="size-10 grid place-items-center border border-zinc-200 text-zinc-500 bg-white rounded cursor-pointer disabled:bg-transparent disabled:text-zinc-300 disabled:cursor-default"
+				class="size-10 grid place-items-center border border-zinc-200 text-zinc-500 bg-white/80 rounded cursor-pointer disabled:bg-transparent disabled:text-zinc-300 disabled:cursor-default"
 				onclick={() => {
 					followDays = false;
 					visibleMonthIndex = Math.min(months.length - 1, visibleMonthIndex + 1);
@@ -123,7 +123,7 @@
 							{@const day = days.find((day) => date === toEnigmaDateString(day))}
 							<td
 								data-inactive={monthIndex !== parseEnigmaMonth(date) - 1 ? 'true' : null}
-								class="align-top h-32 p-2 cursor-default bg-white {cellBorder}"
+								class="align-top h-32 p-2 cursor-default bg-white/80 {cellBorder}"
 							>
 								<div class="flex flex-col gap-1">
 									<span class="text-end text-zinc-800 in-data-inactive:text-zinc-400">

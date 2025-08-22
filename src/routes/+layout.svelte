@@ -6,7 +6,7 @@
 </script>
 
 <div class="flex">
-	<aside class="max-w-72 bg-stone-100 p-4 relative overflow-hidden">
+	<aside class="max-w-72 bg-zinc-100 p-4 relative overflow-hidden">
 		<div
 			class="absolute pointer-events-none right-0 -left-5 -top-5 -bottom-5 inset-shadow-sm inset-shadow-zinc-300/25"
 		></div>
