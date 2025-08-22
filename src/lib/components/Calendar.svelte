@@ -30,6 +30,8 @@
 	import { type ScheduleDay } from '$lib/server/schema';
 	import { MONTHS } from '$lib/utils/datetime';
 	import { ArrowLeft, ArrowRight } from 'lucide-svelte';
+	import { fade } from 'svelte/transition';
+	import { sineIn } from 'svelte/easing';
 
 	interface Props {
 		days: Readonly<EncodedDay[]>;
@@ -129,7 +131,7 @@
 									</span>
 									<div class="min-h-[6rem]">
 										{#if day}
-											<ul class="space-y-1.5">
+											<ul class="space-y-1.5" in:fade={{ duration: 150, easing: sineIn }}>
 												{#each day.hours as hour}
 													<li
 														class="bg-purple-100 text-purple-900/90 rounded-md p-1 px-2 flex -space-y-0.5 flex-col border border-purple-900/10 in-data-inactive:opacity-50"

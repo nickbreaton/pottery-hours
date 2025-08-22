@@ -9,3 +9,4 @@
 - [ ] Import indicator (spinner next to month?)
 - [ ] Toast indicating successful import
 - [ ] Toast indicating successful deletion
+- [ ] Days appear to have off by one error in product UI (calendar feed is correct)
