@@ -4,3 +4,5 @@
 - [ ] Schedule labels
 - [ ] Sidebar jumping in
 - [ ] Button to get calendar feed
+- [ ] Styled delete / publish
+- [ ] Delete / publish handling when loading
