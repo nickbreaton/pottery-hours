@@ -1,0 +1,6 @@
+- [ ] Clicking "New schedule" after / during import should go back to input
+- [ ] Error handling invalid input
+- [ ] Error handling when parsing
+- [ ] Schedule labels
+- [ ] Sidebar jumping in
+- [ ] Button to get calendar feed
