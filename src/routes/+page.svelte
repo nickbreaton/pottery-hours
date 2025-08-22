@@ -119,7 +119,8 @@
 		content: '';
 		position: absolute;
 		inset: 0;
-		background-color: rgba(0, 0, 0, 0.2);
+		background-color: var(--color-purple-900);
+		opacity: 0.25;
 		right: 100%;
 		animation: grow 20s cubic-bezier(0.19, 1, 0.22, 1) forwards;
 		will-change: right;
