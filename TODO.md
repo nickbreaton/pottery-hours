@@ -6,3 +6,6 @@
 - [ ] Button to get calendar feed
 - [ ] Styled delete / publish
 - [ ] Delete / publish handling when loading
+- [ ] Import indicator (spinner next to month?)
+- [ ] Toast indicating successful import
+- [ ] Toast indicating successful deletion

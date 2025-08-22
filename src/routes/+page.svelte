@@ -7,6 +7,7 @@
 	import { WandSparkles } from 'lucide-svelte';
 	import Calendar from '$lib/components/Calendar.svelte';
 	import { fade } from 'svelte/transition';
+	import { sineInOut } from 'svelte/easing';
 
 	let sse: EventSource | null = $state(null);
 	let validationMessage: string | null = $state(null);
@@ -57,7 +58,7 @@
 
 <div class="grid *:col-start-1 *:row-start-1">
 	{#if days.length === 0}
-		<div class="text-center flex flex-col items-center gap-8 pt-10 sm:pt-28 p-3" out:fade>
+		<div class="text-center flex flex-col items-center gap-8 pt-10 sm:pt-28 p-3" out:fade={{ easing: sineInOut }}>
 			<hgroup class="flex flex-col items-center justify-stretch gap-4">
 				<h1 class="text-4xl font-extrabold text-zinc-900">Hey, got a new schedule?</h1>
 				<p class="max-w-lg leading-5 text-zinc-500 decoration-zinc-400 text-balance">
@@ -89,10 +90,10 @@
 					<button
 						type="submit"
 						class="
-					relative overflow-hidden bg-linear-to-tl from-purple-500 to-purple-400 bg-black inset-shadow-purple-800 text-sm text-white font-medium py-2.5 px-7 rounded-md cursor-pointer
-					disabled:opacity-30 disabled:cursor-default
-					data-loading:cursor-default
-					not-data-loading:active:from-purple-500/90 not-data-loading:active:to-purple-400/90"
+     					relative overflow-hidden bg-linear-to-tl from-purple-500 to-purple-400 bg-black inset-shadow-purple-800 text-sm text-white font-medium py-2.5 px-7 rounded-md cursor-pointer
+     					disabled:opacity-30 disabled:cursor-default
+     					data-loading:cursor-default
+     					not-data-loading:active:from-purple-500/90 not-data-loading:active:to-purple-400/90"
 						aria-label={sse ? 'Loading' : null}
 						data-loading={sse ? '' : null}
 						disabled={!input.startsWith('https://docs.google.com/spreadsheets/d/')}
@@ -107,7 +108,7 @@
 			</form>
 		</div>
 	{:else}
-		<div in:fade={{ delay: 200 }}>
+		<div in:fade={{ delay: 200, easing: sineInOut }}>
 			<Calendar {days} followDays={true} />
 		</div>
 	{/if}
