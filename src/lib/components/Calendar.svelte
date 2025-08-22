@@ -1,37 +1,44 @@
 <script lang="ts" module>
 	type EncodedDay = typeof ScheduleDay.Encoded;
+	type Iso8601Date = `${number}${number}${number}${number}-${number}${number}-${number}${number}`;
 
-	function toEnigmaDateString(day: EncodedDay) {
-		const month = MONTHS.findIndex((it) => it === day.month) + 1;
-		return `${String(day.day).padStart(2, '0')}-${String(month).padStart(2, '0')}-${day.year}`;
+	function toIso8601(value: Date | EncodedDay) {
+		if (value instanceof Date) {
+			return value.toISOString().split('T')[0];
+		} else {
+			const month = MONTHS.findIndex((it) => it === value.month) + 1;
+			return `${value.year}-${String(month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`;
+		}
 	}
 
 	function formatHour(hour: EncodedDay['hours'][number], type: 'start' | 'end') {
 		return `${hour[`${type}_hour`]}:${String(hour[`${type}_minute`]).padStart(2, '0')}${hour[`${type}_meridiem`].toLowerCase()}`;
 	}
 
-	function parseEnigmaDay(date: string) {
-		return parseInt(date.split('-')[0]);
+	function parseIso8601Day(date: Iso8601Date) {
+		return parseInt(date.split('-')[2]);
 	}
 
-	function parseEnigmaMonth(date: string) {
+	function parse8601Month(date: Iso8601Date) {
 		return parseInt(date.split('-')[1]);
 	}
 
-	function formatEnigmaCalendarDay(date: string) {
-		const day = parseEnigmaDay(date);
-		const monthPrefix = MONTHS[parseEnigmaMonth(date) - 1].substring(0, 3);
+	function format8601CalendarDay(date: Iso8601Date) {
+		const day = parseIso8601Day(date);
+		const monthPrefix = MONTHS[parse8601Month(date) - 1].substring(0, 3);
 		return day === 1 ? `${monthPrefix} ${day}` : day;
 	}
 </script>
 
 <script lang="ts">
-	import EnigmaCalendar from '@enigmaoffline/calendarjs';
 	import { type ScheduleDay } from '$lib/server/schema';
 	import { MONTHS } from '$lib/utils/datetime';
 	import { ArrowLeft, ArrowRight } from 'lucide-svelte';
 	import { fade } from 'svelte/transition';
 	import { sineIn } from 'svelte/easing';
+
+	// @ts-ignore
+	import calendar from 'calendar-month-array';
 
 	interface Props {
 		days: Readonly<EncodedDay[]>;
@@ -40,34 +47,33 @@
 
 	let { days, followDays }: Props = $props();
 
-	const months = $derived.by(() => {
+	const calendarMonths = $derived.by(() => {
 		const result: [year: number, month: number][] = [];
 
 		for (const day of days) {
-			const month = MONTHS.findIndex((it) => it === day.month) + 1;
+			const monthIndex = MONTHS.findIndex((it) => it === day.month);
 			const year = day.year;
 
-			if (result.find((existing) => existing[0] === year && existing[1] === month)) {
+			if (result.find((existing) => existing[0] === year && existing[1] === monthIndex)) {
 				// dont add duplicate months
 				continue;
 			}
 
-			result.push([year, month]);
+			result.push([year, monthIndex]);
 		}
 
 		return result;
 	});
 
-	let visibleMonthIndex = $derived(followDays ? months.length - 1 : 0);
+	let visibleMonthIndex = $derived(followDays ? calendarMonths.length - 1 : 0);
 
-	const month = $derived(months[visibleMonthIndex]);
-	const monthIndex = $derived(month[1] - 1);
+	const calendarMonth = $derived(calendarMonths[visibleMonthIndex]);
+	const monthIndex = $derived(calendarMonth[1]);
 
 	const monthLabel = $derived(MONTHS[monthIndex]);
-	const yearLabel = $derived(month[0]);
+	const yearLabel = $derived(calendarMonth[0]);
 
-	const cal = $derived(new EnigmaCalendar(...month));
-	const grid = $derived(cal.getGrid());
+	const grid: Iso8601Date[][] = $derived(calendar(new Date(...calendarMonth), { formatDate: toIso8601 }));
 
 	const borderColor = 'border-zinc-200/75';
 	const cellBorder = `border first:border-l-0 last:border-r-0 group-first:border-t-0 not-[th]:group-last:border-b-0 ${borderColor}`;
@@ -88,12 +94,12 @@
 				<ArrowLeft size="1.25rem" />
 			</button>
 			<button
-				disabled={visibleMonthIndex >= months.length - 1}
+				disabled={visibleMonthIndex >= calendarMonths.length - 1}
 				title="Next month"
 				class="size-10 grid place-items-center border border-zinc-200 text-zinc-500 bg-white/80 rounded cursor-pointer disabled:bg-transparent disabled:text-zinc-300 disabled:cursor-default"
 				onclick={() => {
 					followDays = false;
-					visibleMonthIndex = Math.min(months.length - 1, visibleMonthIndex + 1);
+					visibleMonthIndex = Math.min(calendarMonths.length - 1, visibleMonthIndex + 1);
 				}}
 			>
 				<ArrowRight size="1.25rem" />
@@ -117,17 +123,17 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each grid as row, index (`${row[0]}-${index}`)}
+				{#each grid as row (row[0])}
 					<tr class="group">
 						{#each row as date}
-							{@const day = days.find((day) => date === toEnigmaDateString(day))}
+							{@const day = days.find((day) => date === toIso8601(day))}
 							<td
-								data-inactive={monthIndex !== parseEnigmaMonth(date) - 1 ? 'true' : null}
+								data-inactive={monthIndex !== parse8601Month(date) - 1 ? 'true' : null}
 								class="align-top h-32 p-2 cursor-default bg-white/80 {cellBorder}"
 							>
 								<div class="flex flex-col gap-1">
 									<span class="text-end text-zinc-800 in-data-inactive:text-zinc-400">
-										{formatEnigmaCalendarDay(date)}
+										{format8601CalendarDay(date)}
 									</span>
 									<div class="min-h-[6rem]">
 										{#if day}
