@@ -5,7 +5,7 @@
 - [ ] Sidebar jumping in
 - [ ] Button to get calendar feed
 - [ ] Styled delete / publish
-- [ ] Delete / publish handling when loading
+- [ ] Delete (likely substitute for cancel) / publish (likely disable) handling when loading
 - [ ] Import indicator (spinner next to month?)
 - [ ] Toast indicating successful import
 - [ ] Toast indicating successful deletion
