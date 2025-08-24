@@ -1,12 +1,11 @@
-- [ ] Clicking "New schedule" after / during import should go back to input
+- [x] Clicking "New schedule" after / during import should go back to input
 - [ ] Error handling invalid input
 - [ ] Error handling when parsing
 - [ ] Schedule labels
 - [ ] Sidebar jumping in
 - [ ] Button to get calendar feed
 - [ ] Styled delete / publish
-- [ ] Delete (likely substitute for cancel) / publish (likely disable) handling when loading
-- [ ] Import indicator (spinner next to month?)
+- [ ] Delete / publish (likely disable) handling when loading
 - [ ] Toast indicating successful import
 - [ ] Toast indicating successful deletion
 - [x] Days appear to have off by one error in product UI (calendar feed is correct)

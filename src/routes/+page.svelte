@@ -1,73 +1,70 @@
 <script lang="ts">
 	import { replaceState } from '$app/navigation';
 	import { getSchedule, getSchedules } from '$lib/main.remote';
-	import type { ScheduleDay } from '$lib/server/schema';
 	import type { EventHandler } from 'svelte/elements';
 	import type { CompleteEvent, DayEvent, InvalidEvent } from './api/new/schema';
 	import { WandSparkles } from 'lucide-svelte';
 	import Calendar from '$lib/components/Calendar.svelte';
 	import { fade } from 'svelte/transition';
 	import { sineInOut } from 'svelte/easing';
-
-	let sse: EventSource | null = $state(null);
-	let validationMessage: string | null = $state(null);
-	let days: (typeof ScheduleDay.Encoded)[] = $state([]);
-	let input = $state('');
+	import { importer } from '$lib/stores/importer.svelte';
 
 	$effect(() => {
-		if (!sse) return;
+		if (!importer.connection) return;
 
-		sse.addEventListener('day', (event) => {
+		importer.connection.addEventListener('day', (event) => {
 			const data: typeof DayEvent.Encoded = JSON.parse(event.data);
-			days.push(data.data);
+			importer.days.push(data.data);
 		});
 
-		sse.addEventListener('invalid', (event) => {
+		importer.connection.addEventListener('invalid', (event) => {
 			const data: typeof InvalidEvent.Encoded = JSON.parse(event.data);
 
-			validationMessage = data.message;
-			sse?.close();
+			importer.validationMessage = data.message;
+			importer.connection?.close();
 		});
 
-		sse.addEventListener('complete', async (event) => {
+		importer.connection.addEventListener('complete', async (event) => {
 			const data: typeof CompleteEvent.Encoded = JSON.parse(event.data);
 
-			sse?.close();
+			importer.connection?.close();
 			await Promise.all([getSchedule(data.id).refresh(), getSchedules().refresh()]);
 
 			replaceState(`/schedule/${data.id}`, {});
 		});
 
 		return () => {
-			sse?.close();
+			importer.connection?.close();
 		};
 	});
 
 	const submit: EventHandler<SubmitEvent, HTMLFormElement> = (event) => {
 		event.preventDefault();
 
-		if (sse) {
+		if (importer.connection) {
 			return;
 		}
 
 		const formData = new FormData(event.currentTarget);
 		const searchParams = new URLSearchParams(formData as {});
-		sse = new EventSource(`/api/new?${searchParams}`);
+		importer.connection = new EventSource(`/api/new?${searchParams}`);
 	};
 </script>
 
 <div class="grid *:col-start-1 *:row-start-1">
-	{#if days.length === 0}
+	{#if importer.days.length === 0}
 		<div class="text-center flex flex-col items-center gap-8 pt-10 sm:pt-28 p-3" out:fade={{ easing: sineInOut }}>
 			<hgroup class="flex flex-col items-center justify-stretch gap-4">
 				<h1 class="text-4xl font-extrabold text-zinc-900">Hey, got a new schedule?</h1>
 				<p class="max-w-lg leading-5 text-zinc-500 decoration-zinc-400 text-balance">
-					I’m a helpful assistant that takes Odyssey Clayworks schedules, like
+					I’m a helpful assistant that takes Odyimporter.connectiony Clayworks schedules, like
 					<a
 						href="https://docs.google.com/spreadsheets/d/1lAC9Kw9sTuaOcvRHznlWlsMZ2RyenqnBY74fbQyoY9c/edit?gid=0#gid=0"
 						target="_blank"
-						class="underline underline-offset-1">this one</a
-					>, and turns them into a simple calendar feed. Enter a schedule link to get started.
+						class="underline underline-offset-1">
+						this one
+					</a>
+					, and turns them into a simple calendar feed. Enter a schedule link to get started.
 				</p>
 			</hgroup>
 
@@ -77,14 +74,14 @@
 					placeholder="https://docs.google.com/spreadsheets/d/..."
 					rows="3"
 					class="border-[1.5px] bg-white text-zinc-900 border-zinc-200/75 placeholder-zinc-400/75 outline-none rounded-lg resize-none p-2 w-full max-w-lg focus:outline-3 focus:border-purple-200 focus:outline-solid focus:outline-purple-100"
-					bind:value={input}
+					bind:value={importer.input}
 					onkeydown={(event) => {
 						if (event.key === 'Enter') {
 							event.preventDefault();
 							event.currentTarget.form?.requestSubmit();
 						}
-					}}
-				></textarea>
+					}}>
+				</textarea>
 
 				<div class="flex justify-end w-full">
 					<button
@@ -94,22 +91,21 @@
      					disabled:opacity-30 disabled:cursor-default
      					data-loading:cursor-default
      					not-data-loading:active:from-purple-500/90 not-data-loading:active:to-purple-400/90"
-						aria-label={sse ? 'Loading' : null}
-						data-loading={sse ? '' : null}
-						disabled={!input.startsWith('https://docs.google.com/spreadsheets/d/')}
-					>
+						aria-label={importer.connection ? 'Loading' : null}
+						data-loading={importer.connection ? '' : null}
+						disabled={!importer.input.startsWith('https://docs.google.com/spreadsheets/d/')}>
 						<span class="flex items-center gap-2 relative">Analyze schedule <WandSparkles size="1.25em" /></span>
 					</button>
 				</div>
 
-				{#if validationMessage}
-					<p>{validationMessage}</p>
+				{#if importer.validationMessage}
+					<p>{importer.validationMessage}</p>
 				{/if}
 			</form>
 		</div>
 	{:else}
 		<div in:fade={{ delay: 200, easing: sineInOut }}>
-			<Calendar {days} followDays={true} />
+			<Calendar days={importer.days} followDays={true} />
 		</div>
 	{/if}
 </div>
