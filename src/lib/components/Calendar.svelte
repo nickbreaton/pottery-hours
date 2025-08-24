@@ -35,7 +35,7 @@
 	import { MONTHS } from '$lib/utils/datetime';
 	import { ArrowLeft, ArrowRight } from 'lucide-svelte';
 	import { fade } from 'svelte/transition';
-	import { sineIn } from 'svelte/easing';
+	import { sineIn, sineInOut } from 'svelte/easing';
 
 	// @ts-ignore
 	import calendar from 'calendar-month-array';
@@ -109,55 +109,64 @@
 		<p class="text-xl font-normal flex text-zinc-900">{monthLabel} {yearLabel}</p>
 	</div>
 
-	<div class="border {borderColor} rounded overflow-hidden">
-		<table class="table-fixed w-full">
-			<thead>
-				<tr class="group">
-					<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Sunday</th>
-					<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Monday</th>
-					<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Tuesday</th>
-					<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Wednesday</th>
-					<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Thursday</th>
-					<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Friday</th>
-					<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Saturday</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each grid as row (row[0])}
-					<tr class="group">
-						{#each row as date}
-							{@const day = days.find((day) => date === toIso8601(day))}
-							<td
-								data-inactive={monthIndex !== parse8601Month(date) - 1 ? 'true' : null}
-								class="align-top h-32 p-2 cursor-default bg-white/80 {cellBorder}"
-							>
-								<div class="flex flex-col gap-1">
-									<span class="text-end text-zinc-800 in-data-inactive:text-zinc-400">
-										{format8601CalendarDay(date)}
-									</span>
-									<div class="min-h-[6rem]">
-										{#if day}
-											<ul class="space-y-1.5" in:fade={{ duration: 150, easing: sineIn }}>
-												{#each day.hours as hour}
-													<li
-														class="bg-purple-100 text-purple-900/90 rounded-md p-1 px-2 flex -space-y-0.5 flex-col border border-purple-900/10 in-data-inactive:opacity-50"
-														title={day.label}
-													>
-														<span class="font-medium text-sm overflow-ellipsis overflow-hidden whitespace-nowrap">
-															{day.label}
-														</span>
-														<span class="text-xs">{formatHour(hour, 'start')} – {formatHour(hour, 'end')}</span>
-													</li>
-												{/each}
-											</ul>
-										{/if}
-									</div>
-								</div>
-							</td>
-						{/each}
-					</tr>
-				{/each}
-			</tbody>
-		</table>
+	<div class="grid *:col-start-1 *:row-start-1">
+		{#each calendarMonths as calendarMonth, calendarIndex (calendarMonth.join(' '))}
+			{#if calendarIndex === visibleMonthIndex}
+				<div
+					class="border {borderColor} rounded overflow-hidden"
+					transition:fade={{ easing: sineInOut, duration: followDays ? undefined : 0 }}
+				>
+					<table class="table-fixed w-full">
+						<thead>
+							<tr class="group">
+								<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Sunday</th>
+								<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Monday</th>
+								<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Tuesday</th>
+								<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Wednesday</th>
+								<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Thursday</th>
+								<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Friday</th>
+								<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Saturday</th>
+							</tr>
+						</thead>
+						<tbody>
+							{#each grid as row (row[0])}
+								<tr class="group">
+									{#each row as date}
+										{@const day = days.find((day) => date === toIso8601(day))}
+										<td
+											data-inactive={monthIndex !== parse8601Month(date) - 1 ? 'true' : null}
+											class="align-top h-32 p-2 cursor-default bg-white/80 {cellBorder}"
+										>
+											<div class="flex flex-col gap-1">
+												<span class="text-end text-zinc-800 in-data-inactive:text-zinc-400">
+													{format8601CalendarDay(date)}
+												</span>
+												<div class="min-h-[6rem]">
+													{#if day}
+														<ul class="space-y-1.5" in:fade={{ duration: 150, easing: sineIn }}>
+															{#each day.hours as hour}
+																<li
+																	class="bg-purple-100 text-purple-900/90 rounded-md p-1 px-2 flex -space-y-0.5 flex-col border border-purple-900/10 in-data-inactive:opacity-50"
+																	title={day.label}
+																>
+																	<span class="font-medium text-sm overflow-ellipsis overflow-hidden whitespace-nowrap">
+																		{day.label}
+																	</span>
+																	<span class="text-xs">{formatHour(hour, 'start')} – {formatHour(hour, 'end')}</span>
+																</li>
+															{/each}
+														</ul>
+													{/if}
+												</div>
+											</div>
+										</td>
+									{/each}
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
+			{/if}
+		{/each}
 	</div>
 </div>
