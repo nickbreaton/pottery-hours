@@ -6,7 +6,7 @@ export const importer = new (class {
 	validationMessage: string | null = $state(null);
 	days: (typeof ScheduleDay.Encoded)[] = $state([]);
 	input = $state('');
-	importedId: string | null = $state(null);
+	importedId?: string | null = $state(undefined);
 
 	importing = $derived(this.connection != null);
 

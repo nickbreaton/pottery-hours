@@ -111,7 +111,7 @@
 		</div>
 	{:else}
 		<div in:fade={{ delay: 200, easing: sineInOut }}>
-			<Calendar days={importer.days} importing={importer.importing} followDays />
+			<Calendar days={importer.days} importing={importer.importing} id={importer.importedId ?? undefined} followDays />
 		</div>
 	{/if}
 </div>

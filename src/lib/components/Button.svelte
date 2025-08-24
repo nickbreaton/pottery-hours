@@ -23,7 +23,7 @@
 	  grid place-items-center border border-zinc-200 text-zinc-700 bg-white/80 rounded-md cursor-pointer h-10 px-5 text-sm font-medium
 		data-icon:aspect-square data-icon:p-0 data-icon:text-zinc-600
 		data-[prominence=prominent]:border-none data-[prominence=prominent]:bg-linear-to-tl data-[prominence=prominent]:from-purple-600 data-[prominence=prominent]:to-purple-400 data-[prominence=prominent]:text-white
-		disabled:bg-transparent disabled:text-zinc-300 disabled:cursor-default
+		disabled:bg-transparent disabled:text-zinc-300 disabled:data-icon:text-zinc-300 disabled:cursor-default
 	"
 >
 	{@render children()}

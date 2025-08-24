@@ -42,8 +42,7 @@
 	import Button from './Button.svelte';
 	import { deleteSchedule, getSchedule, getSchedules, setSchedulePublished } from '$lib/main.remote';
 	import { importer } from '$lib/stores/importer.svelte';
-	import { page } from '$app/state';
-	import { replaceState } from '$app/navigation';
+	import { goto } from '$app/navigation';
 
 	interface Props {
 		days: Readonly<EncodedDay[]>;
@@ -88,13 +87,14 @@
 
 <svelte:boundary>
 	{#snippet pending()}
-		<!-- ignore -->
+		this??
 	{/snippet}
 
 	{@render contents()}
 </svelte:boundary>
 
 {#snippet contents()}
+	<!-- TODO: pass this in to avoid flash on navigation? -->
 	{@const schedule = id ? await getSchedule(id) : null}
 	{@const published = schedule?.published ?? false}
 
@@ -134,9 +134,7 @@
 						if (!id) return;
 						importer.reset();
 						await deleteSchedule(id);
-						replaceState('/', {});
-						page.url = { ...page.url, pathname: '/' };
-						// TODO: issue with clearing current calendar on delete
+						goto('/');
 					}}
 				>
 					Delete
@@ -144,7 +142,6 @@
 				<Button
 					disabled={importing}
 					onclick={async () => {
-						// TODO: published no working when just imported
 						if (!id) return;
 
 						const next = !published;
