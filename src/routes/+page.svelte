@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { replaceState } from '$app/navigation';
-	import { getSchedule, getSchedules } from '$lib/main.remote';
+	import { deleteSchedule, getSchedule, getSchedules } from '$lib/main.remote';
 	import type { EventHandler } from 'svelte/elements';
 	import type { CompleteEvent, DayEvent, InvalidEvent } from './api/new/schema';
 	import { WandSparkles } from 'lucide-svelte';
@@ -22,12 +22,15 @@
 
 			importer.validationMessage = data.message;
 			importer.connection?.close();
+			importer.connection = null;
 		});
 
 		importer.connection.addEventListener('complete', async (event) => {
 			const data: typeof CompleteEvent.Encoded = JSON.parse(event.data);
 
 			importer.connection?.close();
+			importer.connection = null;
+			importer.importedId = data.id;
 			await Promise.all([getSchedule(data.id).refresh(), getSchedules().refresh()]);
 
 			replaceState(`/schedule/${data.id}`, {});
@@ -35,6 +38,7 @@
 
 		return () => {
 			importer.connection?.close();
+			importer.connection = null;
 		};
 	});
 
@@ -57,11 +61,12 @@
 			<hgroup class="flex flex-col items-center justify-stretch gap-4">
 				<h1 class="text-4xl font-extrabold text-zinc-900">Hey, got a new schedule?</h1>
 				<p class="max-w-lg leading-5 text-zinc-500 decoration-zinc-400 text-balance">
-					I’m a helpful assistant that takes Odyimporter.connectiony Clayworks schedules, like
+					I’m a helpful assistant that takes Odyssey Clayworks schedules, like
 					<a
 						href="https://docs.google.com/spreadsheets/d/1lAC9Kw9sTuaOcvRHznlWlsMZ2RyenqnBY74fbQyoY9c/edit?gid=0#gid=0"
 						target="_blank"
-						class="underline underline-offset-1">
+						class="underline underline-offset-1"
+					>
 						this one
 					</a>
 					, and turns them into a simple calendar feed. Enter a schedule link to get started.
@@ -80,20 +85,21 @@
 							event.preventDefault();
 							event.currentTarget.form?.requestSubmit();
 						}
-					}}>
-				</textarea>
+					}}
+				></textarea>
 
 				<div class="flex justify-end w-full">
 					<button
 						type="submit"
 						class="
-     					relative overflow-hidden bg-linear-to-tl from-purple-500 to-purple-400 bg-black inset-shadow-purple-800 text-sm text-white font-medium py-2.5 px-7 rounded-md cursor-pointer
+     					relative overflow-hidden bg-linear-to-tl from-purple-600 to-purple-400 bg-black inset-shadow-purple-800 text-sm text-white font-medium py-2.5 px-7 rounded-md cursor-pointer
      					disabled:opacity-30 disabled:cursor-default
      					data-loading:cursor-default
-     					not-data-loading:active:from-purple-500/90 not-data-loading:active:to-purple-400/90"
+     					not-data-loading:active:from-purple-600/90 not-data-loading:active:to-purple-400/90"
 						aria-label={importer.connection ? 'Loading' : null}
 						data-loading={importer.connection ? '' : null}
-						disabled={!importer.input.startsWith('https://docs.google.com/spreadsheets/d/')}>
+						disabled={!importer.input.startsWith('https://docs.google.com/spreadsheets/d/')}
+					>
 						<span class="flex items-center gap-2 relative">Analyze schedule <WandSparkles size="1.25em" /></span>
 					</button>
 				</div>
@@ -105,7 +111,7 @@
 		</div>
 	{:else}
 		<div in:fade={{ delay: 200, easing: sineInOut }}>
-			<Calendar days={importer.days} followDays={true} />
+			<Calendar days={importer.days} importing={importer.importing} followDays />
 		</div>
 	{/if}
 </div>
@@ -116,7 +122,7 @@
 		position: absolute;
 		inset: 0;
 		background-color: var(--color-purple-900);
-		opacity: 0.25;
+		opacity: 0.33;
 		right: 100%;
 		animation: grow 20s cubic-bezier(0.19, 1, 0.22, 1) forwards;
 		will-change: right;

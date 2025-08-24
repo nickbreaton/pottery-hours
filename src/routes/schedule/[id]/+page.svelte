@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Calendar from '$lib/components/Calendar.svelte';
-	import { deleteSchedule, getSchedule, getSchedules, setSchedulePublished } from '$lib/main.remote';
+	import { getSchedule } from '$lib/main.remote';
 	import type { PageProps } from './$types';
 
 	let { params }: PageProps = $props();
@@ -21,29 +21,5 @@
 {#snippet contents()}
 	{@const schedule = await getSchedule(params.id)}
 
-	<form {...deleteSchedule}>
-		<input type="hidden" name="id" value={params.id} />
-		<button type="submit">Delete</button>
-	</form>
-
-	<button
-		onclick={async () => {
-			const next = !schedule.published;
-
-			const overrides = [
-				getSchedule(params.id).withOverride((existing) => {
-					return { ...existing, published: next };
-				}),
-				getSchedules().withOverride((schedules) => {
-					return schedules.map((schedule) => (schedule.id === params.id ? { ...schedule, published: next } : schedule));
-				})
-			];
-
-			await setSchedulePublished({ id: params.id, published: next }).updates(...overrides);
-		}}
-	>
-		{schedule.published ? 'Unpublish' : 'Publish'}
-	</button>
-
-	<Calendar days={schedule.days} />
+	<Calendar days={schedule.days} id={params.id} />
 {/snippet}

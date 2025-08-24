@@ -46,15 +46,12 @@ export const setSchedulePublished = command(
 	}
 );
 
-export const deleteSchedule = form(async (formData) => {
+export const deleteSchedule = command(Schema.standardSchemaV1(Schema.String), async (id) => {
 	const handler = Effect.gen(function* () {
 		const repo = yield* ScheduleRepo;
-		const id = yield* Schema.decodeUnknown(Schema.String)(formData.get('id'));
 		yield* repo.delete(id);
 	});
 
 	await runtime.runPromise(handler);
 	await getSchedules().refresh();
-
-	redirect(302, '/');
 });

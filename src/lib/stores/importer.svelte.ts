@@ -6,11 +6,15 @@ export const importer = new (class {
 	validationMessage: string | null = $state(null);
 	days: (typeof ScheduleDay.Encoded)[] = $state([]);
 	input = $state('');
+	importedId: string | null = $state(null);
+
+	importing = $derived(this.connection != null);
 
 	reset() {
 		this.connection = null;
 		this.validationMessage = null;
 		this.days = [];
 		this.input = '';
+		this.importedId = null;
 	}
 })();
