@@ -116,25 +116,20 @@
 					<!-- ignore -->
 				{/snippet}
 
-				{@render calendar()}
+				{@const schedule = importer.importedId ? await getSchedule(importer.importedId) : null}
+				{@const published = schedule?.published ?? false}
+
+				<Calendar
+					followDays
+					days={importer.days}
+					importing={importer.importing}
+					id={importer.importedId ?? undefined}
+					{published}
+				/>
 			</svelte:boundary>
 		</div>
 	{/if}
 </div>
-
-<!-- TODO: can this be inlined with updated svelte? -->
-{#snippet calendar()}
-	{@const schedule = importer.importedId ? await getSchedule(importer.importedId) : null}
-	{@const published = schedule?.published ?? false}
-
-	<Calendar
-		followDays
-		days={importer.days}
-		importing={importer.importing}
-		id={importer.importedId ?? undefined}
-		{published}
-	/>
-{/snippet}
 
 <style>
 	button[data-loading]::before {
