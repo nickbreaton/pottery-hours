@@ -120,6 +120,7 @@
 				disabled={importing}
 				onclick={async () => {
 					if (!id) return;
+					if (!confirm('Are you sure you want to delete this schedule?')) return;
 					importer.reset();
 					await deleteSchedule(id);
 					goto('/');
