@@ -7,7 +7,9 @@
 </script>
 
 <svelte:boundary>
-	{#snippet pending()}<p>Loading...</p>{/snippet}
+	{#snippet pending()}
+		<!-- ignore -->
+	{/snippet}
 
 	{#snippet failed()}
 		<p>Something went wrong loading schedule</p>
@@ -21,5 +23,5 @@
 {#snippet contents()}
 	{@const schedule = await getSchedule(params.id)}
 
-	<Calendar days={schedule.days} id={params.id} />
+	<Calendar id={params.id} days={schedule.days} published={schedule.published} />
 {/snippet}
