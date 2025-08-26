@@ -61,15 +61,8 @@
 			<hgroup class="flex flex-col items-center justify-stretch gap-4">
 				<h1 class="text-4xl font-extrabold text-zinc-900">Hey, got a new schedule?</h1>
 				<p class="max-w-lg leading-5 text-zinc-500 decoration-zinc-400 text-balance">
-					I’m a helpful assistant that takes Odyssey Clayworks schedules, like
-					<a
-						href="https://docs.google.com/spreadsheets/d/1TzskQzL15VNhNmFMki_fvmKe5aXO_PlU2894VoHoYLc/edit?gid=0#gid=0"
-						target="_blank"
-						class="underline underline-offset-1"
-					>
-						this one
-					</a>
-					, and turns them into a simple calendar feed. Enter a schedule link to get started.
+					I’m a helpful assistant that takes Odyssey Clayworks schedules, like {@render example('this one')}, and turns
+					them into a simple calendar feed. Enter a schedule link to get started.
 				</p>
 			</hgroup>
 
@@ -130,6 +123,16 @@
 		</div>
 	{/if}
 </div>
+
+{#snippet example(text: string)}
+	<a
+		href="https://docs.google.com/spreadsheets/d/1TzskQzL15VNhNmFMki_fvmKe5aXO_PlU2894VoHoYLc/edit?gid=0#gid=0"
+		target="_blank"
+		class="underline underline-offset-1"
+	>
+		{text}
+	</a>
+{/snippet}
 
 <style>
 	button[data-loading]::before {
