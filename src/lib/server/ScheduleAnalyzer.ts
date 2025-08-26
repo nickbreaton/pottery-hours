@@ -39,6 +39,7 @@ export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('Schedu
           * Information within the hours box should be used as the label, excluding the hours themselves.
           * Each week also should have a description in the left column which can be used to enhance the label.
           * Try to keep the label concise.
+          * Every day should have a label.
           * Its rare to have more than two sets of hours defined per day.
           * Its rare that a day is skipped but can happen, pay special attention if you think it might be skipped.
           * Its rare that a week is skipped but can happen, pay special attention if you think it might be skipped.
