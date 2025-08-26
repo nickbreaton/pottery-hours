@@ -9,6 +9,8 @@
 	import { sineInOut } from 'svelte/easing';
 	import { importer } from '$lib/stores/importer.svelte';
 
+	const disabled = $derived(!importer.input.startsWith('https://docs.google.com/spreadsheets/d/'));
+
 	$effect(() => {
 		if (!importer.connection) return;
 
@@ -45,7 +47,7 @@
 	const submit: EventHandler<SubmitEvent, HTMLFormElement> = (event) => {
 		event.preventDefault();
 
-		if (importer.connection) {
+		if (importer.connection || disabled) {
 			return;
 		}
 
@@ -91,7 +93,7 @@
      					not-data-loading:active:from-purple-600/90 not-data-loading:active:to-purple-400/90"
 						aria-label={importer.connection ? 'Loading' : null}
 						data-loading={importer.connection ? '' : null}
-						disabled={!importer.input.startsWith('https://docs.google.com/spreadsheets/d/')}
+						{disabled}
 					>
 						<span class="flex items-center gap-2 relative">Analyze schedule <WandSparkles size="1.25em" /></span>
 					</button>
