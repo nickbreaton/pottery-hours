@@ -38,9 +38,9 @@ export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('Schedu
           * Only entries for dates that have hours defined should be included in the result.
           * Information within the hours box should be used as the label, excluding the hours themselves.
           * Each week also should have a description in the left column which can be used to enhance the label.
-          * Quotes can be excluded from the label if providing no obvious value.
           * Try to keep the label concise.
           * Its rare to have more than two sets of hours defined per day.
+          * Its rare that a day is skipped but can happen, pay special attention if you think it might be skipped.
           * Its rare that a week is skipped but can happen, pay special attention if you think it might be skipped.
           * Do NOT include any dates that do not have hours defined, this typically means the studio is closed which is not relevant.
           * DO NOT MAKE UP DATA WHICH DOES NOT APPEAR IN THE PDF.
