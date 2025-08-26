@@ -63,7 +63,7 @@
 				<p class="max-w-lg leading-5 text-zinc-500 decoration-zinc-400 text-balance">
 					I’m a helpful assistant that takes Odyssey Clayworks schedules, like
 					<a
-						href="https://docs.google.com/spreadsheets/d/1lAC9Kw9sTuaOcvRHznlWlsMZ2RyenqnBY74fbQyoY9c/edit?gid=0#gid=0"
+						href="https://docs.google.com/spreadsheets/d/1TzskQzL15VNhNmFMki_fvmKe5aXO_PlU2894VoHoYLc/edit?gid=0#gid=0"
 						target="_blank"
 						class="underline underline-offset-1"
 					>

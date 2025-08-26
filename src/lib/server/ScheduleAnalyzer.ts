@@ -2,7 +2,7 @@ import { AiInput, AiLanguageModel } from '@effect/ai';
 import { OpenAiLanguageModel } from '@effect/ai-openai';
 import { FetchHttpClient } from '@effect/platform';
 import dedent from 'dedent';
-import { DateTime, Effect, Stream } from 'effect';
+import { Console, DateTime, Effect, Stream } from 'effect';
 import { JsonStreamParser } from './JsonStreamParser';
 import { ScheduleDay } from './schema';
 
@@ -62,6 +62,7 @@ export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('Schedu
 				return model.streamText({ prompt, system: '' }).pipe(
 					Stream.map((response) => response.text),
 					Stream.transduce(JsonStreamParser.makeSink(ScheduleDay)),
+					Stream.tapError((error) => Console.error('Stream error', error)),
 					Stream.flattenChunks
 				);
 			}
