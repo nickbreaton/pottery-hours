@@ -1,13 +1,15 @@
-- [x] Clicking "New schedule" after / during import should go back to input
 - [ ] Error handling invalid input
 - [ ] Error handling when parsing
+- [ ] Hover tooltips
 - [ ] Schedule labels
 - [ ] Sidebar jumping in
-- [ ] Button to get calendar feed
-- [ ] loading indicator
-- [x] Styled delete / publish
-- [x] Delete / publish (likely disable) handling when loading
-- [ ] Toast indicating successful import
 - [ ] Toast indicating successful deletion
+- [ ] Toast indicating successful import
+- [ ] loading indicator
+- [ ] responsive design
+- [x] Button to get calendar feed
+- [x] Clicking "New schedule" after / during import should go back to input
 - [x] Days appear to have off by one error in product UI (calendar feed is correct)
+- [x] Delete / publish (likely disable) handling when loading
+- [x] Styled delete / publish
 - [x] Try Chat GPT 5
