@@ -28,7 +28,7 @@
 						<li class="w-full">
 							<a
 								href="/"
-								class="aria-[current=page]:bg-zinc-300/45 active:bg-zinc-300/45 hover:bg-zinc-300/25 text-zinc-600 block rounded-lg py-2 px-3"
+								class="aria-[current=page]:bg-zinc-300/45 aria-[current=page]:text-zinc-800 active:bg-zinc-300/45 hover:bg-zinc-300/25 text-zinc-600 block rounded-lg py-2 px-3"
 								onclick={() => {
 									importer.reset();
 									replaceState('/', {});
@@ -36,19 +36,19 @@
 								aria-current={currentScheduleId == null ? 'page' : null}
 							>
 								<span class="flex gap-2 items-center">
-									<SquarePen size="1.2rem" aria-hidden /> New schedule
+									<SquarePen size="1.2rem" aria-hidden /> Add schedule
 								</span>
 							</a>
 						</li>
-						{#each await getSchedules() as { id, published } (id)}
+						{#each await getSchedules() as { title, id, published } (id)}
 							<li>
 								<a
-									class="aria-[current=page]:bg-zinc-300/45 active:bg-zinc-300/45 hover:bg-zinc-300/25 text-zinc-600 block rounded-lg py-2 px-3"
+									class="aria-[current=page]:bg-zinc-300/45 aria-[current=page]:text-zinc-800 active:bg-zinc-300/45 hover:bg-zinc-300/25 text-zinc-600 block rounded-lg py-2 px-3"
 									href="/schedule/{id}"
 									aria-current={currentScheduleId == id ? 'page' : null}
 								>
 									<span class="flex gap-2 items-center justify-between">
-										{id}
+										{title}
 										{#if published}
 											<Rss size="1.2rem" aria-label="Published" class="text-zinc-600" />
 										{/if}

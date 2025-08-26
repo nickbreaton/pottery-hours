@@ -32,7 +32,7 @@
 
 <script lang="ts">
 	import { type ScheduleDay } from '$lib/server/schema';
-	import { MONTHS } from '$lib/utils/datetime';
+	import { getUniqueCalendarMonths, MONTHS } from '$lib/utils/datetime';
 	import { ArrowLeft, ArrowRight, BookUp2, Trash2 } from 'lucide-svelte';
 	import { fade } from 'svelte/transition';
 	import { sineIn, sineInOut } from 'svelte/easing';
@@ -54,23 +54,7 @@
 
 	let { days, importing, followDays, published, id }: Props = $props();
 
-	const calendarMonths = $derived.by(() => {
-		const result: [year: number, month: number][] = [];
-
-		for (const day of days) {
-			const monthIndex = MONTHS.findIndex((it) => it === day.month);
-			const year = day.year;
-
-			if (result.find((existing) => existing[0] === year && existing[1] === monthIndex)) {
-				// dont add duplicate months
-				continue;
-			}
-
-			result.push([year, monthIndex]);
-		}
-
-		return result;
-	});
+	const calendarMonths = $derived(getUniqueCalendarMonths(days));
 
 	let visibleMonthIndex = $derived(followDays ? calendarMonths.length - 1 : 0);
 

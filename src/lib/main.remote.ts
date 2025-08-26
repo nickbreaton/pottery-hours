@@ -10,7 +10,8 @@ export const getSchedules = query(() => {
 		const repo = yield* ScheduleRepo;
 		return (yield* repo.list()).map((schedule) => ({
 			id: schedule.id,
-			published: schedule.published
+			published: schedule.published,
+			title: schedule.title
 		}));
 	});
 

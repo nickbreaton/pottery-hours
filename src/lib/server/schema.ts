@@ -1,4 +1,4 @@
-import { MONTHS } from '$lib/utils/datetime';
+import { getShortMonthName, getUniqueCalendarMonths, MONTHS } from '$lib/utils/datetime';
 
 import { Order, ParseResult, Schema } from 'effect';
 
@@ -72,5 +72,17 @@ export class PotterySchedule extends Schema.Class<PotterySchedule>('PotterySched
 
 	get file() {
 		return `/file/${this.id}.pdf`;
+	}
+
+	get title() {
+		const calendarMonths = getUniqueCalendarMonths(this.days);
+		const first = calendarMonths[0];
+		const last = calendarMonths.at(-1);
+
+		if (!last) {
+			return `${getShortMonthName(first[1])} ${first[0]}`;
+		}
+
+		return `${getShortMonthName(first[1])} ${first[0]} - ${getShortMonthName(last[1])} ${last[0]}`;
 	}
 }

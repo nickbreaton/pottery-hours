@@ -1,15 +1,16 @@
 - [ ] Error handling invalid input
 - [ ] Error handling when parsing
+- [ ] Favicon
 - [ ] Hover tooltips
-- [ ] Schedule labels
-- [ ] Sidebar jumping in
+- [ ] loading indicator
+- [ ] mobile design
 - [ ] Toast indicating successful deletion
 - [ ] Toast indicating successful import
-- [ ] loading indicator
-- [ ] responsive design
 - [x] Button to get calendar feed
 - [x] Clicking "New schedule" after / during import should go back to input
 - [x] Days appear to have off by one error in product UI (calendar feed is correct)
 - [x] Delete / publish (likely disable) handling when loading
+- [x] Schedule labels
+- [x] Sidebar jumping in
 - [x] Styled delete / publish
 - [x] Try Chat GPT 5
