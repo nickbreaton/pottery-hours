@@ -5,9 +5,11 @@
 	import { replaceState } from '$app/navigation';
 	import Button from '$lib/components/Button.svelte';
 	import { page } from '$app/state';
-	import { CalendarArrowDown } from 'lucide-svelte';
+	import { CalendarCog, Rss, SquarePen } from 'lucide-svelte';
 
 	let { children } = $props();
+
+	const currentScheduleId = $derived(page.params.id ?? importer.importedId);
 </script>
 
 <div class="flex">
@@ -21,22 +23,37 @@
 					<!-- ignore? -->
 				{/snippet}
 				<nav>
-					<ul>
+					<ul class="flex flex-col gap-1">
 						<!-- TODO: address aria-current="page" -->
-						<li>
+						<li class="w-full">
 							<a
 								href="/"
+								class="aria-[current=page]:bg-zinc-300/45 active:bg-zinc-300/45 hover:bg-zinc-300/25 text-zinc-600 block rounded-lg py-2 px-3"
 								onclick={() => {
 									importer.reset();
 									replaceState('/', {});
 								}}
+								aria-current={currentScheduleId == null ? 'page' : null}
 							>
-								New schedule
+								<span class="flex gap-2 items-center">
+									<SquarePen size="1.2rem" aria-hidden /> New schedule
+								</span>
 							</a>
 						</li>
 						{#each await getSchedules() as { id, published } (id)}
 							<li>
-								<a href="/schedule/{id}">Schedule {id} ({published ? 'Published' : 'Draft'})</a>
+								<a
+									class="aria-[current=page]:bg-zinc-300/45 active:bg-zinc-300/45 hover:bg-zinc-300/25 text-zinc-600 block rounded-lg py-2 px-3"
+									href="/schedule/{id}"
+									aria-current={currentScheduleId == id ? 'page' : null}
+								>
+									<span class="flex gap-2 items-center justify-between">
+										{id}
+										{#if published}
+											<Rss size="1.2rem" aria-label="Published" class="text-zinc-600" />
+										{/if}
+									</span>
+								</a>
 							</li>
 						{/each}
 					</ul>
@@ -46,7 +63,7 @@
 			<div class="flex-1 flex flex-col justify-end">
 				<Button href={`webcal://${page.url.host}/calendar.ics`}>
 					<span class="flex gap-2 items-center">
-						Subscribe to Calendar <CalendarArrowDown size="1.2rem" aria-hidden />
+						Subscribe to Calendar <CalendarCog size="1.2rem" aria-hidden />
 					</span>
 				</Button>
 			</div>
