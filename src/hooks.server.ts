@@ -3,7 +3,7 @@ import { runtime } from '$lib/server/runtime';
 import { error, type Handle } from '@sveltejs/kit';
 import { Effect } from 'effect';
 
-const UNAUTHED_PATH_PREFIX = ['/auth', '/calendar.ics', '/file/'];
+const UNAUTHED_PATH_PREFIX = ['/auth', '/calendar.ics', '/file/', '/favicon.svg'];
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const isUnauthedRoute = UNAUTHED_PATH_PREFIX.some((prefix) => event.url.pathname.startsWith(prefix));
