@@ -1,9 +1,9 @@
 import { AuthRepo } from '$lib/server/AuthRepo';
 import { runtime } from '$lib/server/runtime';
-import { error, type Handle } from '@sveltejs/kit';
+import { error, redirect, type Handle } from '@sveltejs/kit';
 import { Effect } from 'effect';
 
-const UNAUTHED_PATH_PREFIX = ['/auth', '/calendar.ics', '/file/', '/favicon.svg'];
+const UNAUTHED_PATH_PREFIX = ['/login', '/calendar.ics', '/file/', '/favicon.svg'];
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const isUnauthedRoute = UNAUTHED_PATH_PREFIX.some((prefix) => event.url.pathname.startsWith(prefix));
@@ -23,5 +23,5 @@ export const handle: Handle = async ({ event, resolve }) => {
 		return resolve(event);
 	}
 
-	error(401);
+	redirect(302, '/login');
 };

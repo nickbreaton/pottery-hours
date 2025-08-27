@@ -2,7 +2,7 @@
 	import { replaceState } from '$app/navigation';
 	import { deleteSchedule, getSchedule, getSchedules } from '$lib/main.remote';
 	import type { EventHandler } from 'svelte/elements';
-	import type { CompleteEvent, DayEvent, InvalidEvent } from './api/new/schema';
+	import type { CompleteEvent, DayEvent, InvalidEvent } from '../api/new/schema';
 	import { WandSparkles } from 'lucide-svelte';
 	import Calendar from '$lib/components/Calendar.svelte';
 	import { fade } from 'svelte/transition';
