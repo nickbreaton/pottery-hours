@@ -36,6 +36,7 @@
 	import { ArrowLeft, ArrowRight, BookUp2, Trash2 } from 'lucide-svelte';
 	import { fade } from 'svelte/transition';
 	import { sineIn, sineInOut } from 'svelte/easing';
+	import { page } from '$app/state';
 
 	// @ts-ignore
 	import calendar from 'calendar-month-array';
@@ -56,7 +57,13 @@
 
 	const calendarMonths = $derived(getUniqueCalendarMonths(days));
 
-	let visibleMonthIndex = $derived(followDays ? calendarMonths.length - 1 : 0);
+	let visibleMonthIndex = $derived.by(() => {
+		// Included to reset on page change. This likely could be improved by wrapping the entire component
+		// in a key based on the schedule ID, but there seems to be a bug with that and async Svelte.
+		page.params?.id;
+
+		return followDays ? calendarMonths.length - 1 : 0;
+	});
 
 	const calendarMonth = $derived(calendarMonths[visibleMonthIndex]);
 	const monthIndex = $derived(calendarMonth[1]);
