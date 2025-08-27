@@ -11,7 +11,7 @@
 	const currentScheduleId = $derived(page.params.id ?? importer.importedId);
 </script>
 
-<div class="flex">
+<div class="hidden lg:flex">
 	<aside class="w-64 bg-zinc-100 p-4 overflow-hidden sticky top-0 h-dvh">
 		<div class="flex flex-col h-full">
 			<div
@@ -70,4 +70,13 @@
 	</aside>
 
 	<main class="flex-1">{@render children()}</main>
+</div>
+
+<div class="lg:hidden pt-20">
+	<hgroup class="flex flex-col items-center justify-stretch gap-4 text-center">
+		<h1 class="text-2xl font-extrabold text-zinc-900">Unsupported screen size :(</h1>
+		<p class="max-w-lg leading-5 text-zinc-500 decoration-zinc-400 text-balance">
+			This site is currently only optimized for a desktop screen, please check back later for better mobile support.
+		</p>
+	</hgroup>
 </div>
