@@ -1,6 +1,6 @@
 - [ ] Error handling invalid input
 - [ ] Error handling when parsing
-- [ ] Favicon
+- [x] Favicon
 - [ ] Hover tooltips
 - [ ] loading indicator
 - [ ] mobile design
