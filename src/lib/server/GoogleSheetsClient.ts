@@ -6,12 +6,22 @@ export class GoogleSheetsClient extends Effect.Service<GoogleSheetsClient>()('Go
 	effect: Effect.gen(function* () {
 		const httpClient = yield* HttpClient.HttpClient;
 
+		const exportParams = new URLSearchParams({
+			format: 'pdf',
+			scale: '4',
+			portrait: 'false',
+			top_margin: '0.25',
+			bottom_margin: '0.25',
+			left_margin: '0.25',
+			right_margin: '0.25'
+		});
+
 		return {
 			download: (spreadsheetId: string) =>
 				Effect.log('Downloading').pipe(
 					Effect.andThen(HttpClientRequest.make('GET')('https://docs.google.com/spreadsheets/d/')),
 					Effect.andThen(HttpClientRequest.appendUrl(spreadsheetId)),
-					Effect.andThen(HttpClientRequest.appendUrl('/export?format=pdf&portrait=false')),
+					Effect.andThen(HttpClientRequest.appendUrl('/export?' + exportParams)),
 					Effect.andThen(httpClient.execute),
 					Effect.andThen(HttpClientResponse.filterStatusOk),
 					Effect.andThen((res) => res.arrayBuffer),
