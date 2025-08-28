@@ -1,6 +1,6 @@
-<main class="grid place-content-center h-full pb-40">
+<main class="grid place-content-center h-full p-5">
 	<form method="POST">
-		<label class="flex flex-col gap-1 text-zinc-600 text-sm">
+		<label class="flex flex-col gap-1 text-zinc-600 h-60">
 			Password
 			<input
 				type="password"
