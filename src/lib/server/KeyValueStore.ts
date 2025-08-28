@@ -63,25 +63,27 @@ export class KeyValueStore extends Effect.Service<KeyValueStore>()('KeyValueStor
 		Effect.succeed(
 			KeyValueStore.make({
 				forSchema: Effect.fn(function* (schema, namespace) {
-					const store = getStore({
-						name: namespace,
-						consistency: 'strong'
-					});
+					// Avoid static references to the store as its internal token can expire
+					const store = () =>
+						getStore({
+							name: namespace,
+							consistency: 'strong'
+						});
 
 					return {
 						set: (key, value) =>
 							Effect.gen(function* () {
 								const encoded = yield* Schema.encode(schema)(value);
-								yield* Effect.promise(() => store.set(key, JSON.stringify(encoded)));
+								yield* Effect.promise(() => store().set(key, JSON.stringify(encoded)));
 							}).pipe(asKeyValueError),
 
 						delete: (key) => {
-							return Effect.promise(() => store.delete(key));
+							return Effect.promise(() => store().delete(key));
 						},
 
 						get: (key) =>
 							Effect.gen(function* () {
-								const retrieved = yield* Effect.promise(() => store.get(key));
+								const retrieved = yield* Effect.promise(() => store().get(key));
 
 								if (retrieved === null) {
 									return Option.none();
@@ -92,7 +94,7 @@ export class KeyValueStore extends Effect.Service<KeyValueStore>()('KeyValueStor
 
 						list: () =>
 							Effect.gen(function* () {
-								const result = yield* Effect.promise(() => store.list());
+								const result = yield* Effect.promise(() => store().list());
 								return result.blobs.map((blob) => blob.key);
 							}).pipe(asKeyValueError)
 					};
