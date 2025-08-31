@@ -226,16 +226,19 @@
 
 			<section class="grid grid-cols-subgrid col-span-2 gap-y-3">
 				{#each monthGrid as week}
-					{@const weekDays = week.map((date) => days.find((day) => date === toIso8601(day)) ?? null)}
+					{@const weekDays = week.map((date) => days.find((day) => date === toIso8601(day)))}
 
 					{#if weekDays.some((day) => day != null)}
 						<dl class="grid grid-cols-subgrid col-span-2 gap-y-3">
 							{#each week as date, weekDateIndex}
 								{@const isSiblingMonthDate = date == null}
 
-								{#if !isSiblingMonthDate}
-									{@const day = days.find((day) => date === toIso8601(day)) ?? null}
+								{@const daysIndex = days.findIndex((day) => date === toIso8601(day))}
+								{@const day = days[daysIndex]}
+								{@const hasDaysLeft = daysIndex > -1 && days.slice(daysIndex).some((day) => day.hours.length > 0)}
+								{@const shouldTrimFromEnd = importing && !hasDaysLeft}
 
+								{#if !isSiblingMonthDate && !shouldTrimFromEnd}
 									<dt class="flex flex-col">
 										<span class="text-sm">{WEEKDAYS[weekDateIndex]}</span>
 										<span>{format8601CalendarDay(date, { forceMonthPrefix: weekDateIndex === 0 })}</span>
