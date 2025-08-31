@@ -48,6 +48,7 @@
 	import { deleteSchedule, getSchedule, getSchedules, setSchedulePublished } from '$lib/main.remote';
 	import { importer } from '$lib/stores/importer.svelte';
 	import { goto } from '$app/navigation';
+	import { tick } from 'svelte';
 
 	interface Props {
 		days: Readonly<EncodedDay[]>;
@@ -75,6 +76,22 @@
 
 	const borderColor = 'border-zinc-200/75';
 	const cellBorder = `border first:border-l-0 last:border-r-0 group-first:border-t-0 not-[th]:group-last:border-b-0 ${borderColor}`;
+
+	let mobileSection!: HTMLDivElement;
+
+	$effect(() => {
+		// listen for changes
+		days.length;
+		importing;
+
+		// TODO: test on mobile safari
+
+		const isApproximatelyAtBottom = document.body.scrollHeight - window.innerHeight - window.scrollY < 200;
+
+		if (mobileSection?.checkVisibility() && isApproximatelyAtBottom) {
+			window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+		}
+	});
 </script>
 
 <div class="p-6 text-left flex flex-col gap-2">
@@ -213,7 +230,7 @@
 
 	<!-- mobile view -->
 
-	<div class="grid xl:hidden grid-cols-[max-content_1fr] gap-x-4 gap-y-6">
+	<div class="grid xl:hidden grid-cols-[max-content_1fr] gap-x-4 gap-y-6" bind:this={mobileSection}>
 		{#each calendarMonths as calendarMonth, calendarIndex}
 			{@const monthGrid: Iso8601Date[][] = calendar(new Date(...calendarMonth), {
   	    formatDate: toIso8601,
@@ -221,7 +238,9 @@
   		})}
 
 			{#if calendarIndex > 0}
-				<h2 class="col-span-2">{formatCalendarMonthLabel(calendarMonth)}</h2>
+				<h2 class="col-span-2" in:fade={{ duration: 300, easing: sineIn }}>
+					{formatCalendarMonthLabel(calendarMonth)}
+				</h2>
 			{/if}
 
 			<section class="grid grid-cols-subgrid col-span-2 gap-y-3">
@@ -239,13 +258,13 @@
 								{@const shouldTrimFromEnd = importing && !hasDaysLeft}
 
 								{#if !isSiblingMonthDate && !shouldTrimFromEnd}
-									<dt class="flex flex-col">
+									<dt class="flex flex-col" in:fade={{ duration: 300, easing: sineIn }}>
 										<span class="text-sm">{WEEKDAYS[weekDateIndex]}</span>
 										<span>{format8601CalendarDay(date, { forceMonthPrefix: weekDateIndex === 0 })}</span>
 									</dt>
-									<dd>
+									<dd in:fade={{ duration: 300, easing: sineIn }}>
 										{#if day && day?.hours?.length > 0}
-											<ul class="space-y-1.5" in:fade={{ duration: 150, easing: sineIn }}>
+											<ul class="space-y-1.5">
 												{#each day.hours as hour}
 													<li
 														class="bg-purple-100 text-purple-900/90 rounded p-1 px-2 flex -space-y-0.5 flex-col border border-purple-900/10"
@@ -269,6 +288,8 @@
 					{/if}
 				{/each}
 			</section>
+
+			<!-- TODO: add a back to top button -->
 		{/each}
 	</div>
 </div>
