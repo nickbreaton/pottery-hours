@@ -23,16 +23,20 @@
 		return parseInt(date.split('-')[1]);
 	}
 
-	function format8601CalendarDay(date: Iso8601Date) {
+	function format8601CalendarDay(date: Iso8601Date, { forceMonthPrefix = false } = {}) {
 		const day = parseIso8601Day(date);
 		const monthPrefix = MONTHS[parse8601Month(date) - 1].substring(0, 3);
-		return day === 1 ? `${monthPrefix} ${day}` : day;
+		return day === 1 || forceMonthPrefix ? `${monthPrefix} ${day}` : day;
+	}
+
+	function formatCalendarMonthLabel([year, monthIndex]: CalendarMonth) {
+		return `${MONTHS[monthIndex]} ${year}`;
 	}
 </script>
 
 <script lang="ts">
 	import { type ScheduleDay } from '$lib/server/schema';
-	import { getUniqueCalendarMonths, MONTHS } from '$lib/utils/datetime';
+	import { getUniqueCalendarMonths, MONTHS, WEEKDAYS, type CalendarMonth } from '$lib/utils/datetime';
 	import { ArrowLeft, ArrowRight, BookUp2, Trash2 } from 'lucide-svelte';
 	import { fade } from 'svelte/transition';
 	import { sineIn, sineInOut } from 'svelte/easing';
@@ -67,10 +71,6 @@
 
 	const calendarMonth = $derived(calendarMonths[visibleMonthIndex]);
 	const monthIndex = $derived(calendarMonth[1]);
-
-	const monthLabel = $derived(MONTHS[monthIndex]);
-	const yearLabel = $derived(calendarMonth[0]);
-
 	const grid: Iso8601Date[][] = $derived(calendar(new Date(...calendarMonth), { formatDate: toIso8601 }));
 
 	const borderColor = 'border-zinc-200/75';
@@ -78,8 +78,8 @@
 </script>
 
 <div class="p-6 text-left flex flex-col gap-2">
-	<div class="grid grid-cols-[1fr_auto_1fr] items-center">
-		<div class="flex gap-1.5">
+	<div class="flex justify-between xl:grid grid-cols-[1fr_auto_1fr] items-center">
+		<div class="hidden xl:flex gap-1.5">
 			<Button
 				disabled={visibleMonthIndex <= 0}
 				title="Previous month"
@@ -104,7 +104,10 @@
 			</Button>
 		</div>
 
-		<p class="text-xl font-normal flex text-zinc-900">{monthLabel} {yearLabel}</p>
+		<h1 class="text-xl font-normal flex text-zinc-900">
+			<span class="hidden xl:inline">{formatCalendarMonthLabel(calendarMonth)}</span>
+			<span class="inline xl:hidden">{formatCalendarMonthLabel(calendarMonths[0])}</span>
+		</h1>
 
 		<div class="flex justify-end gap-1.5">
 			<Button
@@ -143,7 +146,9 @@
 		</div>
 	</div>
 
-	<div class="grid *:col-start-1 *:row-start-1">
+	<!-- desktop view -->
+
+	<div class="hidden xl:grid *:col-start-1 *:row-start-1">
 		{#each calendarMonths as calendarMonth, calendarIndex (calendarMonth.join(' '))}
 			{#if calendarIndex === visibleMonthIndex}
 				<div
@@ -186,7 +191,9 @@
 																	<span class="font-medium text-sm overflow-ellipsis overflow-hidden whitespace-nowrap">
 																		{day.label}
 																	</span>
-																	<span class="text-xs">{formatHour(hour, 'start')} – {formatHour(hour, 'end')}</span>
+																	<span class="text-xs overflow-ellipsis overflow-hidden whitespace-nowrap">
+																		{formatHour(hour, 'start')} – {formatHour(hour, 'end')}
+																	</span>
 																</li>
 															{/each}
 														</ul>
@@ -201,6 +208,64 @@
 					</table>
 				</div>
 			{/if}
+		{/each}
+	</div>
+
+	<!-- mobile view -->
+
+	<div class="grid xl:hidden grid-cols-[max-content_1fr] gap-x-4 gap-y-6">
+		{#each calendarMonths as calendarMonth, calendarIndex}
+			{@const monthGrid: Iso8601Date[][] = calendar(new Date(...calendarMonth), {
+  	    formatDate: toIso8601,
+  			formatSiblingMonthDate: () => null
+  		})}
+
+			{#if calendarIndex > 0}
+				<h2 class="col-span-2">{formatCalendarMonthLabel(calendarMonth)}</h2>
+			{/if}
+
+			<section class="grid grid-cols-subgrid col-span-2 gap-y-3">
+				{#each monthGrid as week}
+					{@const weekDays = week.map((date) => days.find((day) => date === toIso8601(day)) ?? null)}
+
+					{#if weekDays.some((day) => day != null)}
+						<dl class="grid grid-cols-subgrid col-span-2 gap-y-3">
+							{#each week as date, weekDateIndex}
+								{@const isSiblingMonthDate = date == null}
+
+								{#if !isSiblingMonthDate}
+									{@const day = days.find((day) => date === toIso8601(day)) ?? null}
+
+									<dt class="flex flex-col">
+										<span class="text-sm">{WEEKDAYS[weekDateIndex]}</span>
+										<span>{format8601CalendarDay(date, { forceMonthPrefix: weekDateIndex === 0 })}</span>
+									</dt>
+									<dd>
+										{#if day && day?.hours?.length > 0}
+											<ul class="space-y-1.5" in:fade={{ duration: 150, easing: sineIn }}>
+												{#each day.hours as hour}
+													<li
+														class="bg-purple-100 text-purple-900/90 rounded p-1 px-2 flex -space-y-0.5 flex-col border border-purple-900/10"
+													>
+														<span class="font-medium text-sm">
+															{day.label}
+														</span>
+														<span class="text-xs">
+															{formatHour(hour, 'start')} – {formatHour(hour, 'end')}
+														</span>
+													</li>
+												{/each}
+											</ul>
+										{:else}
+											<span>No hours</span>
+										{/if}
+									</dd>
+								{/if}
+							{/each}
+						</dl>
+					{/if}
+				{/each}
+			</section>
 		{/each}
 	</div>
 </div>
