@@ -37,7 +37,7 @@
 <script lang="ts">
 	import { type ScheduleDay } from '$lib/server/schema';
 	import { getUniqueCalendarMonths, MONTHS, WEEKDAYS, type CalendarMonth } from '$lib/utils/datetime';
-	import { ArrowLeft, ArrowRight, BookUp2, Trash2 } from 'lucide-svelte';
+	import { ArrowLeft, ArrowRight, ArrowUp, BookUp2, Trash2 } from 'lucide-svelte';
 	import { fade } from 'svelte/transition';
 	import { sineIn, sineInOut } from 'svelte/easing';
 	import { page } from '$app/state';
@@ -49,6 +49,7 @@
 	import { importer } from '$lib/stores/importer.svelte';
 	import { goto } from '$app/navigation';
 	import { tick } from 'svelte';
+	import { failCause } from 'effect/Micro';
 
 	interface Props {
 		days: Readonly<EncodedDay[]>;
@@ -78,19 +79,46 @@
 	const cellBorder = `border first:border-l-0 last:border-r-0 group-first:border-t-0 not-[th]:group-last:border-b-0 ${borderColor}`;
 
 	let mobileSection!: HTMLDivElement;
+	let scrollDirection: 'up' | 'down' | null = null;
 
 	$effect(() => {
-		// listen for changes
+		// track changes
 		days.length;
 		importing;
 
 		// TODO: test on mobile safari
+		// TODO: occasionally the final update does not scroll all the way to the bottom
 
-		const isApproximatelyAtBottom = document.body.scrollHeight - window.innerHeight - window.scrollY < 200;
+		const isApproximatelyAtBottom = () => {
+			return document.body.scrollHeight - window.innerHeight - window.scrollY < 200;
+		};
 
-		if (mobileSection?.checkVisibility() && isApproximatelyAtBottom) {
+		if (mobileSection?.checkVisibility() && isApproximatelyAtBottom() && scrollDirection !== 'up') {
 			window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+			document.documentElement.classList.add('no-scrollbar');
 		}
+
+		const controller = new AbortController();
+
+		let lastScrollOffset = 0;
+
+		window.addEventListener(
+			'scroll',
+			() => {
+				scrollDirection = lastScrollOffset - window.pageYOffset < 0 ? 'down' : 'up';
+				lastScrollOffset = window.pageYOffset;
+
+				if (scrollDirection === 'up') {
+					document.documentElement.classList.remove('no-scrollbar');
+					window.scrollTo({ top: window.pageYOffset, behavior: 'instant' });
+				} else if (isApproximatelyAtBottom() && importing) {
+					document.documentElement.classList.add('no-scrollbar');
+				}
+			},
+			{ signal: controller.signal, passive: true }
+		);
+
+		return () => controller.abort();
 	});
 </script>
 
@@ -238,7 +266,7 @@
   		})}
 
 			{#if calendarIndex > 0}
-				<h2 class="col-span-2" in:fade={{ duration: 300, easing: sineIn }}>
+				<h2 class="col-span-2" in:fade={{ duration: 150, easing: sineIn }}>
 					{formatCalendarMonthLabel(calendarMonth)}
 				</h2>
 			{/if}
@@ -258,11 +286,11 @@
 								{@const shouldTrimFromEnd = importing && !hasDaysLeft}
 
 								{#if !isSiblingMonthDate && !shouldTrimFromEnd}
-									<dt class="flex flex-col" in:fade={{ duration: 300, easing: sineIn }}>
+									<dt class="flex flex-col" in:fade={{ duration: 150, easing: sineIn }}>
 										<span class="text-sm">{WEEKDAYS[weekDateIndex]}</span>
 										<span>{format8601CalendarDay(date, { forceMonthPrefix: weekDateIndex === 0 })}</span>
 									</dt>
-									<dd in:fade={{ duration: 300, easing: sineIn }}>
+									<dd in:fade={{ duration: 150, easing: sineIn }}>
 										{#if day && day?.hours?.length > 0}
 											<ul class="space-y-1.5">
 												{#each day.hours as hour}
@@ -288,8 +316,16 @@
 					{/if}
 				{/each}
 			</section>
-
-			<!-- TODO: add a back to top button -->
 		{/each}
+
+		<div class="col-start-2 flex justify-end min-h-10">
+			{#if !importing}
+				<Button onclick={() => window.scrollTo({ top: 0 })}>
+					<span class="flex gap-2 items-center">
+						Back to top <ArrowUp size="1.2em" />
+					</span>
+				</Button>
+			{/if}
+		</div>
 	</div>
 </div>
