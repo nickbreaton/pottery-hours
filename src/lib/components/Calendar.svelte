@@ -262,49 +262,52 @@
 
 	<!-- mobile view -->
 
-	<div class="grid xl:hidden grid-cols-[max-content_1fr] gap-x-4 gap-y-6" bind:this={mobileSection}>
+	<div class="grid xl:hidden gap-y-8" bind:this={mobileSection}>
 		{#each calendarMonths as calendarMonth, calendarIndex}
-			{@const monthGrid: Iso8601Date[][] = calendar(new Date(...calendarMonth), {
-  	    formatDate: toIso8601,
-  			formatSiblingMonthDate: () => null
+			{@const calendarWeekGrid: (Iso8601Date | null)[][] = calendar(new Date(...calendarMonth), {
+  	    formatDate: (date: Date, info: any) => info.siblingMonth  === 1 ? null : toIso8601(date) ,
   		})}
 
-			{#if calendarIndex > 0}
-				<h2 class="col-span-2" in:fade={{ duration: 150, easing: sineIn }}>
-					{formatCalendarMonthLabel(calendarMonth)}
-				</h2>
-			{/if}
+			<section class="grid gap-4">
+				{#if calendarIndex > 0}
+					<h2 class="col-span-full col-start-1 text-lg" in:fade={{ duration: 150, easing: sineIn }}>
+						{formatCalendarMonthLabel(calendarMonth)}
+					</h2>
+				{/if}
 
-			<section class="grid grid-cols-subgrid col-span-2 gap-y-3">
-				{#each monthGrid as week}
-					{@const weekDays = week.map((date) => days.find((day) => date === toIso8601(day)))}
+				{#each calendarWeekGrid as calendarWeekDays}
+					{@const hasTrailingSiblingCalendarDays = calendarWeekDays.some((calendarDays) => calendarDays == null)}
+					{@const hasPlacedDays = calendarWeekDays.some((calendarDays) => {
+						return days.find((day) => toIso8601(day) === calendarDays)?.hours?.length;
+					})}
 
-					{#if weekDays.some((day) => day != null)}
-						<dl class="grid grid-cols-subgrid col-span-2 gap-y-3">
-							{#each week as date, weekDateIndex}
-								{@const isSiblingMonthDate = date == null}
+					{#if !hasTrailingSiblingCalendarDays && hasPlacedDays}
+						<dl
+							class="grid auto-rows-fr grid-cols-[minmax(max-content,1fr)_2fr] gap-x-6 gap-y-5 p-4 bg-white/80 rounded-md {borderColor} border"
+						>
+							{#each calendarWeekDays as calendarWeekDay, calendarWeekDayIndex}
+								{@const day = days.find((day) => toIso8601(day) === calendarWeekDay)}
 
-								{@const daysIndex = days.findIndex((day) => date === toIso8601(day))}
-								{@const day = days[daysIndex]}
-								{@const hasDaysLeft = daysIndex > -1 && days.slice(daysIndex).some((day) => day.hours.length > 0)}
-								{@const shouldTrimFromEnd = importing && !hasDaysLeft}
-
-								{#if !isSiblingMonthDate && !shouldTrimFromEnd}
+								<div class="grid grid-cols-subgrid col-span-full {borderColor} not-last:border-b not-last:pb-4">
 									<dt class="flex flex-col" in:fade={{ duration: 150, easing: sineIn }}>
-										<span class="text-sm">{WEEKDAYS[weekDateIndex]}</span>
-										<span>{format8601CalendarDay(date, { forceMonthPrefix: weekDateIndex === 0 })}</span>
+										<span class="text-sm text-zinc-400">{WEEKDAYS[calendarWeekDayIndex]}</span>
+										{#if calendarWeekDay}
+											<span class="font-medium">
+												{format8601CalendarDay(calendarWeekDay, { forceMonthPrefix: true })}
+											</span>
+										{/if}
 									</dt>
-									<dd in:fade={{ duration: 150, easing: sineIn }}>
+									<dd in:fade={{ duration: 150, easing: sineIn }} class="min-h-[5.875rem]">
 										{#if day && day?.hours?.length > 0}
 											<ul class="space-y-1.5">
 												{#each day.hours as hour}
 													<li
-														class="bg-purple-100 text-purple-900/90 rounded p-1 px-2 flex -space-y-0.5 flex-col border border-purple-900/10"
+														class="bg-purple-100 text-purple-900/90 rounded p-1 px-2 lg:p-2 lg:px-2 flex -space-y-0.5 lg:space-y-0 flex-col border border-purple-900/10"
 													>
-														<span class="font-medium text-sm">
+														<span class="font-medium text-sm overflow-ellipsis overflow-hidden whitespace-nowrap">
 															{day.label}
 														</span>
-														<span class="text-xs">
+														<span class="text-xs overflow-ellipsis overflow-hidden whitespace-nowrap">
 															{formatHour(hour, 'start')} – {formatHour(hour, 'end')}
 														</span>
 													</li>
@@ -314,7 +317,7 @@
 											<span>No hours</span>
 										{/if}
 									</dd>
-								{/if}
+								</div>
 							{/each}
 						</dl>
 					{/if}
@@ -322,7 +325,7 @@
 			</section>
 		{/each}
 
-		<div class="col-start-2 flex justify-end min-h-10">
+		<div class="col-start-1 col-span-full flex justify-end min-h-10">
 			{#if !importing}
 				<Button onclick={() => window.scrollTo({ top: 0 })}>
 					<span
