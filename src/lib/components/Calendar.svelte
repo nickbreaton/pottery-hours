@@ -81,21 +81,25 @@
 	let mobileSection!: HTMLDivElement;
 	let scrollDirection: 'up' | 'down' | null = null;
 
-	$effect(() => {
-		// track changes
+	const isApproximatelyAtBottom = () => {
+		return document.body.scrollHeight - window.innerHeight - window.scrollY < 200;
+	};
+
+	$effect.pre(() => {
+		if (!followDays) {
+			return;
+		}
+
+		// Rerun on changes to number of days
 		days.length;
-		importing;
 
-		// TODO: test on mobile safari
-		// TODO: occasionally the final update does not scroll all the way to the bottom
-
-		const isApproximatelyAtBottom = () => {
-			return document.body.scrollHeight - window.innerHeight - window.scrollY < 200;
-		};
-
-		if (mobileSection?.checkVisibility() && isApproximatelyAtBottom() && scrollDirection !== 'up') {
-			window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-			document.documentElement.classList.add('no-scrollbar');
+		if (mobileSection?.checkVisibility()) {
+			tick().then(() => {
+				if (isApproximatelyAtBottom() && scrollDirection !== 'up') {
+					window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+					document.documentElement.classList.add('no-scrollbar');
+				}
+			});
 		}
 
 		const controller = new AbortController();
@@ -321,7 +325,14 @@
 		<div class="col-start-2 flex justify-end min-h-10">
 			{#if !importing}
 				<Button onclick={() => window.scrollTo({ top: 0 })}>
-					<span class="flex gap-2 items-center">
+					<span
+						class="flex gap-2 items-center"
+						{@attach (element) => {
+							if (followDays && isApproximatelyAtBottom() && scrollDirection !== 'up') {
+								element.scrollIntoView({ behavior: 'smooth' });
+							}
+						}}
+					>
 						Back to top <ArrowUp size="1.2em" />
 					</span>
 				</Button>
