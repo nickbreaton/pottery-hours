@@ -85,45 +85,45 @@
 		return document.body.scrollHeight - window.innerHeight - window.scrollY < 200;
 	};
 
-	$effect.pre(() => {
-		if (!followDays) {
-			return;
-		}
+	// $effect.pre(() => {
+	// 	if (!followDays) {
+	// 		return;
+	// 	}
 
-		// Rerun on changes to number of days
-		days.length;
+	// 	// Rerun on changes to number of days
+	// 	days.length;
 
-		if (mobileSection?.checkVisibility()) {
-			tick().then(() => {
-				if (isApproximatelyAtBottom() && scrollDirection !== 'up') {
-					window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-					document.documentElement.classList.add('no-scrollbar');
-				}
-			});
-		}
+	// 	if (mobileSection?.checkVisibility()) {
+	// 		tick().then(() => {
+	// 			if (isApproximatelyAtBottom() && scrollDirection !== 'up') {
+	// 				window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+	// 				document.documentElement.classList.add('no-scrollbar');
+	// 			}
+	// 		});
+	// 	}
 
-		const controller = new AbortController();
+	// 	const controller = new AbortController();
 
-		let lastScrollOffset = 0;
+	// 	let lastScrollOffset = 0;
 
-		window.addEventListener(
-			'scroll',
-			() => {
-				scrollDirection = lastScrollOffset - window.pageYOffset < 0 ? 'down' : 'up';
-				lastScrollOffset = window.pageYOffset;
+	// 	window.addEventListener(
+	// 		'scroll',
+	// 		() => {
+	// 			scrollDirection = lastScrollOffset - window.pageYOffset < 0 ? 'down' : 'up';
+	// 			lastScrollOffset = window.pageYOffset;
 
-				if (scrollDirection === 'up') {
-					document.documentElement.classList.remove('no-scrollbar');
-					window.scrollTo({ top: window.pageYOffset, behavior: 'instant' });
-				} else if (isApproximatelyAtBottom() && importing) {
-					document.documentElement.classList.add('no-scrollbar');
-				}
-			},
-			{ signal: controller.signal, passive: true }
-		);
+	// 			if (scrollDirection === 'up') {
+	// 				document.documentElement.classList.remove('no-scrollbar');
+	// 				window.scrollTo({ top: window.pageYOffset, behavior: 'instant' });
+	// 			} else if (isApproximatelyAtBottom() && importing) {
+	// 				document.documentElement.classList.add('no-scrollbar');
+	// 			}
+	// 		},
+	// 		{ signal: controller.signal, passive: true }
+	// 	);
 
-		return () => controller.abort();
-	});
+	// 	return () => controller.abort();
+	// });
 </script>
 
 <div class="p-6 text-left flex flex-col gap-2">
@@ -328,9 +328,9 @@
 					<span
 						class="flex gap-2 items-center"
 						{@attach (element) => {
-							if (followDays && isApproximatelyAtBottom() && scrollDirection !== 'up') {
-								element.scrollIntoView({ behavior: 'smooth' });
-							}
+							// if (followDays && isApproximatelyAtBottom() && scrollDirection !== 'up') {
+							// 	element.scrollIntoView({ behavior: 'smooth' });
+							// }
 						}}
 					>
 						Back to top <ArrowUp size="1.2em" />
