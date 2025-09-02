@@ -265,7 +265,7 @@
 							{#each calendarWeekDays as calendarWeekDay, calendarWeekDayIndex}
 								{@const day = days.find((day) => toIso8601(day) === calendarWeekDay)}
 
-								<div class="grid grid-cols-subgrid col-span-full {borderColor} not-last:border-b not-last:pb-4">
+								<div class="group grid grid-cols-subgrid col-span-full {borderColor} not-last:border-b not-last:pb-4">
 									<dt class="flex flex-col">
 										<span class="text-sm text-zinc-400">{WEEKDAYS[calendarWeekDayIndex]}</span>
 										{#if calendarWeekDay}
@@ -274,13 +274,15 @@
 											</span>
 										{/if}
 									</dt>
-									<dd class="min-h-[7.25rem]">
+									<dd class="min-h-[7.25rem] scroll-m-8 group-last:scroll-m-4">
 										{#if day && day?.hours?.length > 0}
+											<!-- TODO: first child not transitioning in -->
 											<ul
-												class="space-y-2 scroll-m-12"
+												class="space-y-2"
+												in:fade|global={{ duration: followDays ? 250 : 0, delay: followDays ? 100 : 0, easing: sineIn }}
 												{@attach (el) => {
 													if (followDays && followScroll) {
-														el.scrollIntoView({ block: 'end' });
+														el.parentElement?.scrollIntoView({ block: 'end', behavior: 'smooth' });
 													}
 												}}
 											>
@@ -298,7 +300,7 @@
 												{/each}
 											</ul>
 										{:else}
-											<span>No hours</span>
+											<span class="absolute" out:fade={{ duration: 100, easing: sineIn }}>No hours</span>
 										{/if}
 									</dd>
 								</div>
@@ -316,7 +318,7 @@
 						class="flex gap-2 items-center"
 						{@attach (element) => {
 							if (followDays && followScroll) {
-								element.scrollIntoView();
+								element.scrollIntoView({ behavior: 'smooth' });
 							}
 						}}
 					>
