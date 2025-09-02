@@ -6,6 +6,7 @@
 - [ ] mobile design
 - [ ] Toast indicating successful deletion
 - [ ] Toast indicating successful import
+- [ ] Loosing connection to SSE might not be cancelling import?
 - [x] Button to get calendar feed
 - [x] Clicking "New schedule" after / during import should go back to input
 - [x] Days appear to have off by one error in product UI (calendar feed is correct)

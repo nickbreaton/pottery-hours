@@ -37,7 +37,7 @@
 <script lang="ts">
 	import { type ScheduleDay } from '$lib/server/schema';
 	import { getUniqueCalendarMonths, MONTHS, WEEKDAYS, type CalendarMonth } from '$lib/utils/datetime';
-	import { ArrowLeft, ArrowRight, ArrowUp, BookUp2, Trash2 } from 'lucide-svelte';
+	import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, BookUp2, Trash2 } from 'lucide-svelte';
 	import { fade } from 'svelte/transition';
 	import { sineIn, sineInOut } from 'svelte/easing';
 	import { page } from '$app/state';
@@ -50,6 +50,7 @@
 	import { goto } from '$app/navigation';
 	import { tick } from 'svelte';
 	import { failCause } from 'effect/Micro';
+	import { stopPropagation } from 'svelte/legacy';
 
 	interface Props {
 		days: Readonly<EncodedDay[]>;
@@ -79,51 +80,27 @@
 	const cellBorder = `border first:border-l-0 last:border-r-0 group-first:border-t-0 not-[th]:group-last:border-b-0 ${borderColor}`;
 
 	let mobileSection!: HTMLDivElement;
-	let scrollDirection: 'up' | 'down' | null = null;
+	let followScroll = $state(followDays);
 
-	const isApproximatelyAtBottom = () => {
-		return document.body.scrollHeight - window.innerHeight - window.scrollY < 200;
-	};
+	$effect(() => {
+		if (!mobileSection) return;
 
-	// $effect.pre(() => {
-	// 	if (!followDays) {
-	// 		return;
-	// 	}
+		const controller = new AbortController();
 
-	// 	// Rerun on changes to number of days
-	// 	days.length;
+		window.addEventListener('wheel', () => (followScroll = false), { passive: true, signal: controller.signal });
+		window.addEventListener('click', () => (followScroll = false), { passive: true, signal: controller.signal });
+		window.addEventListener('keydown', () => (followScroll = false), { passive: true, signal: controller.signal });
 
-	// 	if (mobileSection?.checkVisibility()) {
-	// 		tick().then(() => {
-	// 			if (isApproximatelyAtBottom() && scrollDirection !== 'up') {
-	// 				window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-	// 				document.documentElement.classList.add('no-scrollbar');
-	// 			}
-	// 		});
-	// 	}
+		return () => controller.abort();
+	});
 
-	// 	const controller = new AbortController();
-
-	// 	let lastScrollOffset = 0;
-
-	// 	window.addEventListener(
-	// 		'scroll',
-	// 		() => {
-	// 			scrollDirection = lastScrollOffset - window.pageYOffset < 0 ? 'down' : 'up';
-	// 			lastScrollOffset = window.pageYOffset;
-
-	// 			if (scrollDirection === 'up') {
-	// 				document.documentElement.classList.remove('no-scrollbar');
-	// 				window.scrollTo({ top: window.pageYOffset, behavior: 'instant' });
-	// 			} else if (isApproximatelyAtBottom() && importing) {
-	// 				document.documentElement.classList.add('no-scrollbar');
-	// 			}
-	// 		},
-	// 		{ signal: controller.signal, passive: true }
-	// 	);
-
-	// 	return () => controller.abort();
-	// });
+	$effect(() => {
+		if (mobileSection && importing && followDays && followScroll) {
+			document.documentElement.classList.add('no-scrollbar');
+		} else {
+			document.documentElement.classList.remove('no-scrollbar');
+		}
+	});
 </script>
 
 <div class="p-6 text-left flex flex-col gap-2">
@@ -289,7 +266,7 @@
 								{@const day = days.find((day) => toIso8601(day) === calendarWeekDay)}
 
 								<div class="grid grid-cols-subgrid col-span-full {borderColor} not-last:border-b not-last:pb-4">
-									<dt class="flex flex-col" in:fade={{ duration: 150, easing: sineIn }}>
+									<dt class="flex flex-col">
 										<span class="text-sm text-zinc-400">{WEEKDAYS[calendarWeekDayIndex]}</span>
 										{#if calendarWeekDay}
 											<span class="font-medium">
@@ -297,17 +274,24 @@
 											</span>
 										{/if}
 									</dt>
-									<dd in:fade={{ duration: 150, easing: sineIn }} class="min-h-[5.875rem]">
+									<dd class="min-h-[7.25rem]">
 										{#if day && day?.hours?.length > 0}
-											<ul class="space-y-1.5">
+											<ul
+												class="space-y-2 scroll-m-12"
+												{@attach (el) => {
+													if (followDays && followScroll) {
+														el.scrollIntoView({ block: 'end' });
+													}
+												}}
+											>
 												{#each day.hours as hour}
 													<li
 														class="bg-purple-100 text-purple-900/90 rounded p-1 px-2 lg:p-2 lg:px-2 flex -space-y-0.5 lg:space-y-0 flex-col border border-purple-900/10"
 													>
-														<span class="font-medium text-sm overflow-ellipsis overflow-hidden whitespace-nowrap">
+														<span class="font-medium text-sm">
 															{day.label}
 														</span>
-														<span class="text-xs overflow-ellipsis overflow-hidden whitespace-nowrap">
+														<span class="text-xs">
 															{formatHour(hour, 'start')} – {formatHour(hour, 'end')}
 														</span>
 													</li>
@@ -331,9 +315,9 @@
 					<span
 						class="flex gap-2 items-center"
 						{@attach (element) => {
-							// if (followDays && isApproximatelyAtBottom() && scrollDirection !== 'up') {
-							// 	element.scrollIntoView({ behavior: 'smooth' });
-							// }
+							if (followDays && followScroll) {
+								element.scrollIntoView();
+							}
 						}}
 					>
 						Back to top <ArrowUp size="1.2em" />
@@ -341,5 +325,19 @@
 				</Button>
 			{/if}
 		</div>
+		{#if importing && followDays && !followScroll}
+			<div class="fixed bottom-6 right-8" in:fade={{ duration: 150, easing: sineIn }}>
+				<Button
+					onclick={(event) => {
+						event.stopPropagation();
+						followScroll = true;
+					}}
+				>
+					<span class="flex gap-2 items-center">
+						Follow import <ArrowDown size="1.2em" />
+					</span>
+				</Button>
+			</div>
+		{/if}
 	</div>
 </div>
