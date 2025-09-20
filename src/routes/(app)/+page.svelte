@@ -61,10 +61,10 @@
 <div class="grid *:col-start-1 *:row-start-1">
 	{#if importer.days.length === 0}
 		<div
-			class="text-center flex flex-col items-center gap-8 pt-10 sm:pt-28 p-1 sm:p-3"
+			class="text-center flex flex-col items-center gap-8 pt-10 sm:pt-28 p-5 sm:p-3"
 			out:fade={{ easing: sineInOut }}
 		>
-			<div class="flex sm:hidden self-start pb-5 pl-5 -mt-1.5">
+			<div class="flex sm:hidden self-start pb-5 pl-1 -mt-1.5">
 				<MenuControl direction="open" />
 			</div>
 
