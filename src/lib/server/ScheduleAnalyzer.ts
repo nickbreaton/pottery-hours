@@ -1,29 +1,24 @@
-import { AiInput, AiLanguageModel } from '@effect/ai';
-import { OpenAiLanguageModel } from '@effect/ai-openai';
+import { LanguageModel, Prompt } from '@effect/ai';
+import { OpenRouterLanguageModel } from '@effect/ai-openrouter';
 import { FetchHttpClient } from '@effect/platform';
 import dedent from 'dedent';
-import { Console, DateTime, Effect, Stream } from 'effect';
+import { Console, DateTime, Effect, Option, Stream } from 'effect';
 import { JsonStreamParser } from './JsonStreamParser';
 import { ScheduleDay } from './schema';
 
 export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('ScheduleAnalyzer', {
 	dependencies: [
-		OpenAiLanguageModel.layer({
+		OpenRouterLanguageModel.layer({
 			model: 'google/gemini-2.5-flash'
 		}),
 		FetchHttpClient.layer
 	],
 	effect: Effect.gen(function* () {
-		const model = yield* AiLanguageModel.AiLanguageModel;
+		const model = yield* LanguageModel.LanguageModel;
 		const currentYear = DateTime.getPart('year')(yield* DateTime.now);
 
 		return {
 			analyze: (fileData: Uint8Array) => {
-				const filePart = AiInput.FilePart.make({
-					mediaType: 'application/pdf',
-					data: fileData
-				});
-
 				const instructions = dedent`
           You are an assistant which can parse a pottery studio schedule, outputting that schedule in a JSON format.
 
@@ -56,12 +51,21 @@ export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('Schedu
 					]
 				`;
 
-				const prompt = AiInput.UserMessage.make({
-					parts: [filePart, AiInput.TextPart.make({ text: instructions })]
-				});
+				const prompt = Prompt.make([
+					{
+						role: 'user',
+						content: [
+							{ type: 'text', text: instructions },
+							{ type: 'file', data: fileData, mediaType: 'application/pdf' }
+						]
+					}
+				]);
 
-				return model.streamText({ prompt, system: '' }).pipe(
-					Stream.map((response) => response.text),
+				return model.streamText({ prompt }).pipe(
+					Stream.filterMap((response) =>
+						response.type === 'text-delta' ? Option.some(response.delta) : Option.none()
+					),
+					Stream.tapError(Console.error),
 					Stream.transduce(JsonStreamParser.makeSink(ScheduleDay)),
 					Stream.tapError((error) => Console.error('Stream error', error)),
 					Stream.flattenChunks
