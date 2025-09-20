@@ -3,7 +3,7 @@
 	import { importer } from '$lib/stores/importer.svelte';
 	import { replaceState } from '$app/navigation';
 	import Button from '$lib/components/Button.svelte';
-	import { page } from '$app/state';
+	import { page, navigating } from '$app/state';
 	import { CalendarCog, Rss, SquarePen } from 'lucide-svelte';
 	import MenuControl, { menu } from '$lib/components/MenuControl.svelte';
 	import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
@@ -15,6 +15,12 @@
 
 	$effect(() => {
 		menu.open ? disableBodyScroll(aside) : enableBodyScroll(aside);
+	});
+
+	$effect(() => {
+		navigating.complete?.then(() => {
+			menu.open = false;
+		});
 	});
 </script>
 
@@ -47,7 +53,6 @@
 								class="aria-[current=page]:bg-zinc-300/45 aria-[current=page]:text-zinc-800 active:bg-zinc-300/45 hover:bg-zinc-300/25 text-zinc-600 block rounded-lg py-2 px-3"
 								onclick={() => {
 									importer.reset();
-									menu.open = false;
 									replaceState('/', {});
 								}}
 								aria-current={currentScheduleId == null ? 'page' : null}
@@ -63,9 +68,6 @@
 									class="aria-[current=page]:bg-zinc-300/45 aria-[current=page]:text-zinc-800 active:bg-zinc-300/45 hover:bg-zinc-300/25 text-zinc-600 block rounded-lg py-2 px-3"
 									href="/schedule/{id}"
 									aria-current={currentScheduleId == id ? 'page' : null}
-									onclick={() => {
-										menu.open = false;
-									}}
 								>
 									<span class="flex gap-2 items-center justify-between">
 										{title}
