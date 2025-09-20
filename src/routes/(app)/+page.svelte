@@ -8,6 +8,7 @@
 	import { fade } from 'svelte/transition';
 	import { sineInOut } from 'svelte/easing';
 	import { importer } from '$lib/stores/importer.svelte';
+	import MenuControl from '$lib/components/MenuControl.svelte';
 
 	const disabled = $derived(!importer.input.startsWith('https://docs.google.com/spreadsheets/d/'));
 
@@ -59,7 +60,14 @@
 
 <div class="grid *:col-start-1 *:row-start-1">
 	{#if importer.days.length === 0}
-		<div class="text-center flex flex-col items-center gap-8 pt-10 sm:pt-28 p-3" out:fade={{ easing: sineInOut }}>
+		<div
+			class="text-center flex flex-col items-center gap-8 pt-10 sm:pt-28 p-1 sm:p-3"
+			out:fade={{ easing: sineInOut }}
+		>
+			<div class="flex sm:hidden self-start pb-5 pl-5 -mt-1.5">
+				<MenuControl direction="open" />
+			</div>
+
 			<hgroup class="flex flex-col items-center justify-stretch gap-4">
 				<h1 class="text-4xl font-extrabold text-zinc-900">Hey, got a new schedule?</h1>
 				<p class="max-w-lg leading-5 text-zinc-500 decoration-zinc-400 text-balance">

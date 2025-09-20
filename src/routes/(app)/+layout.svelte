@@ -5,23 +5,40 @@
 	import Button from '$lib/components/Button.svelte';
 	import { page } from '$app/state';
 	import { CalendarCog, Rss, SquarePen } from 'lucide-svelte';
+	import MenuControl, { menu } from '$lib/components/MenuControl.svelte';
+	import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
 
 	let { children } = $props();
+	let aside: HTMLElement;
 
 	const currentScheduleId = $derived(page.params.id ?? importer.importedId);
+
+	$effect(() => {
+		menu.open ? disableBodyScroll(aside) : enableBodyScroll(aside);
+	});
 </script>
 
-<div class="flex">
-	<aside class="w-64 bg-zinc-100 p-4 overflow-hidden sticky top-0 h-dvh">
+<div class="flex group">
+	<aside
+		bind:this={aside}
+		data-open={menu.open ? '' : null}
+		class="
+  	  hidden sm:flex w-full flex-col sm:w-64 bg-zinc-100 p-3 overflow-hidden sticky top-0 h-dvh z-10
+  		max-sm:p-6 max-sm:data-open:flex max-sm:data-open:fixed max-sm:data-open:shadow-lg shadow-zinc-300/90
+    "
+	>
 		<div class="flex flex-col h-full">
 			<div
-				class="absolute pointer-events-none right-0 -left-5 -top-5 -bottom-5 inset-shadow-sm inset-shadow-zinc-300/75"
+				class="max-sm:hidden absolute pointer-events-none right-0 -left-5 -top-5 -bottom-5 inset-shadow-sm inset-shadow-zinc-300/75"
 			></div>
 			<svelte:boundary>
 				{#snippet pending()}
 					<!-- ignore? -->
 				{/snippet}
-				<nav>
+				<nav class="flex flex-col">
+					<div class="flex sm:hidden self-end pb-5">
+						<MenuControl direction="close" />
+					</div>
 					<ul class="flex flex-col gap-1">
 						<!-- TODO: address aria-current="page" -->
 						<li class="w-full">
@@ -30,6 +47,7 @@
 								class="aria-[current=page]:bg-zinc-300/45 aria-[current=page]:text-zinc-800 active:bg-zinc-300/45 hover:bg-zinc-300/25 text-zinc-600 block rounded-lg py-2 px-3"
 								onclick={() => {
 									importer.reset();
+									menu.open = false;
 									replaceState('/', {});
 								}}
 								aria-current={currentScheduleId == null ? 'page' : null}
@@ -45,6 +63,9 @@
 									class="aria-[current=page]:bg-zinc-300/45 aria-[current=page]:text-zinc-800 active:bg-zinc-300/45 hover:bg-zinc-300/25 text-zinc-600 block rounded-lg py-2 px-3"
 									href="/schedule/{id}"
 									aria-current={currentScheduleId == id ? 'page' : null}
+									onclick={() => {
+										menu.open = false;
+									}}
 								>
 									<span class="flex gap-2 items-center justify-between">
 										{title}

@@ -29,8 +29,9 @@
 		return day === 1 || forceMonthPrefix ? `${monthPrefix} ${day}` : day;
 	}
 
-	function formatCalendarMonthLabel([year, monthIndex]: CalendarMonth) {
-		return `${MONTHS[monthIndex]} ${year}`;
+	function formatCalendarMonthLabel([year, monthIndex]: CalendarMonth, { shortMonth = false } = {}) {
+		const month = shortMonth ? MONTHS[monthIndex].substring(0, 3) : MONTHS[monthIndex];
+		return `${month} ${year}`;
 	}
 </script>
 
@@ -48,9 +49,7 @@
 	import { deleteSchedule, getSchedule, getSchedules, setSchedulePublished } from '$lib/main.remote';
 	import { importer } from '$lib/stores/importer.svelte';
 	import { goto } from '$app/navigation';
-	import { tick } from 'svelte';
-	import { failCause } from 'effect/Micro';
-	import { stopPropagation } from 'svelte/legacy';
+	import MenuControl from './MenuControl.svelte';
 
 	interface Props {
 		days: Readonly<EncodedDay[]>;
@@ -132,7 +131,11 @@
 
 		<h1 class="text-xl font-normal flex text-zinc-900">
 			<span class="hidden xl:inline">{formatCalendarMonthLabel(calendarMonth)}</span>
-			<span class="inline xl:hidden">{formatCalendarMonthLabel(calendarMonths[0])}</span>
+			<span class="hidden sm:inline xl:hidden">{formatCalendarMonthLabel(calendarMonths[0])}</span>
+			<span class="inline-flex sm:hidden gap-3">
+				<MenuControl direction="open" />
+				{formatCalendarMonthLabel(calendarMonths[0], { shortMonth: true })}
+			</span>
 		</h1>
 
 		<div class="flex justify-end gap-1.5">
@@ -239,7 +242,7 @@
 
 	<!-- mobile view -->
 
-	<div class="grid xl:hidden gap-y-8" bind:this={mobileSection}>
+	<div class="grid xl:hidden sm:m-0 gap-y-8" bind:this={mobileSection}>
 		{#each calendarMonths as calendarMonth, calendarIndex}
 			{@const calendarWeekGrid: (Iso8601Date | null)[][] = calendar(new Date(...calendarMonth), {
   	    formatDate: (date: Date, info: any) => info.siblingMonth  === 1 ? null : toIso8601(date) ,
@@ -260,7 +263,7 @@
 
 					{#if !hasTrailingSiblingCalendarDays && hasPlacedDays}
 						<dl
-							class="grid auto-rows-fr grid-cols-[minmax(max-content,1fr)_2fr] gap-x-6 gap-y-5 p-4 bg-white/80 rounded-md {borderColor} border"
+							class="-mx-6 sm:mx-0 px-6 py-4 sm:p-4 grid auto-rows-fr grid-cols-[minmax(max-content,1fr)_2fr] gap-x-6 gap-y-5 bg-white/80 sm:rounded-md {borderColor} border"
 						>
 							{#each calendarWeekDays as calendarWeekDay, calendarWeekDayIndex}
 								{@const day = days.find((day) => toIso8601(day) === calendarWeekDay)}
