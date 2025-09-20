@@ -1,4 +1,4 @@
-<main class="grid place-content-center h-full p-5">
+<main class="grid place-content-center h-full max-w-full">
 	<form method="POST">
 		<label class="flex flex-col gap-1 text-zinc-600 h-60">
 			Password
