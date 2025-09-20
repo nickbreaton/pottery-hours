@@ -1,4 +1,6 @@
-import type { ScheduleDay } from '$lib/server/schema';
+export type CalendarMonth = [year: number, monthIndex: number];
+
+export type Iso8601Date = `${number}${number}${number}${number}-${number}${number}-${number}${number}`;
 
 export const MONTHS = [
 	'January',
@@ -15,8 +17,10 @@ export const MONTHS = [
 	'December'
 ] as const;
 
+export const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const;
+
 export function getUniqueCalendarMonths(days: ReadonlyArray<{ year: number; month: string | number }>) {
-	const result: [year: number, monthIndex: number][] = [];
+	const result: CalendarMonth[] = [];
 
 	for (const day of days) {
 		const monthIndex = typeof day.month === 'string' ? MONTHS.findIndex((it) => it === day.month) : day.month;

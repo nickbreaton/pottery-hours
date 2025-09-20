@@ -6,7 +6,7 @@
 		disabled?: boolean;
 		title?: string;
 		icon?: boolean;
-		onclick?: () => void;
+		onclick?: (event: Event) => void;
 		href?: string;
 		prominence?: 'prominent' | 'normal';
 	};

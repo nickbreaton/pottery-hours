@@ -3,25 +3,48 @@
 	import { importer } from '$lib/stores/importer.svelte';
 	import { replaceState } from '$app/navigation';
 	import Button from '$lib/components/Button.svelte';
-	import { page } from '$app/state';
+	import { page, navigating } from '$app/state';
 	import { CalendarCog, Rss, SquarePen } from 'lucide-svelte';
+	import MenuControl, { menu } from '$lib/components/MenuControl.svelte';
+	import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
 
 	let { children } = $props();
+	let aside: HTMLElement;
 
 	const currentScheduleId = $derived(page.params.id ?? importer.importedId);
+
+	$effect(() => {
+		menu.open ? disableBodyScroll(aside) : enableBodyScroll(aside);
+	});
+
+	$effect(() => {
+		navigating.complete?.then(() => {
+			menu.open = false;
+		});
+	});
 </script>
 
-<div class="hidden lg:flex">
-	<aside class="w-64 bg-zinc-100 p-4 overflow-hidden sticky top-0 h-dvh">
+<div class="flex group">
+	<aside
+		bind:this={aside}
+		data-open={menu.open ? '' : null}
+		class="
+  	  hidden sm:flex w-full flex-col sm:w-64 bg-zinc-100 p-3 overflow-hidden sticky top-0 h-dvh z-10
+  		max-sm:p-6 max-sm:data-open:flex max-sm:data-open:fixed max-sm:data-open:shadow-lg shadow-zinc-300/90
+    "
+	>
 		<div class="flex flex-col h-full">
 			<div
-				class="absolute pointer-events-none right-0 -left-5 -top-5 -bottom-5 inset-shadow-sm inset-shadow-zinc-300/75"
+				class="max-sm:hidden absolute pointer-events-none right-0 -left-5 -top-5 -bottom-5 inset-shadow-sm inset-shadow-zinc-300/75"
 			></div>
 			<svelte:boundary>
 				{#snippet pending()}
 					<!-- ignore? -->
 				{/snippet}
-				<nav>
+				<nav class="flex flex-col">
+					<div class="flex sm:hidden self-end pb-5">
+						<MenuControl direction="close" />
+					</div>
 					<ul class="flex flex-col gap-1">
 						<!-- TODO: address aria-current="page" -->
 						<li class="w-full">
@@ -70,13 +93,4 @@
 	</aside>
 
 	<main class="flex-1">{@render children()}</main>
-</div>
-
-<div class="lg:hidden pt-20">
-	<hgroup class="flex flex-col items-center justify-stretch gap-4 text-center">
-		<h1 class="text-2xl font-extrabold text-zinc-900">Unsupported screen size :(</h1>
-		<p class="max-w-lg leading-5 text-zinc-500 decoration-zinc-400 text-balance">
-			This site is currently only optimized for a desktop screen, please check back later for better mobile support.
-		</p>
-	</hgroup>
 </div>
