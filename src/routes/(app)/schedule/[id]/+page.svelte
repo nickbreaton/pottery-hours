@@ -4,18 +4,8 @@
 	import type { PageProps } from './$types';
 
 	let { params }: PageProps = $props();
+
+	const schedule = $derived(await getSchedule(params.id));
 </script>
 
-<svelte:boundary>
-	{#snippet pending()}
-		<!-- ignore -->
-	{/snippet}
-
-	{#snippet failed()}
-		<p>Something went wrong loading schedule</p>
-	{/snippet}
-
-	{@const schedule = await getSchedule(params.id)}
-
-	<Calendar id={params.id} days={schedule.days} published={schedule.published} />
-</svelte:boundary>
+<Calendar id={params.id} days={schedule.days} published={schedule.published} />

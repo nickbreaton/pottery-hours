@@ -116,7 +116,7 @@
 		<div in:fade={{ delay: 200, easing: sineInOut }}>
 			<svelte:boundary>
 				{#snippet pending()}
-					<!-- ignore -->
+					<!-- TODO: remove when async svelte gets better -->
 				{/snippet}
 
 				{@const schedule = importer.importedId ? await getSchedule(importer.importedId) : null}

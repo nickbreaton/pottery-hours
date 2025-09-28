@@ -37,50 +37,45 @@
 			<div
 				class="max-sm:hidden absolute pointer-events-none right-0 -left-5 -top-5 -bottom-5 inset-shadow-sm inset-shadow-zinc-300/75"
 			></div>
-			<svelte:boundary>
-				{#snippet pending()}
-					<!-- ignore? -->
-				{/snippet}
-				<nav class="flex flex-col">
-					<div class="flex sm:hidden self-end pb-5">
-						<MenuControl direction="close" />
-					</div>
-					<ul class="flex flex-col gap-1">
-						<!-- TODO: address aria-current="page" -->
-						<li class="w-full">
+			<nav class="flex flex-col">
+				<div class="flex sm:hidden self-end pb-5">
+					<MenuControl direction="close" />
+				</div>
+				<ul class="flex flex-col gap-1">
+					<!-- TODO: address aria-current="page" -->
+					<li class="w-full">
+						<a
+							href="/"
+							class="aria-[current=page]:bg-zinc-300/45 aria-[current=page]:text-zinc-800 active:bg-zinc-300/45 hover:bg-zinc-300/25 text-zinc-600 block rounded-lg py-2 px-3"
+							onclick={() => {
+								importer.reset();
+								replaceState('/', {});
+							}}
+							aria-current={currentScheduleId == null ? 'page' : null}
+						>
+							<span class="flex gap-2 items-center">
+								<SquarePen size="1.2rem" aria-hidden /> Add schedule
+							</span>
+						</a>
+					</li>
+					{#each await getSchedules() as { title, id, published } (id)}
+						<li>
 							<a
-								href="/"
 								class="aria-[current=page]:bg-zinc-300/45 aria-[current=page]:text-zinc-800 active:bg-zinc-300/45 hover:bg-zinc-300/25 text-zinc-600 block rounded-lg py-2 px-3"
-								onclick={() => {
-									importer.reset();
-									replaceState('/', {});
-								}}
-								aria-current={currentScheduleId == null ? 'page' : null}
+								href="/schedule/{id}"
+								aria-current={currentScheduleId == id ? 'page' : null}
 							>
-								<span class="flex gap-2 items-center">
-									<SquarePen size="1.2rem" aria-hidden /> Add schedule
+								<span class="flex gap-2 items-center justify-between">
+									{title}
+									{#if published}
+										<Rss size="1.2rem" aria-label="Published" class="text-zinc-600" />
+									{/if}
 								</span>
 							</a>
 						</li>
-						{#each await getSchedules() as { title, id, published } (id)}
-							<li>
-								<a
-									class="aria-[current=page]:bg-zinc-300/45 aria-[current=page]:text-zinc-800 active:bg-zinc-300/45 hover:bg-zinc-300/25 text-zinc-600 block rounded-lg py-2 px-3"
-									href="/schedule/{id}"
-									aria-current={currentScheduleId == id ? 'page' : null}
-								>
-									<span class="flex gap-2 items-center justify-between">
-										{title}
-										{#if published}
-											<Rss size="1.2rem" aria-label="Published" class="text-zinc-600" />
-										{/if}
-									</span>
-								</a>
-							</li>
-						{/each}
-					</ul>
-				</nav>
-			</svelte:boundary>
+					{/each}
+				</ul>
+			</nav>
 
 			<div class="flex-1 flex flex-col justify-end">
 				<Button href={`webcal://${page.url.host}/calendar.ics`}>
