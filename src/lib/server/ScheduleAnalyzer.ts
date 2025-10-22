@@ -9,7 +9,7 @@ import { ScheduleDay } from './schema';
 export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('ScheduleAnalyzer', {
 	dependencies: [
 		OpenRouterLanguageModel.layer({
-			model: 'google/gemini-2.5-flash'
+			model: 'anthropic/claude-haiku-4.5'
 		}),
 		FetchHttpClient.layer
 	],
@@ -32,12 +32,14 @@ export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('Schedu
           * There can sometimes be multiple blocks of time per day.
           * Only entries for dates that have hours defined should be included in the result.
           * Information within the hours box should be used as the label, excluding the hours themselves.
-          * Each week also should have a description in the left column which can be used to enhance the label.
+          * Each week also should have a label in the left column which can be used to enhance the label.
+          * Sometimes even the week doesn't have a label, in which case just use 'Open Studio Hours' instead.
           * Try to keep the label concise.
-          * Every day should have a label.
+          * Every day should have a label in the output.
+          * Labels wont be in a seperate box than the hours, if it is its not relevant to that day.
+          * REALLY IMPORTANT: If a day has 'Closed' as its label without any hours, thats a pretty clear indication that it should be omitted.
           * Its rare to have more than two sets of hours defined per day.
-          * Its rare that a day is skipped but can happen, pay special attention if you think it might be skipped.
-          * Its rare that a week is skipped but can happen, pay special attention if you think it might be skipped.
+          * DO NOT infer times, if there's no hours in a box, then the day should simply be skipped.
           * Do NOT include any dates that do not have hours defined, this typically means the studio is closed which is not relevant.
           * DO NOT MAKE UP DATA WHICH DOES NOT APPEAR IN THE PDF.
 
@@ -65,6 +67,12 @@ export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('Schedu
 					Stream.filterMap((response) =>
 						response.type === 'text-delta' ? Option.some(response.delta) : Option.none()
 					),
+					Stream.mapAccum(false, (hasReceivedJson, token) => {
+						if (hasReceivedJson) return [true, token];
+						if (token.includes('[')) return [true, token];
+						return [false, ''];
+					}),
+					Stream.map((token) => token.replace('```', '')),
 					Stream.tapError(Console.error),
 					Stream.transduce(JsonStreamParser.makeSink(ScheduleDay)),
 					Stream.tapError((error) => Console.error('Stream error', error)),
