@@ -15,42 +15,56 @@ export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('Schedu
 	],
 	effect: Effect.gen(function* () {
 		const model = yield* LanguageModel.LanguageModel;
-		const currentYear = DateTime.getPart('year')(yield* DateTime.now);
+		const currentDate = yield* DateTime.now;
+		const currentYear = DateTime.getPart('year')(currentDate);
+		const currentMonth = DateTime.format({ month: 'long' })(currentDate);
 
 		return {
 			analyze: (fileData: Uint8Array) => {
 				const instructions = dedent`
-          You are an assistant which can parse a pottery studio schedule, outputting that schedule in a JSON format.
+				  You are an assistant which can parse a pottery studio schedule, outputting that schedule in a JSON format.
 
           A PDF representation of a pottery studio schedule will be provided to you. This schedule designates open studio hours.
           Its original form is a spreadsheet laid out as a calendar weeks starting Sunday and ending on Saturday.
           Each day with available hours is represented by a box with a time range.
 
-          Here are some rules to keep in mind:
+          ## Date and Year Rules
 
-          * Pay special attention to the first and last date to ensure you don't miss anything.
-          * There can sometimes be multiple blocks of time per day.
-          * Only entries for dates that have hours defined should be included in the result.
-          * Information within the hours box should be used as the label, excluding the hours themselves.
-          * Each week also should have a label in the left column which can be used to enhance the label.
-          * Sometimes even the week doesn't have a label, in which case just use 'Open Studio Hours' instead.
-          * Try to keep the label concise.
-          * Every day should have a label in the output.
-          * Labels wont be in a seperate box than the hours, if it is its not relevant to that day.
-          * REALLY IMPORTANT: If a day has 'Closed' as its label without any hours, thats a pretty clear indication that it should be omitted.
-          * Its rare to have more than two sets of hours defined per day.
-          * DO NOT infer times, if there's no hours in a box, then the day should simply be skipped.
-          * Do NOT include any dates that do not have hours defined, this typically means the studio is closed which is not relevant.
+          * The current date is ${currentMonth} ${currentYear}.
+          * Look for explicitly displayed years in the document (e.g., "January 2025", "2025 Schedule").
+          * Use the explicit year shown for any month where a year is displayed.
+          * For months without an explicit year, infer based on:
+            * The explicit years shown elsewhere in the document
+            * The logical sequence of months (schedules are always forward-looking and contiguous)
+          * If a schedule spans a year boundary (e.g., December to February), December belongs to the year BEFORE January.
+          * DO NOT assume the schedule starts in the past unless the document explicitly shows a past year.
+
+          ## Content Rules
+
+          * Only include dates that have hours explicitly defined in a box.
+          * If a day shows "Closed" without any hours, omit it entirely.
+          * DO NOT infer times - if there are no hours in a box, skip that day.
+          * There can be multiple time blocks per day, but rarely more than two.
+
+          ## Label Rules
+
+          * Use information within the hours box as the label, excluding the hours themselves.
+          * Each week may have a label in the left column - use this to enhance the day's label.
+          * If no label exists, use "Open Studio Hours" as the default.
+          * Keep labels concise.
+          * Every day in the output must have a label.
+          * Labels won't be in a separate box from the hours; if text is in a separate box, it's not relevant to that day.
+
+          ## Output Rules
+
+          * Return ONLY valid JSON with no additional text, markdown formatting, or explanation.
           * DO NOT MAKE UP DATA WHICH DOES NOT APPEAR IN THE PDF.
 
-          Parse the provided document and return its result in a JSON format for the hours for each day, without any additional output.
-          Here is an example of the JSON format. Remember include absolutely no additional text or information. DO NOT FORMAT LIKE MARKDOWN.
-
-					[
-						{ "month": "January", "day": 1, "year": ${currentYear}, "label": "Description within the box", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] },
-						{ "month": "January", "day": 2, "year": ${currentYear}, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" }, { "start_hour": 5, "start_minute": 0, "start_meridiem": "PM", "end_hour": 6, "end_minute": 30, "end_meridiem": "PM" } ] },
-						{ "month": "January", "day": 3, "year": ${currentYear}, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] },
-					]
+          Example format:
+          [
+            { "month": "January", "day": 1, "year": 2000, "label": "Description within the box", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" } ] },
+            { "month": "January", "day": 2, "year": 2000, "label": "Winter Session", "hours": [ { "start_hour": 9, "start_minute": 0, "start_meridiem": "AM", "end_hour": 2, "end_minute": 0, "end_meridiem": "PM" }, { "start_hour": 5, "start_minute": 0, "start_meridiem": "PM", "end_hour": 6, "end_minute": 30, "end_meridiem": "PM" } ] }
+          ]
 				`;
 
 				const prompt = Prompt.make([
