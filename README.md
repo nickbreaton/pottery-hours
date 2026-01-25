@@ -13,6 +13,8 @@ A bespoke app which converts a pottery schedule distributed as a Google Sheet in
 | <img width="1000" alt="Pottery Hours parsed schedule" src="https://github.com/user-attachments/assets/95931a06-3ccb-4faf-a48b-687325198b37" /> | <img width="1000" alt="Apple Calendar displaying parsed schedule feed" src="https://github.com/user-attachments/assets/83b362cf-a12d-4148-97a8-25c9f88469f4" /> |
 |---|---|
 
+<br>
+
 ## Getting started
 
 Install dependencies:
