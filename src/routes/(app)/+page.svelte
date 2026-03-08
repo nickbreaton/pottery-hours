@@ -69,8 +69,8 @@
 			</div>
 
 			<hgroup class="flex flex-col items-center justify-stretch gap-4">
-				<h1 class="text-4xl font-extrabold text-zinc-900">Hey, got a new schedule?</h1>
-				<p class="max-w-lg leading-5 text-zinc-500 decoration-zinc-400 text-balance">
+				<h1 class="text-4xl font-extrabold text-text-strong">Hey, got a new schedule?</h1>
+				<p class="max-w-lg leading-5 text-text-muted decoration-text-soft text-balance">
 					I’m a helpful assistant that takes Odyssey Clayworks schedules, like {@render example('this one')}, and turns
 					them into a simple calendar feed. Enter a schedule link to get started.
 				</p>
@@ -81,7 +81,7 @@
 					name="spreadsheet"
 					placeholder="https://docs.google.com/spreadsheets/d/..."
 					rows="3"
-					class="border-[1.5px] bg-white text-zinc-900 border-zinc-200/75 placeholder-zinc-400/75 outline-none rounded-lg resize-none p-2 w-full max-w-lg focus:outline-3 focus:border-purple-200 focus:outline-solid focus:outline-purple-100"
+					class="border-[1.5px] bg-surface-card text-text-strong border-border-subtle placeholder-text-soft outline-none rounded-lg resize-none p-2 w-full max-w-lg focus:outline-3 focus:border-focus-border focus:outline-solid focus:outline-focus-ring"
 					bind:value={importer.input}
 					onkeydown={(event) => {
 						if (event.key === 'Enter') {
@@ -95,10 +95,10 @@
 					<button
 						type="submit"
 						class="
-     					relative overflow-hidden bg-linear-to-tl from-purple-600 to-purple-400 bg-black inset-shadow-purple-800 text-sm text-white font-medium py-2.5 px-7 rounded-md cursor-pointer
-     					disabled:opacity-30 disabled:cursor-default
-     					data-loading:cursor-default
-     					not-data-loading:active:from-purple-600/90 not-data-loading:active:to-purple-400/90"
+	     					relative overflow-hidden bg-linear-to-tl from-accent-start to-accent-end inset-shadow-accent-shadow text-sm text-white font-medium py-2.5 px-7 rounded-md cursor-pointer
+	     					disabled:opacity-30 disabled:cursor-default
+	     					data-loading:cursor-default
+	     					not-data-loading:active:from-accent-start/90 not-data-loading:active:to-accent-end/90"
 						aria-label={importer.connection ? 'Loading' : null}
 						data-loading={importer.connection ? '' : null}
 						{disabled}
@@ -149,7 +149,7 @@
 		content: '';
 		position: absolute;
 		inset: 0;
-		background-color: var(--color-purple-900);
+		background-color: var(--color-accent-shadow);
 		opacity: 0.33;
 		right: 100%;
 		animation: grow 20s cubic-bezier(0.19, 1, 0.22, 1) forwards;

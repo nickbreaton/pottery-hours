@@ -1,11 +1,11 @@
 <main class="grid place-content-center h-full max-w-full">
 	<form method="POST">
-		<label class="flex flex-col gap-1 text-zinc-600 h-60">
+		<label class="flex flex-col gap-1 text-text-primary h-60">
 			Password
 			<input
 				type="password"
 				name="password"
-				class="border-[1.5px] bg-white text-zinc-900 border-zinc-200/75 placeholder-zinc-400/75 outline-none rounded-lg resize-none p-2 w-sm max-w-full focus:outline-3 focus:border-purple-200 focus:outline-solid focus:outline-purple-100"
+				class="border-[1.5px] bg-surface-card text-text-strong border-border-subtle placeholder-text-soft outline-none rounded-lg resize-none p-2 w-sm max-w-full focus:outline-3 focus:border-focus-border focus:outline-solid focus:outline-focus-ring"
 			/>
 		</label>
 		<button type="submit" class="sr-only">Login</button>

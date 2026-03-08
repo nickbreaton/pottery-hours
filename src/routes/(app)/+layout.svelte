@@ -29,13 +29,13 @@
 		bind:this={aside}
 		data-open={menu.open ? '' : null}
 		class="
-  	  hidden sm:flex w-full flex-col sm:w-64 bg-zinc-100 p-3 overflow-hidden sticky top-0 h-dvh z-10
-  		max-sm:p-6 max-sm:data-open:flex max-sm:data-open:fixed max-sm:data-open:shadow-lg shadow-zinc-300/90
-    "
+	  	  hidden sm:flex w-full flex-col sm:w-64 bg-surface-muted p-3 overflow-hidden sticky top-0 h-dvh z-10
+	  		max-sm:p-6 max-sm:data-open:flex max-sm:data-open:fixed max-sm:data-open:shadow-lg shadow-edge-shadow
+     "
 	>
 		<div class="flex flex-col h-full">
 			<div
-				class="max-sm:hidden absolute pointer-events-none right-0 -left-5 -top-5 -bottom-5 inset-shadow-sm inset-shadow-zinc-300/75"
+				class="max-sm:hidden absolute pointer-events-none right-0 -left-5 -top-5 -bottom-5 inset-shadow-sm inset-shadow-edge-shadow-soft"
 			></div>
 			<nav class="flex flex-col">
 				<div class="flex sm:hidden self-end pb-5">
@@ -46,7 +46,7 @@
 					<li class="w-full">
 						<a
 							href="/"
-							class="aria-[current=page]:bg-zinc-300/45 aria-[current=page]:text-zinc-800 active:bg-zinc-300/45 hover:bg-zinc-300/25 text-zinc-600 block rounded-lg py-2 px-3"
+							class="aria-[current=page]:bg-surface-active aria-[current=page]:text-text-strong active:bg-surface-active hover:bg-surface-hover text-text-primary block rounded-lg py-2 px-3"
 							onclick={() => {
 								importer.reset();
 								replaceState('/', {});
@@ -61,14 +61,14 @@
 					{#each await getSchedules() as { title, id, published } (id)}
 						<li>
 							<a
-								class="aria-[current=page]:bg-zinc-300/45 aria-[current=page]:text-zinc-800 active:bg-zinc-300/45 hover:bg-zinc-300/25 text-zinc-600 block rounded-lg py-2 px-3"
+								class="aria-[current=page]:bg-surface-active aria-[current=page]:text-text-strong active:bg-surface-active hover:bg-surface-hover text-text-primary block rounded-lg py-2 px-3"
 								href="/schedule/{id}"
 								aria-current={currentScheduleId == id ? 'page' : null}
 							>
 								<span class="flex gap-2 items-center justify-between">
 									{title}
 									{#if published}
-										<Rss size="1.2rem" aria-label="Published" class="text-zinc-600" />
+										<Rss size="1.2rem" aria-label="Published" class="text-text-primary" />
 									{/if}
 								</span>
 							</a>
@@ -87,5 +87,5 @@
 		</div>
 	</aside>
 
-	<main class="flex-1">{@render children()}</main>
+	<main class="flex-1 bg-app-bg">{@render children()}</main>
 </div>

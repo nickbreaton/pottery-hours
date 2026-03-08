@@ -75,7 +75,7 @@
 	const monthIndex = $derived(calendarMonth[1]);
 	const grid: Iso8601Date[][] = $derived(calendar(new Date(...calendarMonth), { formatDate: toIso8601 }));
 
-	const borderColor = 'border-zinc-200/75';
+	const borderColor = 'border-border-subtle';
 	const cellBorder = `border first:border-l-0 last:border-r-0 group-first:border-t-0 not-[th]:group-last:border-b-0 ${borderColor}`;
 
 	let mobileSection!: HTMLDivElement;
@@ -129,7 +129,7 @@
 			</Button>
 		</div>
 
-		<h1 class="text-xl font-normal flex text-zinc-900">
+		<h1 class="text-xl font-normal flex text-text-strong">
 			<span class="hidden xl:inline">{formatCalendarMonthLabel(calendarMonth)}</span>
 			<span class="hidden sm:inline xl:hidden">{formatCalendarMonthLabel(calendarMonths[0])}</span>
 			<span class="inline-flex sm:hidden gap-3">
@@ -187,13 +187,13 @@
 					<table class="table-fixed w-full">
 						<thead>
 							<tr class="group">
-								<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Sunday</th>
-								<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Monday</th>
-								<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Tuesday</th>
-								<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Wednesday</th>
-								<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Thursday</th>
-								<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Friday</th>
-								<th class="bg-zinc-100 text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Saturday</th>
+								<th class="bg-surface-muted text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Sunday</th>
+								<th class="bg-surface-muted text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Monday</th>
+								<th class="bg-surface-muted text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Tuesday</th>
+								<th class="bg-surface-muted text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Wednesday</th>
+								<th class="bg-surface-muted text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Thursday</th>
+								<th class="bg-surface-muted text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Friday</th>
+								<th class="bg-surface-muted text-center text-sm font-semibold px-2 py-1.5 {cellBorder}">Saturday</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -203,10 +203,10 @@
 										{@const day = days.find((day) => date === toIso8601(day))}
 										<td
 											data-inactive={monthIndex !== parse8601Month(date) - 1 ? 'true' : null}
-											class="align-top h-32 p-2 cursor-default bg-white/80 {cellBorder}"
+											class="align-top h-32 p-2 cursor-default bg-surface-card {cellBorder}"
 										>
 											<div class="flex flex-col gap-1">
-												<span class="text-end text-zinc-800 in-data-inactive:text-zinc-400">
+												<span class="text-end text-text-strong in-data-inactive:text-text-soft">
 													{format8601CalendarDay(date)}
 												</span>
 												<div class="min-h-[6rem]">
@@ -214,7 +214,7 @@
 														<ul class="space-y-1.5" in:fade={{ duration: 150, easing: sineIn }}>
 															{#each day.hours as hour}
 																<li
-																	class="bg-purple-100 text-purple-900/90 rounded p-1 px-2 flex -space-y-0.5 flex-col border border-purple-900/10 in-data-inactive:opacity-50"
+																	class="bg-accent-surface text-accent-text rounded p-1 px-2 flex -space-y-0.5 flex-col border border-accent-border in-data-inactive:opacity-50"
 																	title={day.label}
 																>
 																	<span class="font-medium text-sm overflow-ellipsis overflow-hidden whitespace-nowrap">
@@ -263,14 +263,14 @@
 
 					{#if !hasTrailingSiblingCalendarDays && hasPlacedDays}
 						<dl
-							class="-mx-6 sm:mx-0 px-6 py-4 sm:p-4 grid auto-rows-fr grid-cols-[minmax(max-content,1fr)_2fr] gap-x-6 gap-y-5 bg-white/80 sm:rounded-md {borderColor} border"
+							class="-mx-6 sm:mx-0 px-6 py-4 sm:p-4 grid auto-rows-fr grid-cols-[minmax(max-content,1fr)_2fr] gap-x-6 gap-y-5 bg-surface-card sm:rounded-md {borderColor} border"
 						>
 							{#each calendarWeekDays as calendarWeekDay, calendarWeekDayIndex}
 								{@const day = days.find((day) => toIso8601(day) === calendarWeekDay)}
 
 								<div class="group grid grid-cols-subgrid col-span-full {borderColor} not-last:border-b not-last:pb-4">
 									<dt class="flex flex-col">
-										<span class="text-sm text-zinc-400">{WEEKDAYS[calendarWeekDayIndex]}</span>
+										<span class="text-sm text-text-soft">{WEEKDAYS[calendarWeekDayIndex]}</span>
 										{#if calendarWeekDay}
 											<span class="font-medium">
 												{format8601CalendarDay(calendarWeekDay, { forceMonthPrefix: true })}
@@ -291,7 +291,7 @@
 											>
 												{#each day.hours as hour}
 													<li
-														class="bg-purple-100 text-purple-900/90 rounded p-1 px-2 lg:p-2 lg:px-2 flex -space-y-0.5 lg:space-y-0 flex-col border border-purple-900/10"
+														class="bg-accent-surface text-accent-text rounded p-1 px-2 lg:p-2 lg:px-2 flex -space-y-0.5 lg:space-y-0 flex-col border border-accent-border"
 													>
 														<span class="font-medium text-sm">
 															{day.label}
