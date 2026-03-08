@@ -43,6 +43,9 @@
       },
     },
   },
+  "patchedDependencies": {
+    "@effect/ai-openrouter@0.8.4": "patches/@effect%2Fai-openrouter@0.8.4.patch",
+  },
   "packages": {
     "@effect/ai": ["@effect/ai@0.33.2", "", { "dependencies": { "find-my-way-ts": "^0.1.6" }, "peerDependencies": { "@effect/experimental": "^0.58.0", "@effect/platform": "^0.94.1", "@effect/rpc": "^0.73.0", "effect": "^3.19.14" } }, "sha512-iJ6pz9qiKFXhcnriJJSBQ5+Bz3oEg+6hVQ7OPmmTa0dVkKUPIgX9nHqHfstcwLnDfdXBj/zCl79U+iMpGtQBnA=="],
 

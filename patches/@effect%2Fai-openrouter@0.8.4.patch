@@ -1,0 +1,253 @@
+diff --git a/dist/cjs/OpenRouterLanguageModel.js b/dist/cjs/OpenRouterLanguageModel.js
+index 3593aad8dc32547e23aec4086ca16b27a3d9a51f..70de8085a80493387f4fe3153c6d8f298ec4da07 100644
+--- a/dist/cjs/OpenRouterLanguageModel.js
++++ b/dist/cjs/OpenRouterLanguageModel.js
+@@ -500,17 +500,14 @@ const makeStreamResponse = /*#__PURE__*/Effect.fnUntraced(function* (stream) {
+       responseMetadataEmitted = true;
+     }
+     const choice = event.choices[0];
+-    if (Predicate.isUndefined(choice)) {
++    if (Predicate.isUndefined(choice) && Predicate.isUndefined(event.usage)) {
+       return yield* new AiError.MalformedOutput({
+         module: "OpenRouterLanguageModel",
+         method: "makeResponse",
+         description: "Received response with no valid choices"
+       });
+     }
+-    const delta = choice.delta;
+-    if (Predicate.isUndefined(delta)) {
+-      return parts;
+-    }
++    const delta = choice?.delta;
+     // Reasoning Parts
+     const emitReasoningPart = (delta, metadata = undefined) => {
+       // End in-progress text part if present before starting reasoning
+@@ -542,7 +539,7 @@ const makeStreamResponse = /*#__PURE__*/Effect.fnUntraced(function* (stream) {
+         }
+       });
+     };
+-    if (Predicate.isNotNullable(delta.reasoning_details) && delta.reasoning_details.length > 0) {
++    if (Predicate.isNotNullable(delta?.reasoning_details) && delta.reasoning_details.length > 0) {
+       for (const detail of delta.reasoning_details) {
+         switch (detail.type) {
+           case "reasoning.summary":
+@@ -575,11 +572,11 @@ const makeStreamResponse = /*#__PURE__*/Effect.fnUntraced(function* (stream) {
+             }
+         }
+       }
+-    } else if (Predicate.isNotNullable(delta.reasoning) && delta.reasoning.length > 0) {
++    } else if (Predicate.isNotNullable(delta?.reasoning) && delta.reasoning.length > 0) {
+       emitReasoningPart(delta.reasoning);
+     }
+     // Text Parts
+-    if (Predicate.isNotNullable(delta.content) && delta.content.length > 0) {
++    if (Predicate.isNotNullable(delta?.content) && delta.content.length > 0) {
+       // End in-progress reasoning part if present before starting text
+       if (Predicate.isNotUndefined(activeReasoningId)) {
+         parts.push({
+@@ -604,7 +601,7 @@ const makeStreamResponse = /*#__PURE__*/Effect.fnUntraced(function* (stream) {
+       });
+     }
+     // Source Parts
+-    if (Predicate.isNotNullable(delta.annotations)) {
++    if (Predicate.isNotNullable(delta?.annotations)) {
+       for (const annotation of delta.annotations) {
+         if (annotation.type === "url_citation") {
+           parts.push({
+@@ -623,7 +620,7 @@ const makeStreamResponse = /*#__PURE__*/Effect.fnUntraced(function* (stream) {
+       }
+     }
+     // Tool Call Parts
+-    if (Predicate.isNotNullable(delta.tool_calls) && delta.tool_calls.length > 0) {
++    if (Predicate.isNotNullable(delta?.tool_calls) && delta.tool_calls.length > 0) {
+       for (const toolCall of delta.tool_calls) {
+         // Get the active tool call, if present
+         let activeToolCall = activeToolCalls[toolCall.index];
+@@ -682,7 +679,7 @@ const makeStreamResponse = /*#__PURE__*/Effect.fnUntraced(function* (stream) {
+       }
+     }
+     // File Parts
+-    if (Predicate.isNotNullable(delta.images)) {
++    if (Predicate.isNotNullable(delta?.images)) {
+       for (const image of delta.images) {
+         parts.push({
+           type: "file",
+@@ -692,7 +689,7 @@ const makeStreamResponse = /*#__PURE__*/Effect.fnUntraced(function* (stream) {
+       }
+     }
+     // Finish Parts
+-    if (Predicate.isNotNullable(choice.finish_reason)) {
++    if (Predicate.isNotNullable(choice?.finish_reason)) {
+       finishReason = InternalUtilities.resolveFinishReason(choice.finish_reason);
+     }
+     // Usage is only emitted by the last part of the stream, so we need to
+diff --git a/dist/esm/OpenRouterLanguageModel.js b/dist/esm/OpenRouterLanguageModel.js
+index 7b8b71b0b3ff9f9b9fbdbb08cb5a212edfd260f1..40c5f2448de541723c2b00f3a5d43080d8d3723b 100644
+--- a/dist/esm/OpenRouterLanguageModel.js
++++ b/dist/esm/OpenRouterLanguageModel.js
+@@ -489,17 +489,14 @@ const makeStreamResponse = /*#__PURE__*/Effect.fnUntraced(function* (stream) {
+       responseMetadataEmitted = true;
+     }
+     const choice = event.choices[0];
+-    if (Predicate.isUndefined(choice)) {
++    if (Predicate.isUndefined(choice) && Predicate.isUndefined(event.usage)) {
+       return yield* new AiError.MalformedOutput({
+         module: "OpenRouterLanguageModel",
+         method: "makeResponse",
+         description: "Received response with no valid choices"
+       });
+     }
+-    const delta = choice.delta;
+-    if (Predicate.isUndefined(delta)) {
+-      return parts;
+-    }
++    const delta = choice?.delta;
+     // Reasoning Parts
+     const emitReasoningPart = (delta, metadata = undefined) => {
+       // End in-progress text part if present before starting reasoning
+@@ -531,7 +528,7 @@ const makeStreamResponse = /*#__PURE__*/Effect.fnUntraced(function* (stream) {
+         }
+       });
+     };
+-    if (Predicate.isNotNullable(delta.reasoning_details) && delta.reasoning_details.length > 0) {
++    if (Predicate.isNotNullable(delta?.reasoning_details) && delta.reasoning_details.length > 0) {
+       for (const detail of delta.reasoning_details) {
+         switch (detail.type) {
+           case "reasoning.summary":
+@@ -564,11 +561,11 @@ const makeStreamResponse = /*#__PURE__*/Effect.fnUntraced(function* (stream) {
+             }
+         }
+       }
+-    } else if (Predicate.isNotNullable(delta.reasoning) && delta.reasoning.length > 0) {
++    } else if (Predicate.isNotNullable(delta?.reasoning) && delta.reasoning.length > 0) {
+       emitReasoningPart(delta.reasoning);
+     }
+     // Text Parts
+-    if (Predicate.isNotNullable(delta.content) && delta.content.length > 0) {
++    if (Predicate.isNotNullable(delta?.content) && delta.content.length > 0) {
+       // End in-progress reasoning part if present before starting text
+       if (Predicate.isNotUndefined(activeReasoningId)) {
+         parts.push({
+@@ -593,7 +590,7 @@ const makeStreamResponse = /*#__PURE__*/Effect.fnUntraced(function* (stream) {
+       });
+     }
+     // Source Parts
+-    if (Predicate.isNotNullable(delta.annotations)) {
++    if (Predicate.isNotNullable(delta?.annotations)) {
+       for (const annotation of delta.annotations) {
+         if (annotation.type === "url_citation") {
+           parts.push({
+@@ -612,7 +609,7 @@ const makeStreamResponse = /*#__PURE__*/Effect.fnUntraced(function* (stream) {
+       }
+     }
+     // Tool Call Parts
+-    if (Predicate.isNotNullable(delta.tool_calls) && delta.tool_calls.length > 0) {
++    if (Predicate.isNotNullable(delta?.tool_calls) && delta.tool_calls.length > 0) {
+       for (const toolCall of delta.tool_calls) {
+         // Get the active tool call, if present
+         let activeToolCall = activeToolCalls[toolCall.index];
+@@ -671,7 +668,7 @@ const makeStreamResponse = /*#__PURE__*/Effect.fnUntraced(function* (stream) {
+       }
+     }
+     // File Parts
+-    if (Predicate.isNotNullable(delta.images)) {
++    if (Predicate.isNotNullable(delta?.images)) {
+       for (const image of delta.images) {
+         parts.push({
+           type: "file",
+@@ -681,7 +678,7 @@ const makeStreamResponse = /*#__PURE__*/Effect.fnUntraced(function* (stream) {
+       }
+     }
+     // Finish Parts
+-    if (Predicate.isNotNullable(choice.finish_reason)) {
++    if (Predicate.isNotNullable(choice?.finish_reason)) {
+       finishReason = InternalUtilities.resolveFinishReason(choice.finish_reason);
+     }
+     // Usage is only emitted by the last part of the stream, so we need to
+diff --git a/src/OpenRouterLanguageModel.ts b/src/OpenRouterLanguageModel.ts
+index 7a189e28204be2e4f37d081b78f6e908aac656e5..296dc509c9da9f7efa4fafd7c745d2a6c18dfbe8 100644
+--- a/src/OpenRouterLanguageModel.ts
++++ b/src/OpenRouterLanguageModel.ts
+@@ -769,7 +769,7 @@ const makeStreamResponse: (stream: Stream.Stream<ChatStreamingResponseChunk, AiE
+ 
+         const choice = event.choices[0]
+ 
+-        if (Predicate.isUndefined(choice)) {
++        if (Predicate.isUndefined(choice) && Predicate.isUndefined(event.usage)) {
+           return yield* new AiError.MalformedOutput({
+             module: "OpenRouterLanguageModel",
+             method: "makeResponse",
+@@ -777,11 +777,7 @@ const makeStreamResponse: (stream: Stream.Stream<ChatStreamingResponseChunk, AiE
+           })
+         }
+ 
+-        const delta = choice.delta
+-
+-        if (Predicate.isUndefined(delta)) {
+-          return parts
+-        }
++        const delta = choice?.delta
+ 
+         // Reasoning Parts
+ 
+@@ -812,7 +808,7 @@ const makeStreamResponse: (stream: Stream.Stream<ChatStreamingResponseChunk, AiE
+           })
+         }
+ 
+-        if (Predicate.isNotNullable(delta.reasoning_details) && delta.reasoning_details.length > 0) {
++        if (Predicate.isNotNullable(delta?.reasoning_details) && delta.reasoning_details.length > 0) {
+           for (const detail of delta.reasoning_details) {
+             switch (detail.type) {
+               case "reasoning.summary": {
+@@ -842,13 +838,13 @@ const makeStreamResponse: (stream: Stream.Stream<ChatStreamingResponseChunk, AiE
+               }
+             }
+           }
+-        } else if (Predicate.isNotNullable(delta.reasoning) && delta.reasoning.length > 0) {
++        } else if (Predicate.isNotNullable(delta?.reasoning) && delta.reasoning.length > 0) {
+           emitReasoningPart(delta.reasoning)
+         }
+ 
+         // Text Parts
+ 
+-        if (Predicate.isNotNullable(delta.content) && delta.content.length > 0) {
++        if (Predicate.isNotNullable(delta?.content) && delta.content.length > 0) {
+           // End in-progress reasoning part if present before starting text
+           if (Predicate.isNotUndefined(activeReasoningId)) {
+             parts.push({
+@@ -875,7 +871,7 @@ const makeStreamResponse: (stream: Stream.Stream<ChatStreamingResponseChunk, AiE
+ 
+         // Source Parts
+ 
+-        if (Predicate.isNotNullable(delta.annotations)) {
++        if (Predicate.isNotNullable(delta?.annotations)) {
+           for (const annotation of delta.annotations) {
+             if (annotation.type === "url_citation") {
+               parts.push({
+@@ -896,7 +892,7 @@ const makeStreamResponse: (stream: Stream.Stream<ChatStreamingResponseChunk, AiE
+ 
+         // Tool Call Parts
+ 
+-        if (Predicate.isNotNullable(delta.tool_calls) && delta.tool_calls.length > 0) {
++        if (Predicate.isNotNullable(delta?.tool_calls) && delta.tool_calls.length > 0) {
+           for (const toolCall of delta.tool_calls) {
+             // Get the active tool call, if present
+             let activeToolCall = activeToolCalls[toolCall.index]
+@@ -962,7 +958,7 @@ const makeStreamResponse: (stream: Stream.Stream<ChatStreamingResponseChunk, AiE
+ 
+         // File Parts
+ 
+-        if (Predicate.isNotNullable(delta.images)) {
++        if (Predicate.isNotNullable(delta?.images)) {
+           for (const image of delta.images) {
+             parts.push({
+               type: "file",
+@@ -974,7 +970,7 @@ const makeStreamResponse: (stream: Stream.Stream<ChatStreamingResponseChunk, AiE
+ 
+         // Finish Parts
+ 
+-        if (Predicate.isNotNullable(choice.finish_reason)) {
++        if (Predicate.isNotNullable(choice?.finish_reason)) {
+           finishReason = InternalUtilities.resolveFinishReason(choice.finish_reason)
+         }
+ 

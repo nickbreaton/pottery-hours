@@ -49,5 +49,8 @@
 		"nanoid": "^5.1.6",
 		"noop": "^1.0.1",
 		"oboe": "^2.1.7"
+	},
+	"patchedDependencies": {
+		"@effect/ai-openrouter@0.8.4": "patches/@effect%2Fai-openrouter@0.8.4.patch"
 	}
 }
