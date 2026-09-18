@@ -119,7 +119,7 @@ export class ScheduleAnalyzer extends Context.Service<
 	})
 }) {
 	static readonly layer = Layer.effect(this, this.make).pipe(
-		Layer.provide(OpenRouterLanguageModel.layer({ model: 'anthropic/claude-haiku-4.5' }))
+		Layer.provide(OpenRouterLanguageModel.layer({ model: 'openai/gpt-5.6-luna' }))
 	);
 
 	static readonly layerDevelopment = Layer.unwrap(
