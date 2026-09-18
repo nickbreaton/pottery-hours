@@ -1,6 +1,6 @@
 import { runtime } from '$lib/server/runtime';
 import { ScheduleRepo } from '$lib/server/ScheduleRepo';
-import { HttpServerResponse } from '@effect/platform';
+import { HttpServerResponse } from 'effect/unstable/http';
 import { error } from '@sveltejs/kit';
 import { Effect, Option } from 'effect';
 import type { RequestHandler } from './$types';

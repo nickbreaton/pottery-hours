@@ -1,19 +1,17 @@
-import { LanguageModel, Prompt } from '@effect/ai';
 import { OpenRouterLanguageModel } from '@effect/ai-openrouter';
-import { FetchHttpClient } from '@effect/platform';
 import dedent from 'dedent';
-import { Console, DateTime, Effect, Option, Stream } from 'effect';
-import { JsonStreamParser } from './JsonStreamParser';
+import { Console, Context, Data, DateTime, Effect, FileSystem, Layer, Result, Schema, Stream } from 'effect';
+import { LanguageModel, Prompt } from 'effect/unstable/ai';
+import oboe from 'oboe';
 import { ScheduleDay } from './schema';
 
-export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('ScheduleAnalyzer', {
-	dependencies: [
-		OpenRouterLanguageModel.layer({
-			model: 'anthropic/claude-haiku-4.5'
-		}),
-		FetchHttpClient.layer
-	],
-	effect: Effect.gen(function* () {
+class JsonStreamParseError extends Data.TaggedError('JsonStreamParseError')<{ cause: unknown }> {}
+
+export class ScheduleAnalyzer extends Context.Service<
+	ScheduleAnalyzer,
+	{ readonly analyze: (fileData: Uint8Array) => Stream.Stream<ScheduleDay, unknown> }
+>()('ScheduleAnalyzer', {
+	make: Effect.gen(function* () {
 		const model = yield* LanguageModel.LanguageModel;
 		const currentDate = yield* DateTime.now;
 		const currentYear = DateTime.getPart('year')(currentDate);
@@ -77,22 +75,74 @@ export class ScheduleAnalyzer extends Effect.Service<ScheduleAnalyzer>()('Schedu
 					}
 				]);
 
+				const parser = oboe();
+				const parsed: unknown[] = [];
+				let parseError: unknown;
+				let hasReceivedJson = false;
+
+				parser.node('![*]', (item: unknown) => {
+					parsed.push(item);
+				});
+				parser.fail((cause) => {
+					parseError = cause;
+				});
+
 				return model.streamText({ prompt }).pipe(
 					Stream.filterMap((response) =>
-						response.type === 'text-delta' ? Option.some(response.delta) : Option.none()
+						response.type === 'text-delta' ? Result.succeed(response.delta) : Result.fail(undefined)
 					),
-					Stream.mapAccum(false, (hasReceivedJson, token) => {
-						if (hasReceivedJson) return [true, token];
-						if (token.includes('[')) return [true, token];
-						return [false, ''];
-					}),
-					Stream.map((token) => token.replace('```', '')),
 					Stream.tapError(Console.error),
-					Stream.transduce(JsonStreamParser.makeSink(ScheduleDay)),
-					Stream.tapError((error) => Console.error('Stream error', error)),
-					Stream.flattenChunks
+					Stream.map((token) => {
+						if (hasReceivedJson) return token.replaceAll('```', '');
+						const start = token.indexOf('[');
+						if (start === -1) return '';
+						hasReceivedJson = true;
+						return token.slice(start).replaceAll('```', '');
+					}),
+					Stream.mapEffect(
+						(token): Effect.Effect<ReadonlyArray<ScheduleDay>, JsonStreamParseError | Schema.SchemaError> => {
+							parser.emit('data', token);
+
+							if (parseError !== undefined) {
+								return Effect.fail(new JsonStreamParseError({ cause: parseError }));
+							}
+
+							const items = parsed.splice(0);
+							return Effect.all(items.map((item) => Schema.decodeUnknownEffect(ScheduleDay)(item)));
+						}
+					),
+					Stream.flattenIterable,
+					Stream.tapError((error) => Console.error('Stream error', error))
 				);
 			}
 		};
 	})
-}) {}
+}) {
+	static readonly layer = Layer.effect(this, this.make).pipe(
+		Layer.provide(OpenRouterLanguageModel.layer({ model: 'anthropic/claude-haiku-4.5' }))
+	);
+
+	static readonly layerDevelopment = Layer.unwrap(
+		Effect.promise(() => import('@effect/platform-node')).pipe(
+			Effect.map(({ NodeFileSystem }) =>
+				Layer.effect(
+					ScheduleAnalyzer,
+					Effect.gen(function* () {
+						const fs = yield* FileSystem.FileSystem;
+
+						return {
+							analyze: () =>
+								fs.readFile('mocks/ScheduleAnalyzer/default.json').pipe(
+									Effect.tap(() => Effect.log('Fetching mock response from file system')),
+									Effect.map((file) => new TextDecoder().decode(file)),
+									Effect.flatMap(Schema.decodeUnknownEffect(Schema.fromJsonString(Schema.Array(ScheduleDay)))),
+									Effect.orDie,
+									Stream.fromIterableEffect
+								)
+						};
+					})
+				).pipe(Layer.provide(NodeFileSystem.layer))
+			)
+		)
+	);
+}

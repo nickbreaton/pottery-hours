@@ -79,7 +79,7 @@
 	const cellBorder = `border first:border-l-0 last:border-r-0 group-first:border-t-0 not-[th]:group-last:border-b-0 ${borderColor}`;
 
 	let mobileSection!: HTMLDivElement;
-	let followScroll = $state(followDays);
+	let followScroll = $state<boolean>();
 
 	$effect(() => {
 		if (!mobileSection) return;
@@ -94,7 +94,7 @@
 	});
 
 	$effect(() => {
-		if (mobileSection && importing && followDays && followScroll) {
+		if (mobileSection && importing && followDays && (followScroll ?? followDays)) {
 			document.documentElement.classList.add('no-scrollbar');
 		} else {
 			document.documentElement.classList.remove('no-scrollbar');

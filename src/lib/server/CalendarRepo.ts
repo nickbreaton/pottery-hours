@@ -1,17 +1,19 @@
 import dedent from 'dedent';
-import { DateTime, Effect, MutableHashSet, Schema } from 'effect';
+import { Context, DateTime, Effect, Layer, MutableHashSet, Schema } from 'effect';
 import hourConvert from 'hour-convert';
 import ical from 'ical-generator';
 import { ScheduleRepo } from './ScheduleRepo';
 import { MonthIndexFromMonth, URLFromSpreadsheetId } from './schema';
 
-export class CalendarRepo extends Effect.Service<CalendarRepo>()('CalendarRepo', {
-	dependencies: [ScheduleRepo.Default],
-	effect: Effect.gen(function* () {
+export class CalendarRepo extends Context.Service<
+	CalendarRepo,
+	{ readonly feed: (options: { readonly origin: string }) => Effect.Effect<string, any> }
+>()('CalendarRepo', {
+	make: Effect.gen(function* () {
 		const scheduleRepo = yield* ScheduleRepo;
 
 		const zoneString = 'America/New_York';
-		const zone = yield* DateTime.zoneFromString(zoneString);
+		const zone = DateTime.zoneMakeNamedUnsafe(zoneString);
 
 		const feed = Effect.fn('feed')(function* ({ origin }: { origin: string }) {
 			const schedules = yield* scheduleRepo.list({ published: true });
@@ -34,28 +36,28 @@ export class CalendarRepo extends Effect.Service<CalendarRepo>()('CalendarRepo',
 
 					MutableHashSet.add(added, day.iso8601);
 
-					const month = (yield* Schema.encode(MonthIndexFromMonth)(day.month)) + 1;
+					const month = (yield* Schema.encodeEffect(MonthIndexFromMonth)(day.month)) + 1;
 
-					const date = yield* DateTime.makeZoned(
-						{ year: day.year, month, day: day.day, zone },
-						{ adjustForTimeZone: true }
+					const date = DateTime.makeZonedUnsafe(
+						{ year: day.year, month, day: day.day },
+						{ adjustForTimeZone: true, timeZone: zone }
 					);
 
 					for (const hours of day.hours) {
 						const start = DateTime.setParts(date, {
-							hours: hourConvert.to24Hour({
+							hour: hourConvert.to24Hour({
 								hour: hours.start_hour,
 								meridiem: hours.start_meridiem.toLowerCase()
 							}),
-							minutes: hours.start_minute
+							minute: hours.start_minute
 						});
 
 						const end = DateTime.setParts(date, {
-							hours: hourConvert.to24Hour({
+							hour: hourConvert.to24Hour({
 								hour: hours.end_hour,
 								meridiem: hours.end_meridiem.toLowerCase()
 							}),
-							minutes: hours.end_minute
+							minute: hours.end_minute
 						});
 
 						calendar.createEvent({
@@ -66,7 +68,7 @@ export class CalendarRepo extends Effect.Service<CalendarRepo>()('CalendarRepo',
 							summary: day.label,
 							timezone: zoneString,
 							description: dedent`
-							  Google Sheet: ${yield* Schema.encode(URLFromSpreadsheetId)(schedule.spreadsheetId)}
+							  Google Sheet: ${yield* Schema.encodeEffect(URLFromSpreadsheetId)(schedule.spreadsheetId)}
 
 								Source document: ${origin}/file/${schedule.id}.pdf
 							`,
@@ -83,4 +85,6 @@ export class CalendarRepo extends Effect.Service<CalendarRepo>()('CalendarRepo',
 
 		return { feed };
 	})
-}) {}
+}) {
+	static readonly layer = Layer.effect(this, this.make).pipe(Layer.provide(ScheduleRepo.layer));
+}

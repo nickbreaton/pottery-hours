@@ -1,13 +1,25 @@
-import { Array, DateTime, Effect, pipe, Schema, Stream } from 'effect';
+import { Array, Context, DateTime, Effect, Layer, Option, pipe, Schema, Stream } from 'effect';
 import { GoogleSheetsClient } from './GoogleSheetsClient';
 import { KeyValueStore } from './KeyValueStore';
 import { ScheduleAnalyzer } from './ScheduleAnalyzer';
 import { PotterySchedule, ScheduleDay, URLFromSpreadsheetId } from './schema';
 import { nanoid } from 'nanoid';
+import { dev } from '$app/environment';
 
-export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo', {
-	dependencies: [GoogleSheetsClient.Default, ScheduleAnalyzer.Default],
-	effect: Effect.gen(function* () {
+export class ScheduleRepo extends Context.Service<
+	ScheduleRepo,
+	{
+		readonly create: (
+			spreadsheetURL: string
+		) => Effect.Effect<{ readonly stream: Stream.Stream<ScheduleDay, unknown>; readonly id: string }, any>;
+		readonly list: (options?: { readonly published?: boolean }) => Effect.Effect<PotterySchedule[], any>;
+		readonly get: (id: string) => Effect.Effect<Option.Option<PotterySchedule>, any>;
+		readonly getFile: (id: string) => Effect.Effect<Option.Option<Uint8Array>, any>;
+		readonly update: (id: string, schedule: Partial<PotterySchedule>) => Effect.Effect<PotterySchedule, any>;
+		readonly delete: (id: string) => Effect.Effect<void, any>;
+	}
+>()('ScheduleRepo', {
+	make: Effect.gen(function* () {
 		const googleSheetsClient = yield* GoogleSheetsClient;
 		const scheduleAnalyzer = yield* ScheduleAnalyzer;
 
@@ -16,7 +28,7 @@ export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo',
 		const fileKv = yield* kv.forSchema(Schema.Uint8ArrayFromBase64, 'files');
 
 		const create = Effect.fn('create')(function* (spreadsheetURL: string) {
-			const spreadsheetId = yield* Schema.decode(URLFromSpreadsheetId)(spreadsheetURL);
+			const spreadsheetId = yield* Schema.decodeEffect(URLFromSpreadsheetId)(spreadsheetURL);
 			const file = yield* googleSheetsClient.download(spreadsheetId);
 
 			const days: ScheduleDay[] = [];
@@ -51,7 +63,7 @@ export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo',
 			const ids = yield* scheduleKv.list();
 
 			const schedules = yield* Effect.all(
-				ids.map((id) => scheduleKv.get(id).pipe(Effect.flatten)),
+				ids.map((id) => scheduleKv.get(id).pipe(Effect.flatMap(Effect.fromOption))),
 				{ concurrency: 'unbounded' }
 			);
 
@@ -71,7 +83,7 @@ export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo',
 		});
 
 		const update = Effect.fn('delete')(function* (id: string, schedule: Partial<PotterySchedule>) {
-			const current = yield* yield* scheduleKv.get(id);
+			const current = yield* scheduleKv.get(id).pipe(Effect.flatMap(Effect.fromOption));
 			const next = PotterySchedule.make({ ...current, ...schedule });
 			yield* scheduleKv.set(id, next);
 			return next;
@@ -91,4 +103,13 @@ export class ScheduleRepo extends Effect.Service<ScheduleRepo>()('ScheduleRepo',
 			delete: del
 		};
 	})
-}) {}
+}) {
+	static readonly layer = Layer.effect(this, this.make).pipe(
+		Layer.provide(
+			Layer.merge(
+				dev ? GoogleSheetsClient.layerDevelopment : GoogleSheetsClient.layer,
+				dev ? ScheduleAnalyzer.layerDevelopment : ScheduleAnalyzer.layer
+			)
+		)
+	);
+}

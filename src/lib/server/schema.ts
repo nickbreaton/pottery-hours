@@ -1,41 +1,37 @@
 import { getShortMonthName, getUniqueCalendarMonths, MONTHS } from '$lib/utils/datetime';
 
-import { Order, ParseResult, Schema } from 'effect';
+import { Effect, Order, Schema, SchemaIssue, SchemaTransformation } from 'effect';
 
-export const URLFromSpreadsheetId = Schema.transformOrFail(Schema.URL, Schema.String, {
-	strict: true,
-	decode: (url, options, ast) => {
-		if (!url.href.startsWith('https://docs.google.com/spreadsheets/d/')) {
-			return ParseResult.fail(
-				new ParseResult.Type(ast, url, 'URL does not start with "https://docs.google.com/spreadsheets/d/"')
-			);
-		}
+const SpreadsheetId = Schema.String.pipe(Schema.check(Schema.isPattern(/^[a-zA-Z0-9-_]+$/)));
 
-		const match = url.pathname.match(new RegExp('/spreadsheets/d/([a-zA-Z0-9-_]+)'))?.[1];
+export const URLFromSpreadsheetId = Schema.String.pipe(
+	Schema.decodeTo(
+		SpreadsheetId,
+		SchemaTransformation.transformEffect({
+			decode: (url, options) => {
+				const match = url.match(/^https:\/\/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/)?.[1];
+				return match === undefined
+					? Effect.fail(new SchemaIssue.InvalidValue({ message: 'Invalid Google Sheets URL' }, url, options))
+					: Effect.succeed(match);
+			},
+			encode: (id) => Effect.succeed(`https://docs.google.com/spreadsheets/d/${id}`)
+		})
+	)
+);
 
-		if (match == null) {
-			return ParseResult.fail(new ParseResult.Type(ast, url, 'URL does not contain a spreadsheet ID'));
-		}
+export const Month = Schema.Literals(MONTHS);
 
-		return ParseResult.succeed(match);
-	},
-	encode: (id, options, ast) => {
-		if (!id.match(new RegExp('([a-zA-Z0-9-_]+)'))) {
-			return ParseResult.fail(new ParseResult.Type(ast, id, 'ID does not match the expected format'));
-		}
-		return ParseResult.succeed(new URL(`https://docs.google.com/spreadsheets/d/${id}`));
-	}
-});
+export const MonthIndexFromMonth = Schema.Int.pipe(
+	Schema.decodeTo(
+		Month,
+		SchemaTransformation.transform({
+			decode: (index) => MONTHS[index]!,
+			encode: (month) => MONTHS.findIndex((m) => m === month)
+		})
+	)
+);
 
-export const Month = Schema.Literal(...MONTHS);
-
-export const MonthIndexFromMonth = Schema.transform(Schema.Int, Month, {
-	strict: true,
-	decode: (index) => MONTHS[index],
-	encode: (month) => MONTHS.findIndex((m) => m === month)
-});
-
-export const Meridiem = Schema.Literal('AM', 'PM');
+export const Meridiem = Schema.Literals(['AM', 'PM']);
 
 export class ScheduleDay extends Schema.Class<ScheduleDay>('ScheduleDay')({
 	month: Month,
@@ -62,12 +58,12 @@ export class ScheduleDay extends Schema.Class<ScheduleDay>('ScheduleDay')({
 export class PotterySchedule extends Schema.Class<PotterySchedule>('PotterySchedule')({
 	id: Schema.String,
 	days: Schema.Array(ScheduleDay),
-	createdAt: Schema.Date,
+	createdAt: Schema.DateFromString,
 	spreadsheetId: Schema.String,
 	published: Schema.Boolean
 }) {
 	static get order() {
-		return Order.reverse(Order.mapInput(Order.Date, (schedule: PotterySchedule) => schedule.createdAt));
+		return Order.flip(Order.mapInput(Order.Date, (schedule: PotterySchedule) => schedule.createdAt));
 	}
 
 	get file() {

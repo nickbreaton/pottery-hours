@@ -18,7 +18,7 @@ export const getSchedules = query(() => {
 	return runtime.runPromise(handler);
 });
 
-export const getSchedule = query(Schema.standardSchemaV1(Schema.String), (id) => {
+export const getSchedule = query(Schema.toStandardSchemaV1(Schema.String), (id) => {
 	const handler = Effect.gen(function* () {
 		const repo = yield* ScheduleRepo;
 		const schedule = yield* repo.get(id);
@@ -28,14 +28,14 @@ export const getSchedule = query(Schema.standardSchemaV1(Schema.String), (id) =>
 			error(404, 'Schedule not found');
 		}
 
-		return yield* Schema.encode(PotterySchedule)(schedule.value);
+		return yield* Schema.encodeEffect(PotterySchedule)(schedule.value);
 	});
 
 	return runtime.runPromise(handler);
 });
 
 export const setSchedulePublished = command(
-	Schema.standardSchemaV1(Schema.Struct({ id: Schema.String, published: Schema.Boolean })),
+	Schema.toStandardSchemaV1(Schema.Struct({ id: Schema.String, published: Schema.Boolean })),
 	async ({ id, published }) => {
 		const handler = Effect.gen(function* () {
 			const repo = yield* ScheduleRepo;
@@ -47,7 +47,7 @@ export const setSchedulePublished = command(
 	}
 );
 
-export const deleteSchedule = command(Schema.standardSchemaV1(Schema.String), async (id) => {
+export const deleteSchedule = command(Schema.toStandardSchemaV1(Schema.String), async (id) => {
 	const handler = Effect.gen(function* () {
 		const repo = yield* ScheduleRepo;
 		yield* repo.delete(id);

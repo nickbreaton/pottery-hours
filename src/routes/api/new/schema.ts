@@ -16,4 +16,4 @@ export const CompleteEvent = Schema.Struct({
 	id: Schema.String
 });
 
-export const CreateEvent = Schema.Union(InvalidEvent, DayEvent, CompleteEvent);
+export const CreateEvent = Schema.Union([InvalidEvent, DayEvent, CompleteEvent]);

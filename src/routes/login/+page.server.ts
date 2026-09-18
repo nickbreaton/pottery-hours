@@ -1,6 +1,5 @@
 import { AuthRepo } from '$lib/server/AuthRepo';
 import { runtime } from '$lib/server/runtime';
-import { Effect } from 'effect';
 import type { Actions } from './$types';
 import { redirect } from '@sveltejs/kit';
 
@@ -9,10 +8,7 @@ export const actions = {
 		const formData = await request.formData();
 		const secret = formData.get('password')?.toString();
 
-		const isValid = await AuthRepo.pipe(
-			Effect.andThen((repo) => repo.validate(secret)),
-			runtime.runPromise
-		);
+		const isValid = await runtime.runPromise(AuthRepo.use((repo) => repo.validate(secret)));
 
 		if (isValid) {
 			cookies.set(AuthRepo.COOKIE_NAME, secret!, {

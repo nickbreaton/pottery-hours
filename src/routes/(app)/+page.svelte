@@ -88,8 +88,7 @@
 							event.preventDefault();
 							event.currentTarget.form?.requestSubmit();
 						}
-					}}
-				></textarea>
+					}}></textarea>
 
 				<div class="flex justify-end w-full">
 					<button
