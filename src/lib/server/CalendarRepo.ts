@@ -62,8 +62,8 @@ export class CalendarRepo extends Context.Service<
 
 						calendar.createEvent({
 							id: `${schedule.id}/${day.iso8601}/${hours.start_hour + hours.start_meridiem}`,
-							start: DateTime.formatIsoZoned(start),
-							end: DateTime.formatIsoZoned(end),
+							start: DateTime.toDateUtc(start),
+							end: DateTime.toDateUtc(end),
 							created: schedule.createdAt,
 							summary: day.label,
 							timezone: zoneString,
