@@ -23,6 +23,8 @@ Install dependencies:
 bun install
 ```
 
+Copy `.env.example` to `.env` and set `MISTRAL_API_KEY` and `TYPESAFE_API_KEY`.
+
 Run the development build:
 
 ```bash

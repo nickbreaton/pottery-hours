@@ -4,7 +4,6 @@ import { KeyValueStore } from './KeyValueStore';
 import { ScheduleAnalyzer } from './ScheduleAnalyzer';
 import { PotterySchedule, ScheduleDay, URLFromSpreadsheetId } from './schema';
 import { nanoid } from 'nanoid';
-import { dev } from '$app/environment';
 
 export class ScheduleRepo extends Context.Service<
 	ScheduleRepo,
@@ -105,11 +104,6 @@ export class ScheduleRepo extends Context.Service<
 	})
 }) {
 	static readonly layer = Layer.effect(this, this.make).pipe(
-		Layer.provide(
-			Layer.merge(
-				dev ? GoogleSheetsClient.layerDevelopment : GoogleSheetsClient.layer,
-				dev ? ScheduleAnalyzer.layerDevelopment : ScheduleAnalyzer.layer
-			)
-		)
+		Layer.provide(Layer.merge(GoogleSheetsClient.layer, ScheduleAnalyzer.layer))
 	);
 }
