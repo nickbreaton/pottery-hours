@@ -3,12 +3,12 @@ import { MONTHS } from '$lib/utils/datetime';
 
 const hourOptions = Object.fromEntries([
 	...Array.from({ length: 12 }, (_, index) => [String(index + 1), null]),
-	['none', 'The requested time or time range is not stated for this date.']
+
 ]) as Record<string, string | null>;
 
 const minuteOptions = Object.fromEntries([
 	...Array.from({ length: 60 }, (_, minute) => [String(minute).padStart(2, '0'), null]),
-	['none', 'The requested time or time range is not stated for this date.']
+
 ]) as Record<string, string | null>;
 
 const meridiemOptions = {
